@@ -1,0 +1,276 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+<!-- 
+Rule Type: ui-ux
+Keywords: element,plus,ui,布局,组件,样式,货币,表单,响应式,layout
+Priority: high
+-->
+
+# UI组件和布局规范
+
+## Element Plus 集成规范
+
+### 自动导入配置
+- Element Plus 组件通过 unplugin 自动导入，无需手动导入
+- API 函数（如 ElMessage）也会自动导入
+- 图标组件需要手动导入：`import { User, Setting } from '@element-plus/icons-vue'`
+- 必须使用中文语言包 `zhCn`，dayjs 也配置为中文本地化
+
+### 项目色彩系统
+```css
+:root {
+  --el-color-success: #67c23a;   /* 成功色 - 绿色 */
+  --el-color-primary: #409eff;   /* 主色调 - 蓝色 */
+  --el-color-warning: #e6a23c;   /* 警告色 - 橙色 */
+  --el-color-danger: #f56c6c;    /* 危险色 - 红色 */
+}
+```
+
+## 主布局架构
+
+### 布局层次和尺寸规范
+```
+Layout.vue (主容器)
+├── 侧边栏 (el-aside)
+│   ├── Logo区域 (固定60px高度)
+│   └── 导航菜单 (el-menu + el-scrollbar)
+├── 主内容区 (el-container)
+│   ├── 顶部导航栏 (el-header, 60px高度)
+│   │   ├── 左侧: 折叠按钮
+│   │   └── 右侧: 设置按钮 + 用户下拉菜单
+│   └── 内容区域 (el-main)
+│       └── router-view (动态页面内容)
+```
+
+### 布局尺寸标准
+- **侧边栏宽度**: 展开200px，折叠64px
+- **头部高度**: 固定60px
+- **菜单项高度**: 48px，圆角6px
+- **过渡动画**: 0.3s ease
+
+### 响应式断点
+```css
+/* 平板设备 */
+@media (max-width: 768px) {
+  .layout-sidebar {
+    position: fixed;
+    z-index: 1001;
+  }
+}
+
+/* 手机设备 */
+@media (max-width: 480px) {
+  .username {
+    display: none; /* 隐藏用户名 */
+  }
+  .header-right {
+    gap: 8px; /* 减少间距 */
+  }
+}
+```
+
+## 组件交互规范
+
+### 按钮设计标准
+```vue
+<!-- 头部功能按钮 -->
+<el-button
+  text
+  :icon="IconComponent"
+  class="header-btn"
+  @click="handleClick"
+  :title="按钮说明"
+/>
+
+<style scoped>
+.header-btn {
+  font-size: 18px;
+  color: #5a6169;
+  padding: 8px;
+}
+
+.header-btn:hover {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+</style>
+```
+
+### 下拉菜单模式
+```vue
+<el-dropdown trigger="click">
+  <div class="user-info">
+    <el-avatar :size="32" />
+    <span class="username">用户名</span>
+    <el-icon><ArrowDown /></el-icon>
+  </div>
+  <template #dropdown>
+    <el-dropdown-menu>
+      <el-dropdown-item :icon="User">个人中心</el-dropdown-item>
+      <el-dropdown-item divided :icon="SwitchButton" @click="handleLogout">
+        退出登录
+      </el-dropdown-item>
+    </el-dropdown-menu>
+  </template>
+</el-dropdown>
+```
+
+### 表格操作列标准
+```vue
+<el-table-column label="操作" width="120" fixed="right">
+  <template #default="{ row }">
+    <el-dropdown>
+      <el-button type="primary" size="small">
+        操作 <el-icon><ArrowDown /></el-icon>
+      </el-button>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item @click="handleEdit(row)">编辑</el-dropdown-item>
+          <el-dropdown-item @click="handleDelete(row)">删除</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+  </template>
+</el-table-column>
+```
+
+## 弹窗组件规范
+
+### 设置弹窗模式
+```vue
+<el-dialog
+  :model-value="visible"
+  title="弹窗标题"
+  width="480px"
+  @update:model-value="emit('update:visible', $event)"
+  @close="handleClose"
+>
+  <!-- 表单内容 -->
+  <el-form :model="form" label-width="120px">
+    <!-- 表单项 -->
+  </el-form>
+  
+  <!-- 底部操作按钮 -->
+  <template #footer>
+    <div class="dialog-footer">
+      <el-button @click="handleReset">重置</el-button>
+      <el-button @click="handleClose">取消</el-button>
+      <el-button type="primary" @click="handleSave">保存</el-button>
+    </div>
+  </template>
+</el-dialog>
+```
+
+### 弹窗交互规范
+- **显示控制**: 使用 `v-model:visible` 双向绑定
+- **事件传递**: 通过 emit 向父组件传递事件
+- **按钮顺序**: 次要操作在左，主要操作在右
+- **确认机制**: 重要操作需要二次确认
+
+## 货币显示系统规范
+
+### 核心组件
+- **CurrencyDisplay.vue**: 专用货币显示组件，仅用于表格显示
+- **GlobalSettings.vue**: 全局货币设置弹窗
+- **useCurrencySettings.ts**: 货币设置状态管理
+
+### CurrencyDisplay 组件强制要求
+- **Props单一化**: 只接受 `value: number` (分为单位)
+- **尺寸固定**: 使用固定的 mini 尺寸(14px/12px)
+- **无单位显示**: 不显示货币单位文字，只显示数字
+- **负号处理**: 负数强制显示负号
+- **精度计算**: 必须使用 decimal.js 确保计算精度
+
+### 使用示例
+```vue
+<CurrencyDisplay :value="1234567" />
+<!-- 显示: 123.46 (万元模式，2位小数) -->
+```
+
+### 货币单位配置
+```typescript
+const CURRENCY_CONFIG = {
+  yuan: { label: '元', divisor: 100 },      // 分→元
+  wan: { label: '万元', divisor: 1000000 }, // 分→万元  
+  yi: { label: '亿', divisor: 10000000000 } // 分→亿
+}
+```
+
+### GlobalSettings 配置项要求
+- **货币单位**: 元(2位小数)、万元(2位小数)、亿(2位小数)
+- **预览格式**: 
+```
+初始金额: 19931026 元
+显示效果: [根据当前设置格式化的结果]
+```
+
+### 货币系统开发约定
+- **计算精度**: 必须使用 decimal.js 进行所有货币计算
+- **状态管理**: 通过 useCurrencySettings 管理，自动保存到 localStorage
+- **组件职责分离**: 
+  - CurrencyDisplay: 纯显示逻辑
+  - GlobalSettings: 纯设置管理
+  - useCurrencySettings: 纯状态管理
+
+## 表单组件规范
+
+### 响应式栅格系统
+```vue
+<el-row :gutter="20">
+  <el-col :xs="24" :sm="12" :md="8" :lg="6">
+    <div>响应式内容</div>
+  </el-col>
+</el-row>
+```
+
+### 表单验证模式
+```vue
+<script setup lang="ts">
+import type { FormInstance, FormRules } from 'element-plus'
+
+const formRef = ref<FormInstance>()
+const form = reactive({
+  username: '',
+  email: ''
+})
+
+const rules: FormRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+  ]
+}
+
+const handleSubmit = async () => {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    await submitData()
+    ElMessage.success('提交成功')
+  } catch (error) {
+    ElMessage.error('请检查表单填写')
+  }
+}
+</script>
+
+<template>
+  <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+    <el-form-item label="用户名" prop="username">
+      <el-input v-model="form.username" />
+    </el-form-item>
+    <el-form-item label="邮箱" prop="email">
+      <el-input v-model="form.email" />
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="handleSubmit">提交</el-button>
+    </el-form-item>
+  </el-form>
+</template>
+```

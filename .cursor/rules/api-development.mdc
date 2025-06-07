@@ -1,0 +1,207 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+<!-- 
+Rule Type: api
+Keywords: api,axios,http,请求,接口,数据,error,loading,网络
+Priority: high
+-->
+
+# API 开发规范
+
+## 统一响应格式
+所有API接口必须遵循统一的响应格式：
+
+```typescript
+// src/types/api.d.ts
+/** API统一响应结构 */
+interface ApiResponse<T = any> {
+  /** 是否成功 */
+  success: boolean
+  /** 响应消息 */
+  message: string
+  /** 响应数据 */
+  data: T
+}
+
+/** 分页查询参数 */
+interface PaginationParams {
+  /** 页码 */
+  page: number
+  /** 每页数量 */
+  pageSize: number
+}
+
+/** 分页响应数据 */
+interface PaginationData<T> {
+  list: T[]
+  total: number
+  page: number
+  pageSize: number
+}
+```
+
+## HTTP 客户端配置
+
+### Axios 标准配置
+```typescript
+// src/api/httpClient.ts
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
+
+const httpClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' }
+})
+
+// 请求拦截器
+httpClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  // GET请求添加时间戳防缓存
+  if (config.method === 'get') {
+    config.params = { ...config.params, _t: Date.now() }
+  }
+  return config
+})
+
+// 响应拦截器
+httpClient.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const status = error.response?.status
+    if (status === 401) {
+      localStorage.removeItem('token')
+      ElMessage.error('登录已过期，请重新登录')
+      // 跳转登录页
+    } else if (status === 403) {
+      ElMessage.error('没有访问权限')
+    } else if (status >= 500) {
+      ElMessage.error('服务器错误，请稍后重试')
+    }
+    return Promise.reject(error)
+  }
+)
+
+export default httpClient
+```
+
+## API 接口模块化
+
+### 接口模块组织
+```typescript
+// src/api/modules/user.ts
+import httpClient from '../httpClient'
+import type { User, UserListParams, CreateUserDto } from '@/types/user'
+
+export const userApi = {
+  /**
+   * 获取用户列表
+   */
+  getUserList(params: UserListParams): Promise<ApiResponse<PaginationData<User>>> {
+    return httpClient.get('/users', { params })
+  },
+
+  /**
+   * 获取用户详情
+   */
+  getUserDetail(id: string): Promise<ApiResponse<User>> {
+    return httpClient.get(`/users/${id}`)
+  },
+
+  /**
+   * 创建用户
+   */
+  createUser(data: CreateUserDto): Promise<ApiResponse<User>> {
+    return httpClient.post('/users', data)
+  },
+
+  /**
+   * 更新用户
+   */
+  updateUser(id: string, data: Partial<CreateUserDto>): Promise<ApiResponse<User>> {
+    return httpClient.put(`/users/${id}`, data)
+  },
+
+  /**
+   * 删除用户
+   */
+  deleteUser(id: string): Promise<ApiResponse<void>> {
+    return httpClient.delete(`/users/${id}`)
+  }
+}
+```
+
+### API 统一导出
+```typescript
+// src/api/index.ts
+export { userApi } from './modules/user'
+export { authApi } from './modules/auth'
+export { orgApi } from './modules/org'
+export { dictApi } from './modules/dict'
+```
+
+## 组件中使用API
+
+### 标准调用模式
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { userApi } from '@/api/modules/user'
+import type { User } from '@/types/user'
+
+const loading = ref(false)
+const users = ref<User[]>([])
+
+// 获取数据
+const fetchUsers = async () => {
+  loading.value = true
+  try {
+    const response = await userApi.getUserList({
+      page: 1,
+      pageSize: 20
+    })
+    users.value = response.data.list
+    ElMessage.success('数据加载成功')
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    ElMessage.error('数据加载失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 创建数据
+const createUser = async (userData: CreateUserDto) => {
+  try {
+    await userApi.createUser(userData)
+    ElMessage.success('创建成功')
+    await fetchUsers() // 刷新列表
+  } catch (error) {
+    ElMessage.error('创建失败')
+  }
+}
+
+onMounted(() => {
+  fetchUsers()
+})
+</script>
+```
+
+### 错误处理标准
+- **网络错误**: 使用 axios 拦截器统一处理
+- **业务错误**: 根据 `success` 字段判断
+- **用户提示**: 使用 ElMessage 显示错误信息
+- **日志记录**: 使用 `console.error` 记录详细错误信息
+
+### API调用最佳实践
+1. **加载状态**: 所有API调用都要显示loading状态
+2. **错误处理**: 必须包含try-catch和用户友好的错误提示
+3. **数据更新**: CRUD操作后及时刷新相关数据
+4. **类型安全**: 所有API参数和返回值都要有完整的类型定义
