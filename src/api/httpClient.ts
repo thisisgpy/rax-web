@@ -55,26 +55,40 @@ httpClient.interceptors.response.use(
     
     // 处理HTTP状态码错误
     if (error.response) {
-      const { status } = error.response
+      const { status, data } = error.response as AxiosResponse<ApiResponse>
+      
+      // 优先使用响应中的 message 字段
       let errorMessage = '请求失败'
       
-      switch (status) {
-        case 401:
-          errorMessage = '登录已过期，请重新登录'
-          localStorage.removeItem('token')
-          // 这里可以添加跳转到登录页的逻辑
-          break
-        case 403:
-          errorMessage = '没有访问权限'
-          break
-        case 404:
-          errorMessage = '请求的资源不存在'
-          break
-        case 500:
-          errorMessage = '服务器内部错误'
-          break
-        default:
-          errorMessage = `请求失败: ${status}`
+      // 检查响应数据中是否有 message 字段
+      if (data && typeof data === 'object' && 'message' in data && data.message) {
+        errorMessage = data.message
+      } else {
+        // 如果没有 message 字段，使用状态码对应的默认消息
+        switch (status) {
+          case 401:
+            errorMessage = '登录已过期，请重新登录'
+            localStorage.removeItem('token')
+            // 这里可以添加跳转到登录页的逻辑
+            break
+          case 403:
+            errorMessage = '没有访问权限'
+            break
+          case 404:
+            errorMessage = '请求的资源不存在'
+            break
+          case 500:
+            errorMessage = '服务器内部错误'
+            break
+          default:
+            errorMessage = `请求失败: ${status}`
+        }
+      }
+      
+      // 对于401错误，即使有自定义message，也要执行登出逻辑
+      if (status === 401) {
+        localStorage.removeItem('token')
+        // 这里可以添加跳转到登录页的逻辑
       }
       
       const httpError = new Error(errorMessage)

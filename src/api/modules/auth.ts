@@ -7,14 +7,14 @@ export const authApi = {
    * @param data - 登录参数
    */
   login(data: LoginDto): Promise<ApiResponse<LoginResult>> {
-    return post('/api/v1/auth/login', data)
+    return post('/v1/auth/login', data)
   },
 
   /**
    * 用户登出
    */
   logout(): Promise<ApiResponse<boolean>> {
-    return post('/api/v1/auth/logout')
+    return post('/v1/auth/logout')
   },
 
   /**
@@ -22,14 +22,14 @@ export const authApi = {
    * @param refreshToken - 刷新令牌
    */
   refreshToken(refreshToken: string): Promise<ApiResponse<{ token: string }>> {
-    return post('/api/v1/auth/refresh', { refreshToken })
+    return post('/v1/auth/refresh', { refreshToken })
   },
 
   /**
    * 获取当前用户信息
    */
   getCurrentUser(): Promise<ApiResponse<UserInfo>> {
-    return post('/api/v1/auth/me')
+    return post('/v1/auth/me')
   },
 
   /**
@@ -37,7 +37,7 @@ export const authApi = {
    * @param data - 忘记密码参数
    */
   forgotPassword(data: ForgotPasswordDto): Promise<ApiResponse<boolean>> {
-    return post('/api/v1/auth/forgot-password', data)
+    return post('/v1/auth/forgot-password', data)
   },
 
   /**
@@ -45,6 +45,6 @@ export const authApi = {
    * @param data - 重置密码参数
    */
   resetPassword(data: ResetPasswordDto): Promise<ApiResponse<boolean>> {
-    return post('/api/v1/auth/reset-password', data)
+    return post('/v1/auth/reset-password', data)
   }
 } 

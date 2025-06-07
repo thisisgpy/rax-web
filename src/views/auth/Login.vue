@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
-import { authMockApi } from '../api'
+import { authMockApi } from '@/api/modules/authMock'
 import { User, Lock } from '@element-plus/icons-vue'
 
 /** 路由实例 */

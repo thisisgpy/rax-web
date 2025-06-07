@@ -9,7 +9,7 @@ export const dictApi = {
    * @param data - 创建字典数据
    */
   createDict(data: CreateDictDto): Promise<ApiResponse<SysDict>> {
-    return post('/api/v1/dict/create', data)
+    return post('/v1/dict/create', data)
   },
 
   /**
@@ -17,7 +17,7 @@ export const dictApi = {
    * @param data - 更新字典数据
    */
   updateDict(data: UpdateDictDto): Promise<ApiResponse<SysDict>> {
-    return post('/api/v1/dict/edit', data)
+    return post('/v1/dict/edit', data)
   },
 
   /**
@@ -25,7 +25,7 @@ export const dictApi = {
    * @param id - 字典ID
    */
   removeDict(id: number): Promise<ApiResponse<boolean>> {
-    return get(`/api/v1/dict/remove/${id}`)
+    return get(`/v1/dict/remove/${id}`)
   },
 
   /**
@@ -33,7 +33,7 @@ export const dictApi = {
    * @param id - 字典ID
    */
   getDictById(id: number): Promise<ApiResponse<SysDict>> {
-    return get(`/api/v1/dict/get/${id}`)
+    return get(`/v1/dict/get/${id}`)
   },
 
   /**
@@ -41,7 +41,7 @@ export const dictApi = {
    * @param params - 查询参数
    */
   getDictList(params: QueryDictDto): Promise<ApiResponse<PageResult<SysDict>>> {
-    return post('/api/v1/dict/list', params)
+    return post('/v1/dict/list', params)
   },
 
   // ===== 字典项相关 =====
@@ -51,7 +51,7 @@ export const dictApi = {
    * @param data - 创建字典项数据
    */
   createDictItem(data: CreateDictItemDto): Promise<ApiResponse<SysDictItem>> {
-    return post('/api/v1/dict/item/create', data)
+    return post('/v1/dict/item/create', data)
   },
 
   /**
@@ -59,7 +59,7 @@ export const dictApi = {
    * @param data - 更新字典项数据
    */
   updateDictItem(data: UpdateDictItemDto): Promise<ApiResponse<SysDictItem>> {
-    return post('/api/v1/dict/item/edit', data)
+    return post('/v1/dict/item/edit', data)
   },
 
   /**
@@ -67,7 +67,7 @@ export const dictApi = {
    * @param id - 字典项ID
    */
   getDictItemById(id: number): Promise<ApiResponse<SysDictItem>> {
-    return get(`/api/v1/dict/item/get/${id}`)
+    return get(`/v1/dict/item/get/${id}`)
   },
 
   /**
@@ -75,7 +75,7 @@ export const dictApi = {
    * @param id - 字典项ID
    */
   removeDictItem(id: number): Promise<ApiResponse<boolean>> {
-    return get(`/api/v1/dict/item/remove/${id}`)
+    return get(`/v1/dict/item/remove/${id}`)
   },
 
   /**
@@ -87,6 +87,6 @@ export const dictApi = {
     code: string, 
     onlyEnabled: boolean = true
   ): Promise<ApiResponse<DictItemTreeDto>> {
-    return get(`/api/v1/dict/item/tree/${code}/${onlyEnabled}`)
+    return get(`/v1/dict/item/tree/${code}/${onlyEnabled}`)
   }
 } 

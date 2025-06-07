@@ -7,7 +7,7 @@ export const orgApi = {
    * @param parentId - 父级组织ID
    */
   generateOrgCode(parentId: number): Promise<ApiResponse<string>> {
-    return get('/api/v1/org/codegen', { parentId })
+    return get('/v1/org/codegen', { parentId })
   },
 
   /**
@@ -15,7 +15,7 @@ export const orgApi = {
    * @param data - 创建组织数据
    */
   createOrg(data: CreateOrgDto): Promise<ApiResponse<SysOrg>> {
-    return post('/api/v1/org/create', data)
+    return post('/v1/org/create', data)
   },
 
   /**
@@ -23,7 +23,7 @@ export const orgApi = {
    * @param data - 更新组织数据
    */
   updateOrg(data: UpdateOrgDto): Promise<ApiResponse<boolean>> {
-    return post('/api/v1/org/edit', data)
+    return post('/v1/org/edit', data)
   },
 
   /**
@@ -31,7 +31,7 @@ export const orgApi = {
    * @param id - 组织ID
    */
   removeOrg(id: number): Promise<ApiResponse<boolean>> {
-    return get(`/api/v1/org/remove/${id}`)
+    return get(`/v1/org/remove/${id}`)
   },
 
   /**
@@ -39,7 +39,7 @@ export const orgApi = {
    * @param id - 组织ID
    */
   getOrgTree(id: number): Promise<ApiResponse<OrgTreeDto>> {
-    return get(`/api/v1/org/tree/${id}`)
+    return get(`/v1/org/tree/${id}`)
   },
 
   /**
@@ -47,13 +47,13 @@ export const orgApi = {
    * @param id - 组织ID
    */
   getOrgById(id: number): Promise<ApiResponse<SysOrg>> {
-    return get(`/api/v1/org/get/${id}`)
+    return get(`/v1/org/get/${id}`)
   },
 
   /**
    * 获取所有组织树
    */
   getAllOrgTrees(): Promise<ApiResponse<OrgTreeDto[]>> {
-    return get('/api/v1/org/trees')
+    return get('/v1/org/trees')
   }
 } 

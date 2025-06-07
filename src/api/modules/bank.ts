@@ -7,6 +7,6 @@ export const bankApi = {
    * @param params - 查询参数
    */
   searchBanks(params: SearchBankDto): Promise<ApiResponse<PageResult<SysBank>>> {
-    return post('/api/v1/bank/search', params)
+    return post('/v1/bank/search', params)
   }
 } 

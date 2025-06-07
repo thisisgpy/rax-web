@@ -30,7 +30,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'Login',
-      component: () => import('../views/Login.vue'),
+      component: () => import('../views/auth/Login.vue'),
       meta: {
         title: '用户登录',
         requiresAuth: false,
@@ -40,7 +40,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'Layout',
-      component: () => import('../views/Layout.vue'),
+      component: () => import('../views/common/Layout.vue'),
       meta: {
         requiresAuth: true
       },
@@ -48,7 +48,7 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'Dashboard',
-          component: () => import('../views/Dashboard.vue'),
+          component: () => import('../views/dashboard/Dashboard.vue'),
           meta: {
             title: '首页',
             requiresAuth: true,
@@ -57,44 +57,37 @@ const router = createRouter({
           }
         },
         {
-          path: 'system',
-          name: 'System',
-          component: () => import('../views/CommonPage.vue'),
+          path: 'organization',
+          name: 'Organization',
+          component: () => import('../views/system/OrganizationManage.vue'),
           meta: {
-            title: '系统设置',
+            title: '组织架构',
             requiresAuth: true,
             icon: Setting,
             menuOrder: 2
-          },
-          children: [
-            {
-              path: 'org',
-              name: 'Organization',
-              component: () => import('../views/CommonPage.vue'),
-              meta: {
-                title: '组织架构',
-                requiresAuth: true
-              }
-            },
-            {
-              path: 'dict',
-              name: 'Dict',
-              component: () => import('../views/CommonPage.vue'),
-              meta: {
-                title: '字典管理',
-                requiresAuth: true
-              }
-            },
-            {
-              path: 'bank',
-              name: 'Bank',
-              component: () => import('../views/CommonPage.vue'),
-              meta: {
-                title: '银行管理',
-                requiresAuth: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: 'dict',
+          name: 'Dict',
+          component: () => import('../views/common/CommonPage.vue'),
+          meta: {
+            title: '字典管理',
+            requiresAuth: true,
+            icon: Document,
+            menuOrder: 3
+          }
+        },
+        {
+          path: 'bank',
+          name: 'Bank',
+          component: () => import('../views/common/CommonPage.vue'),
+          meta: {
+            title: '银行管理',
+            requiresAuth: true,
+            icon: Monitor,
+            menuOrder: 4
+          }
         }
       ]
     }

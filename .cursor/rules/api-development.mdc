@@ -104,35 +104,35 @@ export const userApi = {
    * 获取用户列表
    */
   getUserList(params: UserListParams): Promise<ApiResponse<PaginationData<User>>> {
-    return httpClient.get('/users', { params })
+    return httpClient.get('/v1/users', { params })
   },
 
   /**
    * 获取用户详情
    */
   getUserDetail(id: string): Promise<ApiResponse<User>> {
-    return httpClient.get(`/users/${id}`)
+    return httpClient.get(`/v1/users/${id}`)
   },
 
   /**
    * 创建用户
    */
   createUser(data: CreateUserDto): Promise<ApiResponse<User>> {
-    return httpClient.post('/users', data)
+    return httpClient.post('/v1/users', data)
   },
 
   /**
    * 更新用户
    */
   updateUser(id: string, data: Partial<CreateUserDto>): Promise<ApiResponse<User>> {
-    return httpClient.put(`/users/${id}`, data)
+    return httpClient.put(`/v1/users/${id}`, data)
   },
 
   /**
    * 删除用户
    */
   deleteUser(id: string): Promise<ApiResponse<void>> {
-    return httpClient.delete(`/users/${id}`)
+    return httpClient.delete(`/v1/users/${id}`)
   }
 }
 ```
@@ -195,10 +195,64 @@ onMounted(() => {
 ```
 
 ### 错误处理标准
-- **网络错误**: 使用 axios 拦截器统一处理
-- **业务错误**: 根据 `success` 字段判断
-- **用户提示**: 使用 ElMessage 显示错误信息
-- **日志记录**: 使用 `console.error` 记录详细错误信息
+
+#### 错误处理优先级
+1. **API业务错误** (`success: false`)：优先使用响应中的 `message` 字段
+2. **HTTP状态码错误**：优先使用响应中的 `message` 字段，没有则使用默认错误消息
+3. **网络错误**：显示网络连接相关的错误提示
+4. **配置错误**：显示请求配置错误提示
+
+#### 实现方式
+- **拦截器处理**: 使用 axios 响应拦截器统一处理所有错误
+- **消息优先级**: 优先使用 API 响应中的 `message` 字段作为错误提示
+- **用户提示**: 使用 ElMessage 显示用户友好的错误信息
+- **日志记录**: 使用 `console.error` 记录详细错误信息便于调试
+
+#### 组件中的错误处理
+
+##### 基础错误处理
+```typescript
+try {
+  const response = await userApi.createUser(userData)
+  ElMessage.success('创建成功')
+} catch (error: any) {
+  // error.message 已经由拦截器处理，优先使用API响应中的message
+  console.error('创建用户失败:', error.message)
+  ElMessage.error(error.message || '创建失败')
+}
+```
+
+##### 使用错误处理 Composable（推荐）
+```typescript
+import { useErrorHandler } from '@/composables/useErrorHandler'
+
+const { handleAsyncOperation, handleDeleteOperation } = useErrorHandler()
+
+// 简化的异步操作处理
+const createUser = async (userData: CreateUserDto) => {
+  const result = await handleAsyncOperation(
+    () => userApi.createUser(userData),
+    '创建用户'
+  )
+  
+  if (result.success) {
+    ElMessage.success('创建成功')
+    await fetchUsers() // 刷新数据
+  }
+}
+
+// 删除操作处理
+const deleteUser = async (user: User) => {
+  const success = await handleDeleteOperation(
+    user.name,
+    () => userApi.deleteUser(user.id)
+  )
+  
+  if (success) {
+    await fetchUsers() // 刷新数据
+  }
+}
+```
 
 ### API调用最佳实践
 1. **加载状态**: 所有API调用都要显示loading状态

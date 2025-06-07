@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { authMockApi } from '../api'
+import { authMockApi } from '@/api/modules/authMock'
 import logoImage from '@/assets/logo_64x64.png'
 import GlobalSettings from '@/components/GlobalSettings.vue'
 import { useCurrencySettings } from '@/composables/useCurrencySettings'
