@@ -21,8 +21,7 @@ const loginFormRef = ref<FormInstance>()
 /** 登录状态 */
 const loading = ref(false)
 
-/** 密码可见性 */
-const passwordVisible = ref(false)
+
 
 /** 表单验证规则 */
 const rules: FormRules = {

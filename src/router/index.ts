@@ -13,11 +13,7 @@ interface RouteMeta {
 // 导入图标
 import { 
   House,
-  DataAnalysis,
-  Document,
-  User,
-  Setting,
-  Monitor
+  Setting
 } from '@element-plus/icons-vue'
 
 const router = createRouter({
@@ -107,7 +103,7 @@ const router = createRouter({
 export type { RouteMeta }
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   // 设置页面标题
   if (to.meta?.title) {
     document.title = `${to.meta.title} - 融安心`

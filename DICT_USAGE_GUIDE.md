@@ -95,37 +95,62 @@ const options = await getFlatDictItems('EDUCATION')
 
 ### DictSelect - 字典下拉选择
 
+字典下拉选择组件，支持树形数据扁平化显示、禁用项处理等功能。
+
 ```vue
 <template>
   <!-- 基础用法 -->
   <DictSelect
-    v-model="form.gender"
-    dict-code="GENDER"
-    placeholder="请选择性别"
+    v-model="form.interestRateType"
+    dict-code="INTEREST_RATE_TYPE"
+    placeholder="请选择利率类型"
   />
 
-  <!-- 多选模式 -->
+  <!-- 自定义宽度 -->
   <DictSelect
-    v-model="form.hobbies"
-    dict-code="HOBBIES"
-    multiple
-    placeholder="请选择兴趣爱好"
+    v-model="form.customerType"
+    dict-code="CUSTOMER_TYPE"
+    placeholder="请选择客户类型"
+    width="300px"
   />
 
-  <!-- 可搜索 -->
+  <!-- 禁用状态 -->
   <DictSelect
-    v-model="form.education"
-    dict-code="EDUCATION"
-    filterable
-    placeholder="请选择学历"
+    v-model="form.businessStatus"
+    dict-code="BUSINESS_STATUS"
+    placeholder="请选择业务状态"
+    :disabled="true"
   />
 
   <!-- 包含禁用项 -->
   <DictSelect
+    v-model="form.withDisabledItems"
+    dict-code="MIXED_STATUS_DICT"
+    placeholder="包含禁用项的选择"
+    :only-enabled="false"
+  />
+
+  <!-- 监听变化 -->
+  <DictSelect
     v-model="form.status"
     dict-code="USER_STATUS"
-    :only-enabled="false"
-    placeholder="请选择状态"
+    @change="handleStatusChange"
+  />
+
+  <!-- 支持搜索 -->
+  <DictSelect
+    v-model="form.searchableOption"
+    dict-code="COMPLEX_CATEGORY"
+    placeholder="请输入关键词搜索"
+    filterable
+  />
+
+  <!-- 禁用搜索 -->
+  <DictSelect
+    v-model="form.nonSearchableOption"
+    dict-code="SIMPLE_CATEGORY"
+    placeholder="不支持搜索"
+    :filterable="false"
   />
 </template>
 
@@ -133,13 +158,55 @@ const options = await getFlatDictItems('EDUCATION')
 import { reactive } from 'vue'
 
 const form = reactive({
-  gender: '',
-  education: '',
-  hobbies: [],
-  status: ''
+  interestRateType: '',
+  customerType: '',
+  businessStatus: '',
+  withDisabledItems: '',
+  status: '',
+  searchableOption: '',
+  nonSearchableOption: ''
 })
+
+const handleStatusChange = (value) => {
+  console.log('状态变化:', value)
+}
 </script>
 ```
+
+#### Props
+
+| 参数 | 说明 | 类型 | 可选值 | 默认值 |
+|-----|-----|-----|-------|-------|
+| dictCode | 字典编码 | string | — | — |
+| modelValue | 绑定值 | string/number/null | — | — |
+| placeholder | 占位符 | string | — | '请选择' |
+| clearable | 是否可清空 | boolean | — | true |
+| disabled | 是否禁用 | boolean | — | false |
+| width | 组件宽度 | string | — | '100%' |
+| onlyEnabled | 是否只显示启用的项 | boolean | — | true |
+| filterable | 是否支持搜索 | boolean | — | true |
+
+#### Events
+
+| 事件名 | 说明 | 回调参数 |
+|-------|-----|---------|
+| change | 选中值发生变化时触发 | function(value) |
+
+#### 数据格式
+
+- 组件会自动调用 `getDictItemTreeByCode` API
+- 读取 `result.data.data.children` 作为选项数据
+- 树形数据会自动扁平化显示，使用缩进表示层级关系
+- `isEnabled: false` 的字典项会显示为禁用状态，不可选中
+- 支持无限层级的树形结构
+
+#### 搜索功能
+
+- 默认启用搜索功能（`filterable: true`）
+- 支持按字典项标签（label）进行模糊搜索
+- 搜索时会过滤所有层级的选项，保持层级缩进显示
+- 搜索不区分大小写
+- 可通过设置 `:filterable="false"` 禁用搜索功能
 
 ### DictLabel - 字典标签显示
 

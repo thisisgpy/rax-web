@@ -28,7 +28,7 @@ const router = useRouter()
 const route = useRoute()
 
 /** 货币设置 */
-const { globalSettings, getCurrentCurrencyInfo } = useCurrencySettings()
+const { globalSettings } = useCurrencySettings()
 
 /** 菜单项接口 */
 interface MenuItem {

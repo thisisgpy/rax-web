@@ -78,7 +78,7 @@
             :loading="dictLoading"
             @current-change="handleDictSelect"
             highlight-current-row
-            height="600"
+            height="500"
             empty-text="暂无字典数据"
           >
             <el-table-column prop="code" label="字典编码" width="150" show-overflow-tooltip />
@@ -114,17 +114,23 @@
             </el-table-column>
           </el-table>
 
+
+
           <!-- 分页 -->
           <div class="pagination-section">
-            <el-pagination
-              v-model:current-page="pagination.pageNo"
-              v-model:page-size="pagination.pageSize"
-              :total="pagination.total"
-              :page-sizes="[10, 20, 50, 100]"
-              layout="total, sizes, prev, pager, next, jumper"
-              @size-change="handleSearch"
-              @current-change="handleSearch"
-            />
+            <div class="pagination-wrapper">
+              <el-pagination
+                v-model:current-page="pagination.pageNo"
+                v-model:page-size="pagination.pageSize"
+                :total="Math.max(pagination.total, 0)"
+                :page-sizes="[10, 20, 50, 100]"
+                layout="total, sizes, prev, pager, next, jumper"
+                background
+                @size-change="handleSearch"
+                @current-change="handleSearch"
+              />
+            </div>
+
           </div>
         </el-card>
       </el-col>
@@ -165,7 +171,7 @@
               node-key="id"
               class="dict-item-tree"
             >
-              <template #default="{ node, data }">
+              <template #default="{ data }">
                 <div class="tree-node">
                   <span class="node-label">
                     {{ data.label }}
@@ -352,7 +358,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, ElTree } from 'element-plus'
+import { ElMessage, ElTree } from 'element-plus'
 import { Plus, Edit, Delete, Search, Refresh } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { dictApi } from '@/api/modules/dict'
@@ -395,7 +401,7 @@ const searchForm = reactive<QueryDictDto>({
 // 分页信息
 const pagination = reactive({
   pageNo: 1,
-  pageSize: 20,
+  pageSize: 10,
   total: 0
 })
 
@@ -510,8 +516,26 @@ const fetchDictList = async () => {
   )
 
   if (result.success) {
-    dictList.value = result.data.data.rows || []
-    pagination.total = result.data.data.total || 0
+    // 兼容不同的数据结构
+    const responseData = result.data.data
+    if (responseData.rows) {
+      // 标准分页格式
+      dictList.value = responseData.rows || []
+      pagination.total = responseData.total || 0
+    } else if (responseData.list) {
+      // 备选分页格式
+      dictList.value = responseData.list || []
+      pagination.total = responseData.total || 0
+    } else if (Array.isArray(responseData)) {
+      // 直接数组格式
+      dictList.value = responseData
+      pagination.total = responseData.length
+    } else {
+      dictList.value = []
+      pagination.total = 0
+    }
+    
+
   }
   dictLoading.value = false
 }
@@ -841,7 +865,26 @@ onMounted(() => {
 .dict-list-card,
 .dict-item-card {
   height: 800px;
-  overflow: hidden;
+}
+
+.dict-list-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 60px);
+}
+
+.dict-list-card .search-section {
+  flex-shrink: 0;
+}
+
+.dict-list-card .el-table {
+  flex: 1;
+  overflow: auto;
+}
+
+.dict-list-card .pagination-section {
+  flex-shrink: 0;
+  padding-top: 16px;
 }
 
 .card-header {
@@ -876,7 +919,17 @@ onMounted(() => {
 .pagination-section {
   margin-top: 20px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 50px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+}
+
+.pagination-wrapper {
+  display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .dict-item-content {

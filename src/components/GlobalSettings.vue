@@ -21,7 +21,7 @@ interface Emits {
   'settings-change': [settings: GlobalCurrencySettings]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 /** 货币设置 composable */

@@ -37,7 +37,7 @@
             class="org-tree"
             @node-click="handleNodeClick"
           >
-            <template #default="{ node, data }">
+            <template #default="{ data }">
               <div class="tree-node">
                 <span class="node-label">
                   {{ data.name }}

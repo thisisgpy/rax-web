@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useCurrencySettings } from '@/composables/useCurrencySettings'
 import CurrencyDisplay from '@/components/CurrencyDisplay.vue'
+import DictSelect from '@/components/DictSelect.vue'
+import { ElMessage } from 'element-plus'
 import { 
   DataAnalysis,
-  Monitor,
-  Document,
-  User,
   Warning,
-  Grid,
   TrendCharts,
   Money,
   Setting
@@ -28,22 +26,28 @@ const financialData = ref([
   { label: '月收入', value: 123456780, icon: DataAnalysis, color: '#e6a23c' }  // 1,234,567.80 元
 ])
 
-/** 边界测试数据（以分为单位） */
-const boundaryTestData = ref([
-  { label: '小额资产', value: 100000, description: '1千元（100000分），测试万元单位下的显示' },
-  { label: '微小金额', value: 5000, description: '50元（5000分），测试万元单位下的显示' },
-  { label: '超小金额', value: 500, description: '5元（500分），测试万元单位下的显示' },
-  { label: '零点几元', value: 50, description: '5角（50分），测试万元单位下的显示' },
-  { label: '分单位', value: 1, description: '1分，测试万元单位下的显示' },
-  { label: '中等金额', value: 5000000, description: '5万元（5000000分），测试正常显示' },
-  { label: '负数小额', value: -100000, description: '负1千元（-100000分），测试负数显示' },
-  { label: '精度测试1', value: 123, description: '1.23元（123分），测试精度保持' },
-  { label: '精度测试2', value: 999, description: '9.99元（999分），测试精度保持' },
-  { label: '精度测试3', value: 1001, description: '10.01元（1001分），测试精度保持' }
-])
+
 
 /** 当前货币设置信息 */
 const currencyInfo = computed(() => getCurrentCurrencyInfo.value)
+
+/** 字典组件演示表单 */
+const demoForm = reactive({
+  interestRateType: '',
+  financingStructure: ''
+})
+
+/** 处理利率类型变化 */
+const handleInterestRateChange = (value: string | number | null) => {
+  console.log('利率类型变化:', value)
+  ElMessage.info(`选择了利率类型: ${value || '未选择'}`)
+}
+
+/** 处理融资结构变化 */
+const handleFinancingStructureChange = (value: string | number | null) => {
+  console.log('融资结构变化:', value)
+  ElMessage.info(`选择了融资结构: ${value || '未选择'}`)
+}
 
 /** 加载用户信息 */
 const loadUserInfo = () => {
@@ -117,6 +121,50 @@ onMounted(() => {
                 bold
               />
             </div>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 字典组件示例 -->
+    <div class="dict-demo-section">
+      <el-card>
+        <template #header>
+          <h3>字典下拉框组件示例</h3>
+        </template>
+        <div class="dict-demo-content">
+          <div class="dict-demo-grid">
+            <div class="dict-demo-item">
+              <div class="demo-label">利率类型选择（支持搜索）</div>
+              <DictSelect
+                v-model="demoForm.interestRateType"
+                dict-code="INTEREST_RATE_TYPE"
+                placeholder="请选择利率类型，支持输入搜索"
+                @change="handleInterestRateChange"
+              />
+              <div class="demo-value">
+                选中值: <code>{{ demoForm.interestRateType || '未选择' }}</code>
+              </div>
+            </div>
+
+            <div class="dict-demo-item">
+              <div class="demo-label">融资结构选择（支持搜索）</div>
+              <DictSelect
+                v-model="demoForm.financingStructure"
+                dict-code="FINANCING_STRUCTURE"
+                placeholder="请选择融资结构，支持输入搜索"
+                width="250px"
+                @change="handleFinancingStructureChange"
+              />
+              <div class="demo-value">
+                选中值: <code>{{ demoForm.financingStructure || '未选择' }}</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-form-result">
+            <div class="result-title">表单数据:</div>
+            <pre>{{ JSON.stringify(demoForm, null, 2) }}</pre>
           </div>
         </div>
       </el-card>
@@ -292,8 +340,80 @@ onMounted(() => {
 .size-demo-section,
 .theme-demo-section,
 .boundary-test-section,
+.dict-demo-section,
 .data-table-section {
   margin-bottom: 24px;
+}
+
+/* 字典组件演示样式 */
+.dict-demo-content {
+  padding: 16px;
+}
+
+.dict-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.dict-demo-item {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  transition: all 0.2s;
+}
+
+.dict-demo-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+}
+
+.demo-label {
+  font-size: 14px;
+  color: #606266;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.demo-value {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.demo-value code {
+  background: #f1f1f1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #e6a23c;
+}
+
+.demo-form-result {
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.result-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.demo-form-result pre {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 .size-demo-grid {
@@ -425,6 +545,10 @@ onMounted(() => {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dict-demo-grid {
     grid-template-columns: 1fr;
   }
   

@@ -33,8 +33,6 @@
                 v-model="form.hobbies"
                 dict-code="HOBBIES"
                 placeholder="请选择兴趣爱好"
-                multiple
-                filterable
               />
             </el-form-item>
             
@@ -68,25 +66,9 @@
         <el-card header="表格中使用字典">
           <el-table :data="tableData" border>
             <el-table-column prop="name" label="姓名" />
-            <el-table-column prop="gender" label="性别" width="80">
-              <template #default="{ row }">
-                <DictLabel dict-code="GENDER" :value="row.gender" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="education" label="学历">
-              <template #default="{ row }">
-                <DictLabel dict-code="EDUCATION" :value="row.education" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" width="100">
-              <template #default="{ row }">
-                <DictLabel 
-                  dict-code="USER_STATUS" 
-                  :value="row.status"
-                  show-tag
-                />
-              </template>
-            </el-table-column>
+            <el-table-column prop="gender" label="性别" width="80" />
+            <el-table-column prop="education" label="学历" />
+            <el-table-column prop="status" label="状态" width="100" />
           </el-table>
         </el-card>
       </el-col>
@@ -129,7 +111,6 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import DictSelect from '@/components/DictSelect.vue'
-import DictLabel from '@/components/DictLabel.vue'
 import { useDict } from '@/composables/useDict'
 
 // 使用字典功能
@@ -139,7 +120,7 @@ const { getDictItems, getDictLabel, getFlatDictItems, preloadDicts, clearCache }
 const form = reactive({
   gender: '',
   education: '',
-  hobbies: [],
+  hobbies: '',
   status: ''
 })
 
@@ -154,11 +135,9 @@ const tableData = ref([
 const apiResult = ref('')
 
 // 性别变化处理
-const handleGenderChange = (value: string | string[], item?: { label: string; value: string }) => {
-  console.log('性别变化:', value, item)
-  if (typeof value === 'string') {
-    ElMessage.success(`选择了性别: ${item?.label || value}`)
-  }
+const handleGenderChange = (value: string | number | null) => {
+  console.log('性别变化:', value)
+  ElMessage.success(`选择了性别: ${value}`)
 }
 
 // 提交表单
@@ -172,7 +151,7 @@ const handleReset = () => {
   Object.assign(form, {
     gender: '',
     education: '',
-    hobbies: [],
+    hobbies: '',
     status: ''
   })
   ElMessage.info('表单已重置')

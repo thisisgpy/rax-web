@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useDict } from '@/composables/useDict'
 
 interface Props {
@@ -47,10 +47,7 @@ const { getDictLabel } = useDict()
 // 显示标签
 const label = ref('')
 
-// 计算属性：最终显示的文本
-const displayLabel = computed(() => {
-  return label.value || props.defaultLabel || props.value
-})
+
 
 // 加载字典标签
 const loadLabel = async () => {
