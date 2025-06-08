@@ -14,7 +14,8 @@ src/views/
 ├── dashboard/      # 仪表板相关
 │   └── Dashboard.vue # 首页仪表板
 ├── system/         # 系统管理相关
-│   └── OrganizationManage.vue # 组织架构管理
+│   ├── OrganizationManage.vue # 组织架构管理
+│   └── DictManage.vue # 数据字典管理
 └── README.md       # 本说明文档
 ```
 
@@ -37,7 +38,7 @@ src/views/
 
 ### 4. system/ - 系统管理模块
 - **用途**: 系统配置和管理相关页面
-- **包含**: 组织管理、用户管理、角色权限、字典管理、银行管理等
+- **包含**: 组织管理、用户管理、角色权限、数据字典管理、银行管理等
 - **特点**: 管理员功能，CRUD操作较多
 
 ## 📋 未来扩展建议

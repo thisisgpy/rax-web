@@ -57,37 +57,46 @@ const router = createRouter({
           }
         },
         {
-          path: 'organization',
-          name: 'Organization',
-          component: () => import('../views/system/OrganizationManage.vue'),
+          path: 'system',
+          name: 'System',
           meta: {
-            title: '组织架构',
+            title: '系统配置',
             requiresAuth: true,
             icon: Setting,
             menuOrder: 2
-          }
-        },
-        {
-          path: 'dict',
-          name: 'Dict',
-          component: () => import('../views/common/CommonPage.vue'),
-          meta: {
-            title: '字典管理',
-            requiresAuth: true,
-            icon: Document,
-            menuOrder: 3
-          }
-        },
-        {
-          path: 'bank',
-          name: 'Bank',
-          component: () => import('../views/common/CommonPage.vue'),
-          meta: {
-            title: '银行管理',
-            requiresAuth: true,
-            icon: Monitor,
-            menuOrder: 4
-          }
+          },
+          children: [
+            {
+              path: 'organization',
+              name: 'Organization',
+              component: () => import('../views/system/OrganizationManage.vue'),
+              meta: {
+                title: '组织架构',
+                requiresAuth: true,
+                menuOrder: 1
+              }
+            },
+            {
+              path: 'dict',
+              name: 'Dict',
+              component: () => import('../views/system/DictManage.vue'),
+              meta: {
+                title: '字典管理',
+                requiresAuth: true,
+                menuOrder: 2
+              }
+            },
+            {
+              path: 'bank',
+              name: 'Bank',
+              component: () => import('../views/common/CommonPage.vue'),
+              meta: {
+                title: '银行管理',
+                requiresAuth: true,
+                menuOrder: 3
+              }
+            }
+          ]
         }
       ]
     }

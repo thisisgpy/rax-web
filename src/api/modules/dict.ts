@@ -82,6 +82,7 @@ export const dictApi = {
    * 根据字典编码获取字典项树形结构
    * @param code - 字典编码
    * @param onlyEnabled - 是否只返回启用的项
+   * @returns 返回单个树形根节点
    */
   getDictItemTreeByCode(
     code: string, 
