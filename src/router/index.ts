@@ -85,7 +85,7 @@ const router = createRouter({
             {
               path: 'bank',
               name: 'Bank',
-              component: () => import('../views/common/CommonPage.vue'),
+              component: () => import('../views/system/BankManage.vue'),
               meta: {
                 title: '银行管理',
                 requiresAuth: true,

@@ -1,10 +1,5 @@
 <template>
   <div class="dict-manage">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>数据字典管理</h2>
-    </div>
-
     <!-- 主内容区 -->
     <el-row :gutter="20" class="main-content">
       <!-- 左侧：字典列表 -->

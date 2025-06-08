@@ -1,12 +1,6 @@
 <template>
   <div class="organization-manage">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>组织架构管理</h2>
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增组织
-      </el-button>
-    </div>
+
 
     <!-- 主内容区 -->
     <el-row :gutter="20" class="main-content">
@@ -16,14 +10,25 @@
           <template #header>
             <div class="card-header">
               <span>组织架构</span>
-              <el-button 
-                text 
-                :icon="Refresh" 
-                @click="fetchOrgTrees"
-                :loading="treeLoading"
-              >
-                刷新
-              </el-button>
+              <div class="header-buttons">
+                <el-button 
+                  type="primary" 
+                  :icon="Plus" 
+                  @click="handleCreate"
+                  size="small"
+                >
+                  新增组织
+                </el-button>
+                <el-button 
+                  text 
+                  :icon="Refresh" 
+                  @click="fetchOrgTrees"
+                  :loading="treeLoading"
+                  size="small"
+                >
+                  刷新
+                </el-button>
+              </div>
             </div>
           </template>
           
@@ -436,18 +441,6 @@ onMounted(() => {
   padding: 20px;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.page-header h2 {
-  margin: 0;
-  color: #303133;
-}
-
 .main-content {
   min-height: 600px;
 }
@@ -460,6 +453,12 @@ onMounted(() => {
 .card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
@@ -524,10 +523,9 @@ onMounted(() => {
     min-height: 400px;
   }
   
-  .page-header {
+  .header-buttons {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    gap: 6px;
   }
   
   .node-label {
