@@ -30,7 +30,11 @@ Priority: high
 ```
 src/
 ├── components/     # 可复用组件 (PascalCase.vue)
-├── views/          # 页面组件 (PascalCase.vue)
+├── views/          # 页面组件 (按模块分类)
+│   ├── auth/       # 认证相关页面
+│   ├── common/     # 通用页面和布局
+│   ├── dashboard/  # 仪表板相关
+│   └── system/     # 系统管理相关
 ├── types/          # 类型定义 (camelCase.d.ts)
 ├── api/            # API接口 (camelCase.ts)
 ├── composables/    # 组合式函数 (useCamelCase.ts)

@@ -1,1529 +1,3597 @@
 {
-  "openapi": "3.0.0",
-  "paths": {
-      "/": {
-          "get": {
-              "operationId": "AppController_getHello",
-              "parameters": [],
-              "responses": {
-                  "200": {
-                      "description": ""
-                  }
-              },
-              "tags": [
-                  "App"
-              ]
-          }
-      },
-      "/api/v1/org/codegen": {
-          "get": {
-              "description": "根据父级组织ID生成新的组织编码",
-              "operationId": "SysOrgController_generateOrgCode",
-              "parameters": [
-                  {
-                      "name": "parentId",
-                      "required": true,
-                      "in": "query",
-                      "description": "父级组织ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "生成成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/String"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "生成组织编码",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/create": {
-          "post": {
-              "description": "创建新的组织",
-              "operationId": "SysOrgController_create",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/CreateOrgDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "创建成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysOrg"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "创建组织",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/edit": {
-          "post": {
-              "description": "更新组织信息",
-              "operationId": "SysOrgController_edit",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/UpdateOrgDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "更新成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/Boolean"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "更新组织",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/remove/{id}": {
-          "get": {
-              "description": "根据ID删除组织",
-              "operationId": "SysOrgController_remove",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "组织ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "删除成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/Boolean"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "删除组织",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/tree/{id}": {
-          "get": {
-              "description": "根据组织ID获取其下级组织树结构",
-              "operationId": "SysOrgController_getOrgTree",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "组织ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/OrgTreeDto"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取组织树",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/get/{id}": {
-          "get": {
-              "description": "根据组织ID获取组织详细信息",
-              "operationId": "SysOrgController_getOrgById",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "组织ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysOrg"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取组织详情",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/org/trees": {
-          "get": {
-              "description": "获取所有组织的树形结构",
-              "operationId": "SysOrgController_getOrgTrees",
-              "parameters": [],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "type": "array",
-                                                  "items": {
-                                                      "$ref": "#/components/schemas/OrgTreeDto"
-                                                  }
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取所有组织树",
-              "tags": [
-                  "组织管理"
-              ]
-          }
-      },
-      "/api/v1/dict/create": {
-          "post": {
-              "description": "创建一个新的数据字典",
-              "operationId": "SysDictController_create",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/CreateDictDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "创建成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDict"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "创建数据字典",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/edit": {
-          "post": {
-              "description": "根据ID更新数据字典信息",
-              "operationId": "SysDictController_update",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/UpdateDictDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "更新成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDict"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "更新数据字典",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/remove/{id}": {
-          "get": {
-              "description": "根据ID删除数据字典",
-              "operationId": "SysDictController_remove",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "字典ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "删除成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/Boolean"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "删除数据字典",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/get/{id}": {
-          "get": {
-              "description": "根据ID获取数据字典详细信息",
-              "operationId": "SysDictController_findOne",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "字典ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDict"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取数据字典详情",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/list": {
-          "post": {
-              "description": "根据条件分页查询数据字典列表",
-              "operationId": "SysDictController_findPage",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/QueryDictDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "查询成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/PageResult"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "分页查询数据字典",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/item/create": {
-          "post": {
-              "description": "为指定数据字典创建字典项",
-              "operationId": "SysDictController_createDictItem",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/CreateDictItemDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "创建成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDictItem"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "创建字典项",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/item/edit": {
-          "post": {
-              "description": "根据ID更新字典项信息",
-              "operationId": "SysDictController_updateDictItem",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/UpdateDictItemDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "更新成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDictItem"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "更新字典项",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/item/get/{id}": {
-          "get": {
-              "description": "根据ID获取字典项详细信息",
-              "operationId": "SysDictController_findDictItem",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "字典项ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/SysDictItem"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取字典项详情",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/item/remove/{id}": {
-          "get": {
-              "description": "根据ID删除字典项",
-              "operationId": "SysDictController_removeDictItem",
-              "parameters": [
-                  {
-                      "name": "id",
-                      "required": true,
-                      "in": "path",
-                      "description": "字典项ID",
-                      "schema": {
-                          "type": "number"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "删除成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/Boolean"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "删除字典项",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/dict/item/tree/{code}/{onlyEnabled}": {
-          "get": {
-              "description": "根据字典编码获取字典项的树形结构",
-              "operationId": "SysDictController_findDictItemTreeByCode",
-              "parameters": [
-                  {
-                      "name": "code",
-                      "required": true,
-                      "in": "path",
-                      "description": "字典编码",
-                      "schema": {
-                          "type": "string"
-                      }
-                  },
-                  {
-                      "name": "onlyEnabled",
-                      "required": true,
-                      "in": "path",
-                      "description": "是否只返回启用的项",
-                      "schema": {
-                          "type": "boolean"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "获取成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/DictItemTreeDto"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "获取字典项树形结构",
-              "tags": [
-                  "数据字典管理"
-              ]
-          }
-      },
-      "/api/v1/bank/search": {
-          "post": {
-              "description": "根据多个条件分页查询银行信息列表",
-              "operationId": "SysBankController_search",
-              "parameters": [],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/SearchBankDto"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "查询成功",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "allOf": [
-                                      {
-                                          "properties": {
-                                              "success": {
-                                                  "type": "boolean",
-                                                  "example": true
-                                              },
-                                              "message": {
-                                                  "type": "string",
-                                                  "example": ""
-                                              },
-                                              "data": {
-                                                  "$ref": "#/components/schemas/PageResult"
-                                              }
-                                          }
-                                      }
-                                  ]
-                              }
-                          }
-                      }
-                  }
-              },
-              "summary": "分页查询银行信息",
-              "tags": [
-                  "银行管理"
-              ]
-          }
-      }
-  },
-  "info": {
-      "title": "RAX Server API",
-      "description": "RAX Server API 文档",
-      "version": "1.0",
-      "contact": {}
-  },
-  "tags": [],
-  "servers": [],
-  "components": {
-      "securitySchemes": {
-          "bearer": {
-              "scheme": "bearer",
-              "bearerFormat": "JWT",
-              "type": "http"
-          }
-      },
-      "schemas": {
-          "String": {
-              "type": "object",
-              "properties": {}
-          },
-          "SysOrg": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "组织ID"
-                  },
-                  "code": {
-                      "type": "string",
-                      "description": "组织编码",
-                      "maxLength": 64
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "组织名称",
-                      "maxLength": 64
-                  },
-                  "nameAbbr": {
-                      "type": "string",
-                      "description": "组织名称简称",
-                      "maxLength": 64
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "组织备注",
-                      "maxLength": 128
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级组织ID",
-                      "default": 0
-                  },
-                  "createTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "创建时间"
-                  },
-                  "createBy": {
-                      "type": "string",
-                      "description": "创建人",
-                      "maxLength": 32
-                  },
-                  "updateTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "更新时间"
-                  },
-                  "updateBy": {
-                      "type": "string",
-                      "description": "更新人",
-                      "maxLength": 32
-                  }
-              },
-              "required": [
-                  "id",
-                  "code",
-                  "name",
-                  "nameAbbr",
-                  "parentId",
-                  "createTime",
-                  "createBy",
-                  "updateTime"
-              ]
-          },
-          "CreateOrgDto": {
-              "type": "object",
-              "properties": {
-                  "name": {
-                      "type": "string",
-                      "description": "组织名称",
-                      "maxLength": 64
-                  },
-                  "nameAbbr": {
-                      "type": "string",
-                      "description": "组织简称",
-                      "maxLength": 64
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "组织备注",
-                      "maxLength": 128
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级组织ID"
-                  }
-              },
-              "required": [
-                  "name",
-                  "nameAbbr",
-                  "parentId"
-              ]
-          },
-          "Boolean": {
-              "type": "object",
-              "properties": {}
-          },
-          "UpdateOrgDto": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "组织ID"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "组织名称",
-                      "maxLength": 64
-                  },
-                  "nameAbbr": {
-                      "type": "string",
-                      "description": "组织简称",
-                      "maxLength": 64
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "组织备注",
-                      "maxLength": 128
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级组织ID"
-                  }
-              },
-              "required": [
-                  "id",
-                  "parentId"
-              ]
-          },
-          "OrgTreeDto": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "组织ID"
-                  },
-                  "code": {
-                      "type": "string",
-                      "description": "组织编码"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "组织名称"
-                  },
-                  "nameAbbr": {
-                      "type": "string",
-                      "description": "组织简称"
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "组织备注"
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级组织ID"
-                  },
-                  "children": {
-                      "description": "子组织列表",
-                      "items": {
-                          "type": "array"
-                      },
-                      "type": "array"
-                  }
-              },
-              "required": [
-                  "id",
-                  "code",
-                  "name",
-                  "nameAbbr",
-                  "parentId"
-              ]
-          },
-          "SysDict": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "字典ID"
-                  },
-                  "code": {
-                      "type": "string",
-                      "description": "字典编码",
-                      "uniqueItems": true
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "字典名称",
-                      "uniqueItems": true
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典备注"
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用",
-                      "default": true
-                  },
-                  "createTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "创建时间"
-                  },
-                  "createBy": {
-                      "type": "string",
-                      "description": "创建人",
-                      "maxLength": 32
-                  },
-                  "updateTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "更新时间"
-                  },
-                  "updateBy": {
-                      "type": "string",
-                      "description": "更新人",
-                      "maxLength": 32
-                  }
-              },
-              "required": [
-                  "id",
-                  "code",
-                  "name",
-                  "isEnabled",
-                  "createTime",
-                  "createBy",
-                  "updateTime"
-              ]
-          },
-          "CreateDictDto": {
-              "type": "object",
-              "properties": {
-                  "code": {
-                      "type": "string",
-                      "description": "字典编码",
-                      "maxLength": 64
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "字典名称",
-                      "maxLength": 64
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典备注",
-                      "maxLength": 128
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用"
-                  }
-              },
-              "required": [
-                  "code",
-                  "name",
-                  "isEnabled"
-              ]
-          },
-          "UpdateDictDto": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "字典ID"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "字典名称",
-                      "maxLength": 64
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典备注",
-                      "maxLength": 128
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用"
-                  }
-              },
-              "required": [
-                  "id",
-                  "name",
-                  "isEnabled"
-              ]
-          },
-          "PageResult": {
-              "type": "object",
-              "properties": {
-                  "pageNo": {
-                      "type": "number",
-                      "description": "当前页码",
-                      "minimum": 1
-                  },
-                  "pageSize": {
-                      "type": "number",
-                      "description": "每页显示记录数",
-                      "minimum": 1
-                  },
-                  "total": {
-                      "type": "number",
-                      "description": "总记录数",
-                      "minimum": 0
-                  },
-                  "pages": {
-                      "type": "number",
-                      "description": "总页数",
-                      "minimum": 0
-                  },
-                  "rows": {
-                      "description": "分页数据列表",
-                      "type": "array",
-                      "items": {
-                          "type": "array"
-                      }
-                  }
-              },
-              "required": [
-                  "pageNo",
-                  "pageSize",
-                  "total",
-                  "pages",
-                  "rows"
-              ]
-          },
-          "QueryDictDto": {
-              "type": "object",
-              "properties": {
-                  "pageNo": {
-                      "type": "number",
-                      "description": "当前页码",
-                      "minimum": 1
-                  },
-                  "pageSize": {
-                      "type": "number",
-                      "description": "每页显示条数",
-                      "minimum": 1
-                  },
-                  "code": {
-                      "type": "string",
-                      "description": "字典编码（模糊查询）"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "字典名称（模糊查询）"
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用"
-                  }
-              },
-              "required": [
-                  "pageNo",
-                  "pageSize"
-              ]
-          },
-          "SysDictItem": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "字典项ID"
-                  },
-                  "dictId": {
-                      "type": "number",
-                      "description": "字典ID"
-                  },
-                  "dictCode": {
-                      "type": "string",
-                      "description": "字典编码"
-                  },
-                  "label": {
-                      "type": "string",
-                      "description": "字典项标签"
-                  },
-                  "value": {
-                      "type": "string",
-                      "description": "字典项值"
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典项备注"
-                  },
-                  "sort": {
-                      "type": "number",
-                      "description": "字典项排序",
-                      "default": 0
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级字典项ID",
-                      "default": 0
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否可被选择",
-                      "default": true
-                  },
-                  "createTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "创建时间"
-                  },
-                  "createBy": {
-                      "type": "string",
-                      "description": "创建人",
-                      "maxLength": 32
-                  },
-                  "updateTime": {
-                      "format": "date-time",
-                      "type": "string",
-                      "description": "更新时间"
-                  },
-                  "updateBy": {
-                      "type": "string",
-                      "description": "更新人",
-                      "maxLength": 32
-                  }
-              },
-              "required": [
-                  "id",
-                  "dictId",
-                  "dictCode",
-                  "label",
-                  "value",
-                  "sort",
-                  "parentId",
-                  "isEnabled",
-                  "createTime",
-                  "createBy",
-                  "updateTime"
-              ]
-          },
-          "CreateDictItemDto": {
-              "type": "object",
-              "properties": {
-                  "dictId": {
-                      "type": "number",
-                      "description": "字典ID"
-                  },
-                  "dictCode": {
-                      "type": "string",
-                      "description": "字典编码"
-                  },
-                  "label": {
-                      "type": "string",
-                      "description": "字典项标签"
-                  },
-                  "value": {
-                      "type": "string",
-                      "description": "字典项值"
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典项备注"
-                  },
-                  "sort": {
-                      "type": "number",
-                      "description": "排序号",
-                      "minimum": 0
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级ID (0表示顶级)",
-                      "default": 0
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用",
-                      "default": true
-                  }
-              },
-              "required": [
-                  "dictId",
-                  "dictCode",
-                  "label",
-                  "value"
-              ]
-          },
-          "UpdateDictItemDto": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "字典项ID"
-                  },
-                  "label": {
-                      "type": "string",
-                      "description": "字典项标签"
-                  },
-                  "value": {
-                      "type": "string",
-                      "description": "字典项值"
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典项备注"
-                  },
-                  "sort": {
-                      "type": "number",
-                      "description": "排序号",
-                      "minimum": 0
-                  },
-                  "parentId": {
-                      "type": "number",
-                      "description": "父级ID (0表示顶级)"
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用"
-                  }
-              },
-              "required": [
-                  "id",
-                  "label",
-                  "value"
-              ]
-          },
-          "DictItemTreeDto": {
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "number",
-                      "description": "字典项ID"
-                  },
-                  "label": {
-                      "type": "string",
-                      "description": "字典项标签"
-                  },
-                  "value": {
-                      "type": "string",
-                      "description": "字典项值"
-                  },
-                  "comment": {
-                      "type": "string",
-                      "description": "字典项备注"
-                  },
-                  "sort": {
-                      "type": "number",
-                      "description": "排序号",
-                      "minimum": 0
-                  },
-                  "isEnabled": {
-                      "type": "boolean",
-                      "description": "是否启用"
-                  },
-                  "children": {
-                      "description": "子节点列表",
-                      "items": {
-                          "type": "array"
-                      },
-                      "type": "array"
-                  }
-              },
-              "required": [
-                  "id",
-                  "label",
-                  "value",
-                  "sort",
-                  "isEnabled"
-              ]
-          },
-          "SearchBankDto": {
-              "type": "object",
-              "properties": {
-                  "pageNo": {
-                      "type": "number",
-                      "description": "当前页码",
-                      "minimum": 1,
-                      "default": 1
-                  },
-                  "pageSize": {
-                      "type": "number",
-                      "description": "每页显示条数",
-                      "minimum": 1,
-                      "default": 10
-                  },
-                  "code": {
-                      "type": "string",
-                      "description": "联行号（精确匹配）"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "银行名称（模糊查询）"
-                  },
-                  "province": {
-                      "type": "string",
-                      "description": "省份（精确匹配）"
-                  },
-                  "city": {
-                      "type": "string",
-                      "description": "城市（精确匹配）"
-                  },
-                  "branchName": {
-                      "type": "string",
-                      "description": "支行名称（模糊查询）"
-                  }
-              },
-              "required": [
-                  "pageNo",
-                  "pageSize"
-              ]
-          }
-      }
-  }
+    "openapi": "3.0.0",
+    "paths": {
+        "/": {
+            "get": {
+                "operationId": "AppController_getHello",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "App"
+                ]
+            }
+        },
+        "/api/v1/org/codegen": {
+            "get": {
+                "description": "根据父级组织ID生成新的组织编码",
+                "operationId": "SysOrgController_generateOrgCode",
+                "parameters": [
+                    {
+                        "name": "parentId",
+                        "required": true,
+                        "in": "query",
+                        "description": "父级组织ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "生成成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/String"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "生成组织编码",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/create": {
+            "post": {
+                "description": "创建新的组织",
+                "operationId": "SysOrgController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrgDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysOrg"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建组织",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/edit": {
+            "post": {
+                "description": "更新组织信息",
+                "operationId": "SysOrgController_edit",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateOrgDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新组织",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/remove/{id}": {
+            "get": {
+                "description": "根据ID删除组织",
+                "operationId": "SysOrgController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "组织ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除组织",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/tree/{id}": {
+            "get": {
+                "description": "根据组织ID获取其下级组织树结构",
+                "operationId": "SysOrgController_getOrgTree",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "组织ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/OrgTreeDto"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取组织树",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/get/{id}": {
+            "get": {
+                "description": "根据组织ID获取组织详细信息",
+                "operationId": "SysOrgController_getOrgById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "组织ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysOrg"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取组织详情",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/org/trees": {
+            "get": {
+                "description": "获取所有组织的树形结构",
+                "operationId": "SysOrgController_getOrgTrees",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/OrgTreeDto"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取所有组织树",
+                "tags": [
+                    "组织管理"
+                ]
+            }
+        },
+        "/api/v1/dict/create": {
+            "post": {
+                "description": "创建一个新的数据字典",
+                "operationId": "SysDictController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateDictDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDict"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建数据字典",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/edit": {
+            "post": {
+                "description": "根据ID更新数据字典信息",
+                "operationId": "SysDictController_update",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDictDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDict"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新数据字典",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/remove/{id}": {
+            "get": {
+                "description": "根据ID删除数据字典",
+                "operationId": "SysDictController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "字典ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除数据字典",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/get/{id}": {
+            "get": {
+                "description": "根据ID获取数据字典详细信息",
+                "operationId": "SysDictController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "字典ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDict"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取数据字典详情",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/list": {
+            "post": {
+                "description": "根据条件分页查询数据字典列表",
+                "operationId": "SysDictController_findPage",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QueryDictDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询数据字典",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/item/create": {
+            "post": {
+                "description": "为指定数据字典创建字典项",
+                "operationId": "SysDictController_createDictItem",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateDictItemDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDictItem"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建字典项",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/item/edit": {
+            "post": {
+                "description": "根据ID更新字典项信息",
+                "operationId": "SysDictController_updateDictItem",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDictItemDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDictItem"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新字典项",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/item/get/{id}": {
+            "get": {
+                "description": "根据ID获取字典项详细信息",
+                "operationId": "SysDictController_findDictItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "字典项ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysDictItem"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取字典项详情",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/item/remove/{id}": {
+            "get": {
+                "description": "根据ID删除字典项",
+                "operationId": "SysDictController_removeDictItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "字典项ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除字典项",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/dict/item/tree/{code}/{onlyEnabled}": {
+            "get": {
+                "description": "根据字典编码获取字典项的树形结构",
+                "operationId": "SysDictController_findDictItemTreeByCode",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "description": "字典编码",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "onlyEnabled",
+                        "required": true,
+                        "in": "path",
+                        "description": "是否只返回启用的项",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/DictItemTreeDto"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取字典项树形结构",
+                "tags": [
+                    "数据字典管理"
+                ]
+            }
+        },
+        "/api/v1/bank/search": {
+            "post": {
+                "description": "根据多个条件分页查询银行信息列表",
+                "operationId": "SysBankController_search",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SearchBankDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询银行信息",
+                "tags": [
+                    "银行管理"
+                ]
+            }
+        },
+        "/api/v1/user/create": {
+            "post": {
+                "description": "创建新用户",
+                "operationId": "UserController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysUser"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建用户",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/edit": {
+            "post": {
+                "description": "更新用户信息",
+                "operationId": "UserController_update",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysUser"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新用户",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/remove/{id}": {
+            "get": {
+                "description": "软删除用户",
+                "operationId": "UserController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除用户",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/get/{id}": {
+            "get": {
+                "description": "根据ID获取用户详细信息",
+                "operationId": "UserController_findById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysUser"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取用户详情",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/list": {
+            "post": {
+                "description": "根据条件分页查询用户列表",
+                "operationId": "UserController_findPage",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QueryUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询用户",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/reset-password/{id}": {
+            "get": {
+                "description": "管理员重置用户密码",
+                "operationId": "UserController_resetPassword",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "重置成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "重置用户密码",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/user/change-password": {
+            "post": {
+                "description": "用户修改自己的密码",
+                "operationId": "UserController_changePassword",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "修改成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "修改密码",
+                "tags": [
+                    "用户管理"
+                ]
+            }
+        },
+        "/api/v1/role/create": {
+            "post": {
+                "description": "创建新角色",
+                "operationId": "RoleController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRoleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysRole"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建角色",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/role/edit": {
+            "post": {
+                "description": "更新角色信息",
+                "operationId": "RoleController_update",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateRoleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysRole"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新角色",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/role/remove/{id}": {
+            "get": {
+                "description": "软删除角色",
+                "operationId": "RoleController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "角色ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除角色",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/role/get/{id}": {
+            "get": {
+                "description": "根据ID获取角色详细信息",
+                "operationId": "RoleController_findById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "角色ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysRole"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取角色详情",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/role/list": {
+            "post": {
+                "description": "根据条件分页查询角色列表",
+                "operationId": "RoleController_findPage",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QueryRoleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询角色",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/role/all": {
+            "get": {
+                "description": "获取所有未删除的角色列表（不分页）",
+                "operationId": "RoleController_findAll",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SysRole"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取所有角色",
+                "tags": [
+                    "角色管理"
+                ]
+            }
+        },
+        "/api/v1/permission/assign-user-roles": {
+            "post": {
+                "description": "为用户分配角色权限",
+                "operationId": "PermissionController_assignUserRoles",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignUserRoleDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "分配成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分配用户角色",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/assign-role-resources": {
+            "post": {
+                "description": "为角色分配资源权限",
+                "operationId": "PermissionController_assignRoleResources",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignRoleResourceDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "分配成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分配角色资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/user-permissions/{id}": {
+            "get": {
+                "description": "获取用户的所有权限资源编码",
+                "operationId": "PermissionController_getUserPermissions",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/String"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取用户权限",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/user-menus/{id}": {
+            "get": {
+                "description": "获取用户的菜单权限（Vue-Router路由结构）",
+                "operationId": "PermissionController_getUserMenus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/MenuListDto"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取用户菜单",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/check-permission": {
+            "post": {
+                "description": "检查用户是否有特定资源的权限",
+                "operationId": "PermissionController_checkPermission",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckPermissionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "检查完成",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "检查用户权限",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/user-roles/{id}": {
+            "get": {
+                "description": "获取用户的角色ID列表",
+                "operationId": "PermissionController_getUserRoles",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "用户ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SysRole"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取用户角色",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/role-resources/{id}": {
+            "get": {
+                "description": "获取角色的资源权限ID列表",
+                "operationId": "PermissionController_getRoleResources",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "角色ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Number"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取角色资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/create": {
+            "post": {
+                "description": "创建新的系统资源",
+                "operationId": "PermissionController_createResource",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateResourceDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysResource"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/edit": {
+            "post": {
+                "description": "更新系统资源信息",
+                "operationId": "PermissionController_updateResource",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateResourceDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysResource"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/remove/{id}": {
+            "get": {
+                "description": "软删除系统资源",
+                "operationId": "PermissionController_deleteResource",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "资源ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/get/{id}": {
+            "get": {
+                "description": "根据ID获取资源详细信息",
+                "operationId": "PermissionController_findResourceById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "资源ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysResource"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取资源详情",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/list": {
+            "post": {
+                "description": "根据条件分页查询资源列表",
+                "operationId": "PermissionController_findResourcePage",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QueryResourceDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询资源",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        },
+        "/api/v1/permission/resource/tree": {
+            "get": {
+                "description": "获取所有资源的树形结构",
+                "operationId": "PermissionController_getAllResourcesTree",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SysResource"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取所有资源树",
+                "tags": [
+                    "权限管理"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "RAX Server API",
+        "description": "RAX Server API 文档",
+        "version": "1.0",
+        "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "bearer": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http"
+            }
+        },
+        "schemas": {
+            "String": {
+                "type": "object",
+                "properties": {}
+            },
+            "SysOrg": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "组织编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "组织名称",
+                        "maxLength": 64
+                    },
+                    "nameAbbr": {
+                        "type": "string",
+                        "description": "组织名称简称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "组织备注",
+                        "maxLength": 128
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级组织ID",
+                        "default": 0
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "nameAbbr",
+                    "parentId",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateOrgDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "组织名称",
+                        "maxLength": 64
+                    },
+                    "nameAbbr": {
+                        "type": "string",
+                        "description": "组织简称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "组织备注",
+                        "maxLength": 128
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级组织ID"
+                    }
+                },
+                "required": [
+                    "name",
+                    "nameAbbr",
+                    "parentId"
+                ]
+            },
+            "Boolean": {
+                "type": "object",
+                "properties": {}
+            },
+            "UpdateOrgDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "组织名称",
+                        "maxLength": 64
+                    },
+                    "nameAbbr": {
+                        "type": "string",
+                        "description": "组织简称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "组织备注",
+                        "maxLength": 128
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级组织ID"
+                    }
+                },
+                "required": [
+                    "id",
+                    "parentId"
+                ]
+            },
+            "OrgTreeDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "组织编码"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "组织名称"
+                    },
+                    "nameAbbr": {
+                        "type": "string",
+                        "description": "组织简称"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "组织备注"
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级组织ID"
+                    },
+                    "children": {
+                        "description": "子组织列表",
+                        "items": {
+                            "type": "array"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "nameAbbr",
+                    "parentId"
+                ]
+            },
+            "SysDict": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "字典ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "字典编码",
+                        "uniqueItems": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "字典名称",
+                        "uniqueItems": true
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典备注"
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "default": true
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "isEnabled",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateDictDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "字典编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "字典名称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典备注",
+                        "maxLength": 128
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "isEnabled"
+                ]
+            },
+            "UpdateDictDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "字典ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "字典名称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典备注",
+                        "maxLength": 128
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "isEnabled"
+                ]
+            },
+            "PageResult": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示记录数",
+                        "minimum": 1
+                    },
+                    "total": {
+                        "type": "number",
+                        "description": "总记录数",
+                        "minimum": 0
+                    },
+                    "pages": {
+                        "type": "number",
+                        "description": "总页数",
+                        "minimum": 0
+                    },
+                    "rows": {
+                        "description": "分页数据列表",
+                        "type": "array",
+                        "items": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "required": [
+                    "pageNo",
+                    "pageSize",
+                    "total",
+                    "pages",
+                    "rows"
+                ]
+            },
+            "QueryDictDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示条数",
+                        "minimum": 1
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "字典编码（模糊查询）"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "字典名称（模糊查询）"
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用"
+                    }
+                },
+                "required": [
+                    "pageNo",
+                    "pageSize"
+                ]
+            },
+            "SysDictItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "字典项ID"
+                    },
+                    "dictId": {
+                        "type": "number",
+                        "description": "字典ID"
+                    },
+                    "dictCode": {
+                        "type": "string",
+                        "description": "字典编码"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "字典项标签"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "字典项值"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典项备注"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "字典项排序",
+                        "default": 0
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级字典项ID",
+                        "default": 0
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否可被选择",
+                        "default": true
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "dictId",
+                    "dictCode",
+                    "label",
+                    "value",
+                    "sort",
+                    "parentId",
+                    "isEnabled",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateDictItemDto": {
+                "type": "object",
+                "properties": {
+                    "dictId": {
+                        "type": "number",
+                        "description": "字典ID"
+                    },
+                    "dictCode": {
+                        "type": "string",
+                        "description": "字典编码"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "字典项标签"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "字典项值"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典项备注"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "排序号",
+                        "minimum": 0
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级ID (0表示顶级)",
+                        "default": 0
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "dictId",
+                    "dictCode",
+                    "label",
+                    "value"
+                ]
+            },
+            "UpdateDictItemDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "字典项ID"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "字典项标签"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "字典项值"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典项备注"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "排序号",
+                        "minimum": 0
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级ID (0表示顶级)"
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "value"
+                ]
+            },
+            "DictItemTreeDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "字典项ID"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "字典项标签"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "字典项值"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "字典项备注"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "排序号",
+                        "minimum": 0
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "description": "是否启用"
+                    },
+                    "children": {
+                        "description": "子节点列表",
+                        "items": {
+                            "type": "array"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "value",
+                    "sort",
+                    "isEnabled"
+                ]
+            },
+            "SearchBankDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示条数",
+                        "minimum": 1,
+                        "default": 10
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "联行号（精确匹配）"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "银行名称（模糊查询）"
+                    },
+                    "province": {
+                        "type": "string",
+                        "description": "省份（精确匹配）"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "城市（精确匹配）"
+                    },
+                    "branchName": {
+                        "type": "string",
+                        "description": "支行名称（模糊查询）"
+                    }
+                },
+                "required": [
+                    "pageNo",
+                    "pageSize"
+                ]
+            },
+            "SysUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号",
+                        "maxLength": 11
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "用户名称",
+                        "maxLength": 64
+                    },
+                    "gender": {
+                        "type": "string",
+                        "description": "性别",
+                        "enum": [
+                            "男",
+                            "女"
+                        ],
+                        "default": "男"
+                    },
+                    "idCard": {
+                        "type": "string",
+                        "description": "身份证号",
+                        "maxLength": 18
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "密码",
+                        "maxLength": 256
+                    },
+                    "isInitPassword": {
+                        "type": "boolean",
+                        "description": "是否已修改了初始密码",
+                        "default": false
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "状态",
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "default": 1
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除",
+                        "default": false
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "orgId",
+                    "mobile",
+                    "name",
+                    "gender",
+                    "password",
+                    "isInitPassword",
+                    "status",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateUserDto": {
+                "type": "object",
+                "properties": {
+                    "orgId": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号",
+                        "maxLength": 11
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "用户名称",
+                        "maxLength": 64
+                    },
+                    "gender": {
+                        "type": "string",
+                        "description": "性别"
+                    },
+                    "idCard": {
+                        "type": "string",
+                        "description": "身份证号",
+                        "maxLength": 18
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "密码",
+                        "minLength": 6,
+                        "maxLength": 32
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "状态",
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "default": 1
+                    }
+                },
+                "required": [
+                    "orgId",
+                    "mobile",
+                    "name",
+                    "gender",
+                    "idCard",
+                    "password",
+                    "status"
+                ]
+            },
+            "UpdateUserDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号",
+                        "maxLength": 11
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "用户名称",
+                        "maxLength": 64
+                    },
+                    "gender": {
+                        "type": "string",
+                        "description": "性别",
+                        "enum": [
+                            "男",
+                            "女"
+                        ]
+                    },
+                    "idCard": {
+                        "type": "string",
+                        "description": "身份证号",
+                        "maxLength": 18
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "状态",
+                        "enum": [
+                            0,
+                            1
+                        ]
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "QueryUserDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示记录数",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "default": 10
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "用户名称"
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "状态",
+                        "enum": [
+                            0,
+                            1
+                        ]
+                    }
+                }
+            },
+            "ChangePasswordDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "oldPassword": {
+                        "type": "string",
+                        "description": "旧密码",
+                        "minLength": 6,
+                        "maxLength": 20
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "description": "新密码",
+                        "minLength": 6,
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "oldPassword",
+                    "newPassword"
+                ]
+            },
+            "SysRole": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "角色ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "角色编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "角色名称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "角色备注",
+                        "maxLength": 128
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除",
+                        "default": false
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateRoleDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "角色编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "角色名称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "角色备注",
+                        "maxLength": 128
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            },
+            "UpdateRoleDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "角色ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "角色编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "角色名称",
+                        "maxLength": 64
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "角色备注",
+                        "maxLength": 128
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name"
+                ]
+            },
+            "QueryRoleDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示记录数",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "default": 10
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "角色名称",
+                        "maxLength": 64
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "AssignUserRoleDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "roleIds": {
+                        "description": "角色ID列表",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "required": [
+                    "userId",
+                    "roleIds"
+                ]
+            },
+            "AssignRoleResourceDto": {
+                "type": "object",
+                "properties": {
+                    "roleId": {
+                        "type": "number",
+                        "description": "角色ID"
+                    },
+                    "resourceIds": {
+                        "description": "资源ID列表",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "required": [
+                    "roleId",
+                    "resourceIds"
+                ]
+            },
+            "MenuMetaDto": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "菜单名称"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "菜单图标"
+                    },
+                    "isHide": {
+                        "type": "boolean",
+                        "description": "是否在菜单中隐藏"
+                    },
+                    "keepAlive": {
+                        "type": "boolean",
+                        "description": "是否缓存"
+                    },
+                    "authList": {
+                        "description": "可操作权限",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "title",
+                    "keepAlive"
+                ]
+            },
+            "MenuListDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "菜单ID"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "路由路径"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "组件名称"
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "组件加载路径"
+                    },
+                    "meta": {
+                        "description": "菜单元信息",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MenuMetaDto"
+                            }
+                        ]
+                    },
+                    "children": {
+                        "description": "子菜单",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MenuListDto"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "path",
+                    "name",
+                    "meta"
+                ]
+            },
+            "CheckPermissionDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "resourceCode": {
+                        "type": "string",
+                        "description": "资源编码"
+                    }
+                },
+                "required": [
+                    "userId",
+                    "resourceCode"
+                ]
+            },
+            "Number": {
+                "type": "object",
+                "properties": {}
+            },
+            "SysResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "资源ID"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "资源编码",
+                        "maxLength": 64
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "资源名称",
+                        "maxLength": 64
+                    },
+                    "type": {
+                        "type": "number",
+                        "description": "资源类型",
+                        "enum": [
+                            0,
+                            1,
+                            2
+                        ],
+                        "default": 0
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级资源ID",
+                        "default": 0
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "资源路径",
+                        "maxLength": 128
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "资源组件",
+                        "maxLength": 128
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "资源图标",
+                        "maxLength": 64
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "资源排序",
+                        "default": 0
+                    },
+                    "isHidden": {
+                        "type": "boolean",
+                        "description": "是否隐藏",
+                        "default": false
+                    },
+                    "isKeepAlive": {
+                        "type": "boolean",
+                        "description": "是否缓存",
+                        "default": false
+                    },
+                    "isExternalLink": {
+                        "type": "boolean",
+                        "description": "是否外部链接",
+                        "default": false
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除",
+                        "default": false
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name",
+                    "type",
+                    "parentId",
+                    "sort",
+                    "isHidden",
+                    "isKeepAlive",
+                    "isExternalLink",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateResourceDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "资源编码"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "资源名称"
+                    },
+                    "type": {
+                        "type": "number",
+                        "description": "资源类型. 0:目录, 1:菜单, 2:按钮"
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级资源ID. 0表示没有父级资源"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "资源路径"
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "资源组件"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "资源图标"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "资源排序"
+                    },
+                    "isHidden": {
+                        "type": "boolean",
+                        "description": "是否隐藏. 0:否, 1:是"
+                    },
+                    "isKeepAlive": {
+                        "type": "boolean",
+                        "description": "是否缓存. 0:否, 1:是"
+                    },
+                    "isExternalLink": {
+                        "type": "boolean",
+                        "description": "是否外部链接. 0:否, 1:是"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "type"
+                ]
+            },
+            "UpdateResourceDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "资源编码"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "资源名称"
+                    },
+                    "type": {
+                        "type": "number",
+                        "description": "资源类型. 0:目录, 1:菜单, 2:按钮"
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级资源ID. 0表示没有父级资源"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "资源路径"
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "资源组件"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "资源图标"
+                    },
+                    "sort": {
+                        "type": "number",
+                        "description": "资源排序"
+                    },
+                    "isHidden": {
+                        "type": "boolean",
+                        "description": "是否隐藏. 0:否, 1:是"
+                    },
+                    "isKeepAlive": {
+                        "type": "boolean",
+                        "description": "是否缓存. 0:否, 1:是"
+                    },
+                    "isExternalLink": {
+                        "type": "boolean",
+                        "description": "是否外部链接. 0:否, 1:是"
+                    },
+                    "id": {
+                        "type": "number",
+                        "description": "资源ID"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "type",
+                    "id"
+                ]
+            },
+            "QueryResourceDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示记录数",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "default": 10
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "资源编码"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "资源名称"
+                    },
+                    "type": {
+                        "type": "number",
+                        "description": "资源类型. 0:目录, 1:菜单, 2:按钮"
+                    },
+                    "parentId": {
+                        "type": "number",
+                        "description": "父级资源ID"
+                    }
+                }
+            }
+        }
+    }
 }

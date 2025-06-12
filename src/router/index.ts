@@ -91,6 +91,26 @@ const router = createRouter({
                 requiresAuth: true,
                 menuOrder: 3
               }
+            },
+            {
+              path: 'user',
+              name: 'UserManagement',
+              component: () => import('../views/system/UserManage.vue'),
+              meta: {
+                title: '用户管理',
+                requiresAuth: true,
+                menuOrder: 4
+              }
+            },
+            {
+              path: 'role',
+              name: 'RoleManagement',
+              component: () => import('../views/system/RoleManage.vue'),
+              meta: {
+                title: '角色管理',
+                requiresAuth: true,
+                menuOrder: 5
+              }
             }
           ]
         }
