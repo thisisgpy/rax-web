@@ -36,6 +36,10 @@ interface SysResource {
   updateTime: string
   /** 更新人 */
   updateBy?: string
+  /** 是否有子节点 (用于树形表格懒加载) */
+  hasChildren?: boolean
+  /** 子节点列表 (用于树形表格) */
+  children?: SysResource[]
 }
 
 /** 创建资源请求参数 */
@@ -90,16 +94,4 @@ interface UpdateResourceDto {
   isKeepAlive?: boolean
   /** 是否外部链接 */
   isExternalLink?: boolean
-}
-
-/** 查询资源请求参数 */
-interface QueryResourceDto extends PaginationParams {
-  /** 资源编码 */
-  code?: string
-  /** 资源名称 */
-  name?: string
-  /** 资源类型 0:目录 1:菜单 2:按钮 */
-  type?: 0 | 1 | 2
-  /** 父级资源ID */
-  parentId?: number
 } 

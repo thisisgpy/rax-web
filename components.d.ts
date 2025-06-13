@@ -49,6 +49,7 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTreeSelect: typeof import('element-plus/es')['ElTreeSelect']
     GlobalSettings: typeof import('./src/components/GlobalSettings.vue')['default']
+    IconSelector: typeof import('./src/components/IconSelector.vue')['default']
     OrgSelect: typeof import('./src/components/OrgSelect.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

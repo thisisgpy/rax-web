@@ -111,6 +111,16 @@ const router = createRouter({
                 requiresAuth: true,
                 menuOrder: 5
               }
+            },
+            {
+              path: 'resource',
+              name: 'ResourceManagement',
+              component: () => import('../views/system/ResourceManage.vue'),
+              meta: {
+                title: '资源管理',
+                requiresAuth: true,
+                menuOrder: 6
+              }
             }
           ]
         }

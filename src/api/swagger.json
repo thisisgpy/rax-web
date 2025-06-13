@@ -2090,21 +2090,21 @@
                 ]
             }
         },
-        "/api/v1/permission/resource/list": {
-            "post": {
-                "description": "根据条件分页查询资源列表",
-                "operationId": "PermissionController_findResourcePage",
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QueryResourceDto"
-                            }
+        "/api/v1/permission/resource/children/{parentId}": {
+            "get": {
+                "description": "根据父级资源ID查询下级资源列表",
+                "operationId": "PermissionController_findChildrenResourcePage",
+                "parameters": [
+                    {
+                        "name": "parentId",
+                        "required": true,
+                        "in": "path",
+                        "description": "父级资源ID. 0表示查询顶级资源",
+                        "schema": {
+                            "type": "number"
                         }
                     }
-                },
+                ],
                 "responses": {
                     "200": {
                         "description": "查询成功",
@@ -2123,7 +2123,10 @@
                                                     "example": ""
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/PageResult"
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SysResource"
+                                                    }
                                                 }
                                             }
                                         }
@@ -2133,7 +2136,7 @@
                         }
                     }
                 },
-                "summary": "分页查询资源",
+                "summary": "根据父级ID查询子资源",
                 "tags": [
                     "权限管理"
                 ]
@@ -3557,40 +3560,6 @@
                     "type",
                     "id"
                 ]
-            },
-            "QueryResourceDto": {
-                "type": "object",
-                "properties": {
-                    "pageNo": {
-                        "type": "number",
-                        "description": "当前页码",
-                        "minimum": 1,
-                        "default": 1
-                    },
-                    "pageSize": {
-                        "type": "number",
-                        "description": "每页显示记录数",
-                        "minimum": 1,
-                        "maximum": 100,
-                        "default": 10
-                    },
-                    "code": {
-                        "type": "string",
-                        "description": "资源编码"
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "资源名称"
-                    },
-                    "type": {
-                        "type": "number",
-                        "description": "资源类型. 0:目录, 1:菜单, 2:按钮"
-                    },
-                    "parentId": {
-                        "type": "number",
-                        "description": "父级资源ID"
-                    }
-                }
             }
         }
     }

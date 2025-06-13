@@ -517,20 +517,10 @@ const fetchDictList = async () => {
       // 标准分页格式
       dictList.value = responseData.rows || []
       pagination.total = responseData.total || 0
-    } else if (responseData.list) {
-      // 备选分页格式
-      dictList.value = responseData.list || []
-      pagination.total = responseData.total || 0
-    } else if (Array.isArray(responseData)) {
-      // 直接数组格式
-      dictList.value = responseData
-      pagination.total = responseData.length
     } else {
       dictList.value = []
       pagination.total = 0
     }
-    
-
   }
   dictLoading.value = false
 }

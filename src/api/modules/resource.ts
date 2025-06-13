@@ -35,11 +35,11 @@ export const resourceApi = {
   },
 
   /**
-   * 分页查询资源列表
-   * @param data - 查询参数
+   * 根据父级资源ID查询下级资源列表
+   * @param parentId - 父级资源ID，0表示查询顶级资源
    */
-  getResourceList(data: QueryResourceDto): Promise<ApiResponse<PageResult<SysResource>>> {
-    return post('/v1/permission/resource/list', data)
+  getChildrenResources(parentId: number): Promise<ApiResponse<SysResource[]>> {
+    return get(`/v1/permission/resource/children/${parentId}`)
   },
 
   /**
