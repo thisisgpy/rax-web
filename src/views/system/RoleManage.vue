@@ -41,7 +41,7 @@
                   <div v-for="column in columnConfig" :key="column.key" class="column-item">
                     <el-checkbox 
                       :model-value="column.visible" 
-                      @change="(value) => toggleColumn(column.key, value)"
+                      @change="(value: boolean) => toggleColumn(column.key, value)"
                       :label="column.label"
                     />
                   </div>
@@ -89,7 +89,7 @@
 
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-dropdown @command="(command) => handleCommand(command, row)">
+            <el-dropdown @command="(command: string) => handleCommand(command, row)">
               <el-button type="primary" size="small">
                 操作
                 <el-icon class="el-icon--right">
@@ -100,6 +100,9 @@
                 <el-dropdown-menu>
                   <el-dropdown-item command="edit" :icon="Edit">
                     编辑
+                  </el-dropdown-item>
+                  <el-dropdown-item command="setPermissions" :icon="Key">
+                    权限设置
                   </el-dropdown-item>
                   <el-dropdown-item command="delete" :icon="Delete" divided>
                     删除
@@ -124,6 +127,69 @@
         />
       </div>
     </el-card>
+
+    <!-- 权限设置抽屉 -->
+    <el-drawer
+      v-model="permissionDialogVisible"
+      title="权限设置"
+      direction="rtl"
+      size="600px"
+      :close-on-click-modal="false"
+      :with-header="true"
+      destroy-on-close
+    >
+      <div v-loading="permissionLoading" class="permission-drawer-content">
+        <div class="permission-info">
+          <p><strong>角色：</strong>{{ currentRole?.name }} <span class="role-code">{{ currentRole?.code }}</span></p>
+        </div>
+        
+        <div class="permission-tree">
+          <div class="tree-header">
+            <p><strong>选择权限：</strong></p>
+            <div class="tree-actions">
+              <el-button size="small" text @click="expandAllNodes">
+                展开全部
+              </el-button>
+              <el-button size="small" text @click="collapseAllNodes">
+                收起全部
+              </el-button>
+            </div>
+          </div>
+          <el-tree
+            ref="permissionTreeRef"
+            :data="resourceTreeData"
+            :props="treeProps"
+            show-checkbox
+            node-key="id"
+            :check-strictly="true"
+            style="max-height: calc(100vh - 200px); overflow-y: auto;"
+          >
+            <template #default="{ node, data }">
+              <div class="tree-node">
+                <span class="node-label">{{ data.name }}</span>
+                <el-tag 
+                  :type="getResourceTypeTag(data.type)" 
+                  size="small" 
+                  style="margin-left: 8px;"
+                >
+                  {{ getResourceTypeText(data.type) }}
+                </el-tag>
+                <span v-if="data.code" class="node-code">{{ data.code }}</span>
+              </div>
+            </template>
+          </el-tree>
+        </div>
+      </div>
+      
+      <template #footer>
+        <div class="drawer-footer">
+          <el-button @click="permissionDialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="permissionSaving" @click="handleSavePermissions">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-drawer>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
@@ -181,7 +247,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search,
@@ -190,10 +256,13 @@ import {
   Edit,
   Delete,
   ArrowDown,
-  SwitchFilled
+  SwitchFilled,
+  Key
 } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { roleApi } from '@/api/modules/role'
+import { permissionApi } from '@/api/modules/permission'
+import { resourceApi } from '@/api/modules/resource'
 
 // 组件引用
 const searchFormRef = ref<FormInstance>()
@@ -205,6 +274,15 @@ const saving = ref(false)
 const dialogVisible = ref(false)
 const isEditMode = ref(false)
 const tableData = ref<SysRole[]>([])
+
+// 权限设置相关
+const permissionDialogVisible = ref(false)
+const permissionLoading = ref(false)
+const permissionSaving = ref(false)
+const currentRole = ref<SysRole | null>(null)
+const resourceTreeData = ref<SysResource[]>([])
+const selectedResourceIds = ref<number[]>([])
+const permissionTreeRef = ref()
 
 // 列配置
 const columnConfig = ref([
@@ -269,6 +347,19 @@ onMounted(() => {
   fetchRoleList()
 })
 
+// 监听权限对话框关闭，清理状态
+watch(permissionDialogVisible, (newVal) => {
+  if (!newVal) {
+    // 对话框关闭时清理状态
+    currentRole.value = null
+    resourceTreeData.value = []
+    selectedResourceIds.value = []
+    if (permissionTreeRef.value) {
+      permissionTreeRef.value.setCheckedKeys([])
+    }
+  }
+})
+
 // 获取角色列表
 const fetchRoleList = async () => {
   tableLoading.value = true
@@ -280,7 +371,7 @@ const fetchRoleList = async () => {
     }
     
     const { data } = await roleApi.getRoleList(params)
-    tableData.value = data.rows || data.list || []
+    tableData.value = data.rows || []
     pagination.total = data.total
   } catch (error: any) {
     console.error('获取角色列表失败:', error)
@@ -330,6 +421,9 @@ const handleCommand = (command: string, row: SysRole) => {
   switch (command) {
     case 'edit':
       handleEdit(row)
+      break
+    case 'setPermissions':
+      handleSetPermissions(row)
       break
     case 'delete':
       handleDelete(row)
@@ -424,6 +518,180 @@ const handleCurrentChange = (page: number) => {
   pagination.pageNo = page
   fetchRoleList()
 }
+
+// 树形组件配置
+const treeProps = {
+  children: 'children',
+  label: 'name'
+}
+
+// 权限设置
+const handleSetPermissions = async (row: SysRole) => {
+  currentRole.value = row
+  permissionDialogVisible.value = true
+  await loadRolePermissionsAndResources(row.id)
+}
+
+// 加载角色权限和资源树
+const loadRolePermissionsAndResources = async (roleId: number) => {
+  permissionLoading.value = true
+  try {
+    // 先清理之前的状态
+    selectedResourceIds.value = []
+    resourceTreeData.value = []
+    if (permissionTreeRef.value) {
+      permissionTreeRef.value.setCheckedKeys([])
+    }
+    
+    // 并行获取角色当前权限和所有资源树
+    const [roleResourcesResponse, resourceTreeResponse] = await Promise.all([
+      permissionApi.getRoleResources(roleId),
+      resourceApi.getAllResourcesTree()
+    ])
+    
+    selectedResourceIds.value = roleResourcesResponse.data || []
+    resourceTreeData.value = resourceTreeResponse.data || []
+    
+    // 等待DOM更新后设置选中状态
+    await nextTick()
+    if (permissionTreeRef.value && selectedResourceIds.value.length > 0) {
+      // 设置选中状态 - 精确权限控制
+      permissionTreeRef.value.setCheckedKeys(selectedResourceIds.value)
+    }
+  } catch (error: any) {
+    console.error('加载权限数据失败:', error)
+    ElMessage.error(error.message || '加载权限数据失败，请重试')
+  } finally {
+    permissionLoading.value = false
+  }
+}
+
+// 保存权限设置
+const handleSavePermissions = async () => {
+  if (!currentRole.value || !permissionTreeRef.value) return
+  
+  try {
+    permissionSaving.value = true
+    
+    // 获取选中的节点ID（精确权限控制，不包括半选中状态）
+    const checkedKeys = permissionTreeRef.value.getCheckedKeys()
+    const allSelectedIds = checkedKeys
+    
+    const assignData: AssignRoleResourceDto = {
+      roleId: currentRole.value.id,
+      resourceIds: allSelectedIds
+    }
+    
+    await permissionApi.assignRoleResources(assignData)
+    ElMessage.success('权限设置成功')
+    permissionDialogVisible.value = false
+  } catch (error: any) {
+    console.error('设置权限失败:', error)
+    ElMessage.error(error.message || '设置权限失败，请重试')
+  } finally {
+    permissionSaving.value = false
+  }
+}
+
+// 获取资源类型文本
+const getResourceTypeText = (type: number) => {
+  const typeMap = { 0: '目录', 1: '菜单', 2: '按钮' }
+  return typeMap[type as keyof typeof typeMap] || '未知'
+}
+
+// 获取资源类型标签颜色
+const getResourceTypeTag = (type: number) => {
+  const typeMap = { 0: 'info', 1: 'success', 2: 'warning' }
+  return typeMap[type as keyof typeof typeMap] || 'info'
+}
+
+// 展开所有节点
+const expandAllNodes = () => {
+  if (permissionTreeRef.value) {
+    // 获取所有节点的key
+    const allKeys: number[] = []
+    const getAllKeys = (nodes: SysResource[]) => {
+      nodes.forEach(node => {
+        allKeys.push(node.id)
+        if (node.children && node.children.length > 0) {
+          getAllKeys(node.children)
+        }
+      })
+    }
+    getAllKeys(resourceTreeData.value)
+    
+    // 展开所有节点
+    permissionTreeRef.value.store.nodesMap = permissionTreeRef.value.store.nodesMap || {}
+    allKeys.forEach(key => {
+      const node = permissionTreeRef.value.store.nodesMap[key]
+      if (node) {
+        node.expanded = true
+      }
+    })
+  }
+}
+
+// 收起所有节点
+const collapseAllNodes = () => {
+  if (permissionTreeRef.value) {
+    // 获取所有节点的key
+    const allKeys: number[] = []
+    const getAllKeys = (nodes: SysResource[]) => {
+      nodes.forEach(node => {
+        allKeys.push(node.id)
+        if (node.children && node.children.length > 0) {
+          getAllKeys(node.children)
+        }
+      })
+    }
+    getAllKeys(resourceTreeData.value)
+    
+    // 收起所有节点
+    permissionTreeRef.value.store.nodesMap = permissionTreeRef.value.store.nodesMap || {}
+    allKeys.forEach(key => {
+      const node = permissionTreeRef.value.store.nodesMap[key]
+      if (node) {
+        node.expanded = false
+      }
+    })
+  }
+}
+
+// 辅助函数：如果需要父子节点关联，可以使用此函数
+// 当前采用精确权限控制（check-strictly="true"），此函数暂未使用
+const getExpandedKeysWithChildren = (selectedIds: number[], treeData: SysResource[]): number[] => {
+  const result: number[] = []
+  
+  const findAllChildren = (nodes: SysResource[], targetIds: number[]) => {
+    for (const node of nodes) {
+      if (targetIds.includes(node.id)) {
+        // 如果当前节点被选中，则添加它及其所有子孙节点
+        result.push(node.id)
+        if (node.children && node.children.length > 0) {
+          const allChildIds = getAllChildrenIds(node.children)
+          result.push(...allChildIds)
+        }
+      } else if (node.children && node.children.length > 0) {
+        // 递归查找子节点
+        findAllChildren(node.children, targetIds)
+      }
+    }
+  }
+  
+  const getAllChildrenIds = (nodes: SysResource[]): number[] => {
+    const childIds: number[] = []
+    for (const node of nodes) {
+      childIds.push(node.id)
+      if (node.children && node.children.length > 0) {
+        childIds.push(...getAllChildrenIds(node.children))
+      }
+    }
+    return childIds
+  }
+  
+  findAllChildren(treeData, selectedIds)
+  return [...new Set(result)] // 去重
+}
 </script>
 
 <style scoped>
@@ -502,5 +770,93 @@ const handleCurrentChange = (page: number) => {
 
 :deep(.el-table .cell) {
   word-break: break-word;
+}
+
+/* 权限设置抽屉样式 */
+.permission-drawer-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.permission-info {
+  background-color: var(--el-bg-color-page);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.permission-info p {
+  margin: 0;
+  color: var(--el-text-color-regular);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-code {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  background-color: var(--el-fill-color-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--el-font-family-mono, 'Courier New', monospace);
+}
+
+.permission-tree {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.tree-header p {
+  margin: 0;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+}
+
+.tree-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding-right: 8px;
+}
+
+.node-label {
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+}
+
+.node-code {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  background-color: var(--el-fill-color-light);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 0 0 0;
+  border-top: 1px solid var(--el-border-color-light);
+  margin-top: 12px;
 }
 </style> 

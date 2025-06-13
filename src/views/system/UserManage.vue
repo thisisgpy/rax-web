@@ -70,7 +70,7 @@
                   <div v-for="column in columnConfig" :key="column.key" class="column-item">
                     <el-checkbox 
                       :model-value="column.visible" 
-                      @change="(value) => toggleColumn(column.key, value)"
+                      @change="(value: boolean) => toggleColumn(column.key, value)"
                       :label="column.label"
                     />
                   </div>
@@ -159,7 +159,7 @@
         />
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-dropdown @command="(command) => handleCommand(command, row)">
+            <el-dropdown @command="(command: string) => handleCommand(command, row)">
               <el-button type="primary" size="small">
                 操作
                 <el-icon class="el-icon--right">
@@ -173,6 +173,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="resetPassword" :icon="Key">
                     重置密码
+                  </el-dropdown-item>
+                  <el-dropdown-item command="setRoles" :icon="UserFilled">
+                    角色设置
                   </el-dropdown-item>
                   <el-dropdown-item command="delete" :icon="Delete" divided>
                     删除
@@ -197,6 +200,54 @@
         />
       </div>
     </el-card>
+
+    <!-- 角色设置对话框 -->
+    <el-dialog
+      v-model="roleDialogVisible"
+      title="角色设置"
+      width="1000px"
+      :close-on-click-modal="false"
+    >
+      <div v-loading="roleLoading">
+        <div class="role-info">
+          <p><strong>用户：</strong>{{ currentUser?.name }}</p>
+        </div>
+        
+        <el-divider />
+        
+        <div class="role-transfer">
+          <el-transfer
+            v-model="selectedRoleIds"
+            :data="transferData"
+            :titles="['可选角色', '已分配角色']"
+            :button-texts="['移除', '分配']"
+            :format="{
+              noChecked: '${total}',
+              hasChecked: '${checked}/${total}'
+            }"
+            filterable
+            filter-placeholder="搜索角色"
+            style="text-align: left; display: inline-block"
+          >
+            <template #default="{ option }">
+              <div class="transfer-item">
+                <span class="role-name">{{ option.label }}</span>
+                <span v-if="option.comment" class="role-comment">{{ option.comment }}</span>
+              </div>
+            </template>
+          </el-transfer>
+        </div>
+      </div>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="roleDialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="roleSaving" @click="handleSaveRoles">
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
@@ -292,11 +343,14 @@ import {
   Delete,
   Key,
   ArrowDown,
-  SwitchFilled
+  SwitchFilled,
+  UserFilled
 } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { userApi } from '@/api/modules/user'
 import { orgApi } from '@/api/modules/org'
+import { permissionApi } from '@/api/modules/permission'
+import { roleApi } from '@/api/modules/role'
 
 // 组件引用
 const searchFormRef = ref<FormInstance>()
@@ -308,6 +362,20 @@ const saving = ref(false)
 const dialogVisible = ref(false)
 const isEditMode = ref(false)
 const tableData = ref<SysUser[]>([])
+
+// 角色设置相关
+const roleDialogVisible = ref(false)
+const roleLoading = ref(false)
+const roleSaving = ref(false)
+const currentUser = ref<SysUser | null>(null)
+const currentUserRoles = ref<SysRole[]>([])
+const allRoles = ref<SysRole[]>([])
+const selectedRoleIds = ref<number[]>([])
+const transferData = ref<Array<{
+  key: number
+  label: string
+  comment?: string
+}>>([])
 
 // 列配置
 const columnConfig = ref([
@@ -348,8 +416,6 @@ const formData = reactive<CreateUserDto & UpdateUserDto>({
   password: '',
   status: 1
 })
-
-
 
 // 表单验证规则
 const formRules = computed((): FormRules => ({
@@ -434,8 +500,6 @@ const fetchUserList = async () => {
   }
 }
 
-
-
 // 搜索
 const handleSearch = () => {
   pagination.pageNo = 1
@@ -479,6 +543,9 @@ const handleCommand = (command: string, row: SysUser) => {
       break
     case 'resetPassword':
       handleResetPassword(row)
+      break
+    case 'setRoles':
+      handleSetRoles(row)
       break
     case 'delete':
       handleDelete(row)
@@ -594,8 +661,6 @@ const resetFormData = () => {
   formRef.value?.resetFields()
 }
 
-
-
 // 分页大小变化
 const handleSizeChange = (size: number) => {
   pagination.pageSize = size
@@ -607,6 +672,66 @@ const handleSizeChange = (size: number) => {
 const handleCurrentChange = (page: number) => {
   pagination.pageNo = page
   fetchUserList()
+}
+
+// 角色设置
+const handleSetRoles = async (row: SysUser) => {
+  currentUser.value = row
+  roleDialogVisible.value = true
+  await loadUserRolesAndAllRoles(row.id)
+}
+
+// 加载用户角色和所有角色
+const loadUserRolesAndAllRoles = async (userId: number) => {
+  roleLoading.value = true
+  try {
+    // 并行获取用户当前角色和所有角色
+    const [userRolesResponse, allRolesResponse] = await Promise.all([
+      permissionApi.getUserRoles(userId),
+      roleApi.getAllRoles()
+    ])
+    
+    currentUserRoles.value = userRolesResponse.data
+    allRoles.value = allRolesResponse.data
+    
+    // 转换为 Transfer 组件需要的数据格式
+    transferData.value = allRoles.value.map(role => ({
+      key: role.id,
+      label: role.name,
+      comment: role.comment
+    }))
+    
+    // 设置已选中的角色ID
+    selectedRoleIds.value = currentUserRoles.value.map(role => role.id)
+  } catch (error: any) {
+    console.error('加载角色数据失败:', error)
+    ElMessage.error(error.message || '加载角色数据失败，请重试')
+  } finally {
+    roleLoading.value = false
+  }
+}
+
+// 保存角色设置
+const handleSaveRoles = async () => {
+  if (!currentUser.value) return
+  
+  try {
+    roleSaving.value = true
+    
+    const assignData: AssignUserRoleDto = {
+      userId: currentUser.value.id,
+      roleIds: selectedRoleIds.value
+    }
+    
+    await permissionApi.assignUserRoles(assignData)
+    ElMessage.success('角色设置成功')
+    roleDialogVisible.value = false
+  } catch (error: any) {
+    console.error('设置角色失败:', error)
+    ElMessage.error(error.message || '设置角色失败，请重试')
+  } finally {
+    roleSaving.value = false
+  }
 }
 </script>
 
@@ -686,5 +811,60 @@ const handleCurrentChange = (page: number) => {
 
 :deep(.el-table .cell) {
   word-break: break-word;
+}
+
+/* 角色设置对话框样式 */
+.role-info {
+  margin-bottom: 16px;
+}
+
+.role-info p {
+  margin: 8px 0;
+  color: var(--el-text-color-regular);
+}
+
+.role-transfer {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.transfer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.role-name {
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+}
+
+.role-comment {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+:deep(.el-transfer) {
+  text-align: center;
+}
+
+:deep(.el-transfer-panel) {
+  width: 350px;
+}
+
+:deep(.el-transfer-panel__item) {
+  height: auto;
+  padding: 8px 12px;
+}
+
+:deep(.el-transfer-panel__item .el-checkbox__label) {
+  width: 100%;
+  text-align: left;
 }
 </style>

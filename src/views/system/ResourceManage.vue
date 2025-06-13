@@ -20,8 +20,11 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-button :icon="Refresh" @click="fetchRootResources">
-              刷新
+            <el-button @click="expandAllNodes">
+              展开全部
+            </el-button>
+            <el-button @click="collapseAllNodes">
+              收起全部
             </el-button>
             <el-button type="primary" :icon="Plus" @click="handleCreate">
               新增资源
@@ -30,6 +33,7 @@
         </div>
       </template>
       <el-table
+        ref="resourceTableRef"
         v-loading="tableLoading"
         :data="tableData"
         stripe
@@ -264,15 +268,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Plus,
   Edit,
   Delete,
   ArrowDown,
-  SwitchFilled,
-  Refresh
+  SwitchFilled
 } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { resourceApi } from '@/api/modules/resource'
@@ -280,6 +283,7 @@ import IconSelector from '@/components/IconSelector.vue'
 
 // 组件引用
 const formRef = ref<FormInstance>()
+const resourceTableRef = ref()
 
 // 响应式数据
 const tableLoading = ref(false)
@@ -538,6 +542,54 @@ const resetFormData = () => {
     isExternalLink: false
   })
   formRef.value?.resetFields()
+}
+
+// 展开所有节点
+const expandAllNodes = async () => {
+  if (!resourceTableRef.value) return
+  
+  try {
+    // 先加载完整的资源树
+    const { data } = await resourceApi.getAllResourcesTree()
+    
+    // 更新表格数据为完整的树结构
+    tableData.value = data
+    
+    // 等待DOM更新
+    await nextTick()
+    
+    // 递归展开所有节点
+    const expandRecursively = (items: SysResource[]) => {
+      items.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          resourceTableRef.value.toggleRowExpansion(item, true)
+          expandRecursively(item.children)
+        }
+      })
+    }
+    
+    expandRecursively(tableData.value)
+  } catch (error: any) {
+    console.error('展开所有节点失败:', error)
+    ElMessage.error(error.message || '展开所有节点失败，请重试')
+  }
+}
+
+// 收起所有节点
+const collapseAllNodes = () => {
+  if (!resourceTableRef.value) return
+  
+  // 递归收起所有节点
+  const collapseRecursively = (items: SysResource[]) => {
+    items.forEach(item => {
+      if (item.children && item.children.length > 0) {
+        resourceTableRef.value.toggleRowExpansion(item, false)
+        collapseRecursively(item.children)
+      }
+    })
+  }
+  
+  collapseRecursively(tableData.value)
 }
 </script>
 
