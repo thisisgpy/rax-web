@@ -141,4 +141,20 @@ export const del = <T = any>(
   return httpClient.delete(url, config)
 }
 
+/** 文件上传方法 */
+export const upload = <T = any>(
+  url: string,
+  formData: FormData,
+  config?: AxiosRequestConfig & {
+    onUploadProgress?: (progressEvent: any) => void
+  }
+): Promise<ApiResponse<T>> => {
+  return httpClient.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    ...config
+  })
+}
+
 export default httpClient 

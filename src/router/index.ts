@@ -13,7 +13,8 @@ interface RouteMeta {
 // 导入图标
 import { 
   House,
-  Setting
+  Setting,
+  Box
 } from '@element-plus/icons-vue'
 
 const router = createRouter({
@@ -59,7 +60,7 @@ const router = createRouter({
             title: '系统配置',
             requiresAuth: true,
             icon: Setting,
-            menuOrder: 2
+            menuOrder: 9
           },
           children: [
             {
@@ -120,6 +121,28 @@ const router = createRouter({
                 title: '资源管理',
                 requiresAuth: true,
                 menuOrder: 6
+              }
+            }
+          ]
+        },
+        {
+          path: 'asset',
+          name: 'Asset',
+          meta: {
+            title: '资产管理',
+            requiresAuth: true,
+            icon: Box,
+            menuOrder: 3
+          },
+          children: [
+            {
+              path: 'fixed',
+              name: 'FixedAsset',
+              component: () => import('../views/asset/fixed/index.vue'),
+              meta: {
+                title: '固定资产',
+                requiresAuth: true,
+                menuOrder: 1
               }
             }
           ]

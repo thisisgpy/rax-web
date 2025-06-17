@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# RAX-Web Project Standards
+
+## Table Text Selection
+All `el-table` components must enable text selection:
+
+```css
+:deep(.el-table__body) { user-select: text; }
+:deep(.el-table__body td) { user-select: text; }
+:deep(.el-table__body .cell) { user-select: text; }
+```
+
+## OrgSelect Component Type Safety
+- `modelValue` must be `number` type when assigned
+- Initialize as `undefined` for new records
+- Convert to `number` when editing existing records
+
+```typescript
+// ✅ New record initialization
+const formData = reactive({
+  orgId: undefined  // undefined for new records
+})
+
+// ✅ Edit existing record
+const handleEdit = (row: UserResponseDto) => {
+  formData.orgId = typeof row.orgId === 'string' ? Number(row.orgId) : row.orgId
+}
+```
+
+## Dialog Component Separation
+Create separate components for Create and Edit operations:
+
+```
+components/
+├── CreateXxxDialog.vue
+├── EditXxxDialog.vue
+└── index.ts
+```
+
+## ID Type Safety
+All IDs must be `number` type when submitting to APIs:
+
+```typescript
+const submitData = {
+  id: Number(formData.id),
+  orgId: Number(formData.orgId),
+  roleIds: selectedRoles.map(id => Number(id))
+}
+```
+
+## Form Reset Best Practices
+Use `undefined` for optional fields like `orgId`:
+
+```typescript
+const resetFormData = () => {
+  Object.assign(formData, {
+    id: 0,
+    name: '',
+    orgId: undefined,  // undefined for optional org selection
+    status: 1
+  })
+  
+  nextTick(() => {
+    formRef.value?.resetFields()
+    formRef.value?.clearValidate()
+  })
+}
+```
+
+## Error Handling
+Prioritize `message` field from API responses:
+
+```typescript
+catch (error: any) {
+  ElMessage.error(error.message || 'Operation failed')
+}
+```

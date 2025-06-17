@@ -463,6 +463,19 @@ const collapseAllNodes = () => {
   word-break: break-word;
 }
 
+/* 启用表格内容的文本选择 */
+:deep(.el-table__body) {
+  user-select: text;
+}
+
+:deep(.el-table__body td) {
+  user-select: text;
+}
+
+:deep(.el-table__body .cell) {
+  user-select: text;
+}
+
 .icon-display {
   display: flex;
   align-items: center;

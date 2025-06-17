@@ -274,6 +274,19 @@ onMounted(() => {
   flex: 1;
 }
 
+/* 启用表格内容的文本选择 */
+:deep(.el-table__body) {
+  user-select: text;
+}
+
+:deep(.el-table__body td) {
+  user-select: text;
+}
+
+:deep(.el-table__body .cell) {
+  user-select: text;
+}
+
 .pagination-section {
   flex-shrink: 0;
   margin-top: 20px;

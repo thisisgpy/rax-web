@@ -542,6 +542,19 @@ onMounted(() => {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
+/* 启用表格内容的文本选择 */
+:deep(.el-table__body) {
+  user-select: text;
+}
+
+:deep(.el-table__body td) {
+  user-select: text;
+}
+
+:deep(.el-table__body .cell) {
+  user-select: text;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .stats-grid {

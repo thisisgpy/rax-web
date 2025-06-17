@@ -638,6 +638,19 @@ const handleSaveRoles = async () => {
   word-break: break-word;
 }
 
+/* 启用表格内容的文本选择 */
+:deep(.el-table__body) {
+  user-select: text;
+}
+
+:deep(.el-table__body td) {
+  user-select: text;
+}
+
+:deep(.el-table__body .cell) {
+  user-select: text;
+}
+
 /* 角色设置对话框样式 */
 .role-info {
   margin-bottom: 16px;
