@@ -164,7 +164,7 @@
             :check-strictly="true"
             style="max-height: calc(100vh - 200px); overflow-y: auto;"
           >
-            <template #default="{ node, data }">
+            <template #default="{ data }">
               <div class="tree-node">
                 <span class="node-label">{{ data.name }}</span>
                 <el-tag 
@@ -191,58 +191,18 @@
       </template>
     </el-drawer>
 
-    <!-- 新增/编辑对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEditMode ? '编辑角色' : '新增角色'"
-      width="600px"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="100px"
-      >
-        <el-form-item label="角色编码" prop="code">
-          <el-input
-            v-model="formData.code"
-            placeholder="请输入角色编码"
-            maxlength="64"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="角色名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入角色名称"
-            maxlength="64"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="角色备注" prop="comment">
-          <el-input
-            v-model="formData.comment"
-            type="textarea"
-            placeholder="请输入角色备注"
-            :rows="3"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-      </el-form>
-      
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">
-            确定
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 新增角色对话框 -->
+    <CreateRoleDialog
+      v-model:visible="createDialogVisible"
+      @success="handleFormSuccess"
+    />
+
+    <!-- 编辑角色对话框 -->
+    <EditRoleDialog
+      v-model:visible="editDialogVisible"
+      :role-data="currentEditRole"
+      @success="handleFormSuccess"
+    />
   </div>
 </template>
 
@@ -259,21 +219,22 @@ import {
   SwitchFilled,
   Key
 } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { roleApi } from '@/api/modules/role'
 import { permissionApi } from '@/api/modules/permission'
 import { resourceApi } from '@/api/modules/resource'
+import CreateRoleDialog from './components/CreateRoleDialog.vue'
+import EditRoleDialog from './components/EditRoleDialog.vue'
 
 // 组件引用
 const searchFormRef = ref<FormInstance>()
-const formRef = ref<FormInstance>()
 
 // 响应式数据
 const tableLoading = ref(false)
-const saving = ref(false)
-const dialogVisible = ref(false)
-const isEditMode = ref(false)
+const createDialogVisible = ref(false)
+const editDialogVisible = ref(false)
 const tableData = ref<SysRole[]>([])
+const currentEditRole = ref<SysRole | null>(null)
 
 // 权限设置相关
 const permissionDialogVisible = ref(false)
@@ -304,29 +265,7 @@ const pagination = reactive({
   total: 0
 })
 
-// 表单数据
-const formData = reactive<CreateRoleDto & UpdateRoleDto>({
-  id: 0,
-  code: '',
-  name: '',
-  comment: ''
-})
 
-// 表单验证规则
-const formRules = computed((): FormRules => ({
-  code: [
-    { required: true, message: '请输入角色编码', trigger: 'blur' },
-    { min: 2, max: 64, message: '长度在 2 到 64 个字符', trigger: 'blur' },
-    { pattern: /^[A-Z_][A-Z0-9_]*$/, message: '角色编码只能包含大写字母、数字和下划线，且以大写字母或下划线开头', trigger: 'blur' }
-  ],
-  name: [
-    { required: true, message: '请输入角色名称', trigger: 'blur' },
-    { min: 2, max: 64, message: '长度在 2 到 64 个字符', trigger: 'blur' }
-  ],
-  comment: [
-    { max: 200, message: '角色备注不能超过200个字符', trigger: 'blur' }
-  ]
-}))
 
 // 初始化列配置
 const initColumnConfig = () => {
@@ -396,9 +335,7 @@ const handleReset = () => {
 
 // 新增角色
 const handleCreate = () => {
-  isEditMode.value = false
-  resetFormData()
-  dialogVisible.value = true
+  createDialogVisible.value = true
 }
 
 // 获取列是否可见
@@ -433,14 +370,8 @@ const handleCommand = (command: string, row: SysRole) => {
 
 // 编辑角色
 const handleEdit = (row: SysRole) => {
-  isEditMode.value = true
-  Object.assign(formData, {
-    id: row.id,
-    code: row.code,
-    name: row.name,
-    comment: row.comment || ''
-  })
-  dialogVisible.value = true
+  currentEditRole.value = row
+  editDialogVisible.value = true
 }
 
 // 删除角色
@@ -467,43 +398,9 @@ const handleDelete = async (row: SysRole) => {
   }
 }
 
-// 保存
-const handleSave = async () => {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validate()
-    saving.value = true
-    
-    if (isEditMode.value) {
-      await roleApi.updateRole(formData as UpdateRoleDto)
-      ElMessage.success('更新成功')
-    } else {
-      await roleApi.createRole(formData as CreateRoleDto)
-      ElMessage.success('创建成功')
-    }
-    
-    dialogVisible.value = false
-    fetchRoleList()
-  } catch (error: any) {
-    if (error !== 'validation-failed') {
-      console.error('保存角色失败:', error)
-      ElMessage.error(error.message || '保存角色失败，请重试')
-    }
-  } finally {
-    saving.value = false
-  }
-}
-
-// 重置表单数据
-const resetFormData = () => {
-  Object.assign(formData, {
-    id: undefined,
-    code: '',
-    name: '',
-    comment: ''
-  })
-  formRef.value?.resetFields()
+// 表单成功回调
+const handleFormSuccess = () => {
+  fetchRoleList()
 }
 
 // 分页大小变化
@@ -657,41 +554,7 @@ const collapseAllNodes = () => {
   }
 }
 
-// 辅助函数：如果需要父子节点关联，可以使用此函数
-// 当前采用精确权限控制（check-strictly="true"），此函数暂未使用
-const getExpandedKeysWithChildren = (selectedIds: number[], treeData: SysResource[]): number[] => {
-  const result: number[] = []
-  
-  const findAllChildren = (nodes: SysResource[], targetIds: number[]) => {
-    for (const node of nodes) {
-      if (targetIds.includes(node.id)) {
-        // 如果当前节点被选中，则添加它及其所有子孙节点
-        result.push(node.id)
-        if (node.children && node.children.length > 0) {
-          const allChildIds = getAllChildrenIds(node.children)
-          result.push(...allChildIds)
-        }
-      } else if (node.children && node.children.length > 0) {
-        // 递归查找子节点
-        findAllChildren(node.children, targetIds)
-      }
-    }
-  }
-  
-  const getAllChildrenIds = (nodes: SysResource[]): number[] => {
-    const childIds: number[] = []
-    for (const node of nodes) {
-      childIds.push(node.id)
-      if (node.children && node.children.length > 0) {
-        childIds.push(...getAllChildrenIds(node.children))
-      }
-    }
-    return childIds
-  }
-  
-  findAllChildren(treeData, selectedIds)
-  return [...new Set(result)] // 去重
-}
+
 </script>
 
 <style scoped>
@@ -762,10 +625,6 @@ const getExpandedKeysWithChildren = (selectedIds: number[], treeData: SysResourc
   display: flex;
   justify-content: center;
   margin-top: 20px;
-}
-
-.dialog-footer {
-  text-align: right;
 }
 
 :deep(.el-table .cell) {

@@ -1,17 +1,20 @@
 <template>
   <el-tree-select
-    :model-value="modelValue"
+    :model-value="props.modelValue"
     @update:model-value="handleChange"
     :data="orgTreeData"
     :props="treeProps"
-    :placeholder="placeholder"
+    :placeholder="props.placeholder"
+    :empty-values="[null, undefined]"
+    :value-on-clear="null"
     :clearable="true"
-    :disabled="disabled"
+    :disabled="props.disabled"
     :loading="loading"
     :filterable="true"
     :filter-node-method="filterNode"
-    :style="{ width: width }"
+    :style="{ width: props.width }"
     :check-strictly="true"
+    :default-expanded-keys="defaultExpandedKeys"
     :render-after-expand="false"
     node-key="id"
     v-bind="$attrs"
@@ -25,22 +28,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+/**
+ * 组织选择组件
+ * 
+ * 使用约定：
+ * - modelValue 必须为数字类型，使用方负责确保传入正确的数字类型
+ * - 组件会自动展开包含当前选中值的节点路径
+ * - 支持按组织名称、简称、编码进行搜索过滤
+ */
+import { ref, computed, onMounted, watch } from 'vue'
 import { orgApi } from '@/api/modules/org'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 
 // 定义组件属性
 interface Props {
-  /** 绑定值 */
+  /** 绑定值 - 只接受数字类型，字符串会被强制转换为数字 */
   modelValue?: number | null
-  /** 占位符 */
-  placeholder?: string
   /** 是否禁用 */
   disabled?: boolean
   /** 组件宽度 */
   width?: string
-  /** 是否显示完整路径 */
-  showFullPath?: boolean
+  /** 占位符文本 */
+  placeholder?: string
 }
 
 // 定义组件事件
@@ -50,10 +59,9 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请选择组织',
   disabled: false,
   width: '100%',
-  showFullPath: false
+  placeholder: '请选择组织'
 })
 
 const emit = defineEmits<Emits>()
@@ -72,6 +80,8 @@ const treeProps = {
   children: 'children'
 }
 
+// 注释：modelValue 应该在使用处就确保为正确的数字类型
+
 // 组织树数据 - 处理简称显示
 const orgTreeData = computed(() => {
   const processNodes = (nodes: OrgTreeDto[]): OrgTreeDto[] => {
@@ -82,6 +92,36 @@ const orgTreeData = computed(() => {
     }))
   }
   return processNodes(orgTrees.value)
+})
+
+// 计算默认展开的节点键，确保当前选中值的路径被展开
+const defaultExpandedKeys = computed(() => {
+  if (!props.modelValue || orgTrees.value.length === 0) {
+    return []
+  }
+  
+  // 查找当前选中值的完整路径（包括所有父节点）
+  const findNodePath = (nodes: OrgTreeDto[], targetId: number, path: number[] = []): number[] => {
+    for (const node of nodes) {
+      const currentPath = [...path, node.id]
+      
+      if (node.id === targetId) {
+        return currentPath
+      }
+      
+      if (node.children && node.children.length > 0) {
+        const childPath = findNodePath(node.children, targetId, currentPath)
+        if (childPath.length > 0) {
+          return childPath
+        }
+      }
+    }
+    return []
+  }
+  
+  const path = findNodePath(orgTrees.value, props.modelValue)
+  // 返回路径中除了最后一个节点（叶子节点）外的所有节点，确保父节点都被展开
+  return path.slice(0, -1)
 })
 
 // 处理值变化
@@ -135,6 +175,14 @@ const fetchOrgTrees = async () => {
   
   loading.value = false
 }
+
+// 监听 modelValue 和 orgTrees 的变化，确保数据同步
+watch([() => props.modelValue, orgTrees], ([newModelValue, newOrgTrees]) => {
+  // 如果有值但数据未加载，则加载数据
+  if (newModelValue && newOrgTrees.length === 0 && !loading.value) {
+    fetchOrgTrees()
+  }
+}, { immediate: true })
 
 // 组件挂载时获取数据
 onMounted(() => {

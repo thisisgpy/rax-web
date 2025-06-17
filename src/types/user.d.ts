@@ -32,6 +32,40 @@ interface SysUser {
   updateBy?: string
 }
 
+/** 用户响应数据（包含组织信息） */
+interface UserResponseDto {
+  /** 用户ID */
+  id: number
+  /** 组织ID */
+  orgId: number
+  /** 组织名称 */
+  orgName: string
+  /** 组织简称 */
+  orgNameAbbr: string
+  /** 手机号 */
+  mobile: string
+  /** 用户名称 */
+  name: string
+  /** 性别 */
+  gender: '男' | '女'
+  /** 身份证号 */
+  idCard?: string
+  /** 是否已修改了初始密码 */
+  isInitPassword: boolean
+  /** 状态 */
+  status: 0 | 1
+  /** 是否删除 */
+  isDeleted: boolean
+  /** 创建时间 */
+  createTime: string
+  /** 创建人 */
+  createBy: string
+  /** 更新时间 */
+  updateTime: string
+  /** 更新人 */
+  updateBy?: string
+}
+
 /** 创建用户请求参数 */
 interface CreateUserDto {
   /** 组织ID */

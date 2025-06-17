@@ -30,7 +30,7 @@ export const userApi = {
    * 获取用户详情
    * @param id - 用户ID
    */
-  getUserById(id: number): Promise<ApiResponse<SysUser>> {
+  getUserById(id: number): Promise<ApiResponse<UserResponseDto>> {
     return get(`/v1/user/get/${id}`)
   },
 
@@ -38,7 +38,7 @@ export const userApi = {
    * 分页查询用户列表
    * @param data - 查询参数
    */
-  getUserList(data: QueryUserDto): Promise<ApiResponse<PageResult<SysUser>>> {
+  getUserList(data: QueryUserDto): Promise<ApiResponse<PageResult<UserResponseDto>>> {
     return post('/v1/user/list', data)
   },
 

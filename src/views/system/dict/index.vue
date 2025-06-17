@@ -3,7 +3,7 @@
     <!-- 主内容区 -->
     <el-row :gutter="20" class="main-content">
       <!-- 左侧：字典列表 -->
-      <el-col :span="16">
+      <el-col :span="12">
         <el-card class="dict-list-card">
           <template #header>
             <div class="card-header">
@@ -86,7 +86,6 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" width="160" />
             <el-table-column label="操作" width="120" fixed="right">
               <template #default="{ row }">
                 <el-button 
@@ -131,7 +130,7 @@
       </el-col>
 
       <!-- 右侧：字典项管理 -->
-      <el-col :span="8">
+      <el-col :span="12">
         <el-card class="dict-item-card">
           <template #header>
             <div class="card-header">
@@ -872,6 +871,13 @@ onMounted(() => {
   padding-top: 16px;
 }
 
+.dict-item-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 60px);
+  padding: 0;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -918,12 +924,21 @@ onMounted(() => {
 }
 
 .dict-item-content {
-  height: calc(100% - 60px);
+  flex: 1;
   overflow: auto;
+  padding: 0;
 }
 
 .dict-item-tree {
   padding: 16px;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 .tree-node {
@@ -960,20 +975,7 @@ onMounted(() => {
   display: flex;
 }
 
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  min-height: 400px;
-}
 
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
 
 /* 响应式设计 */
 @media (max-width: 1200px) {

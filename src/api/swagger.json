@@ -1079,7 +1079,7 @@
                                                     "example": ""
                                                 },
                                                 "data": {
-                                                    "$ref": "#/components/schemas/SysUser"
+                                                    "$ref": "#/components/schemas/UserResponseDto"
                                                 }
                                             }
                                         }
@@ -2183,6 +2183,592 @@
                     "权限管理"
                 ]
             }
+        },
+        "/api/v1/asset/fixed/create": {
+            "post": {
+                "description": "创建新的固定资产",
+                "operationId": "AssetFixedController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAssetFixedDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AssetFixed"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "创建固定资产",
+                "tags": [
+                    "固定资产管理"
+                ]
+            }
+        },
+        "/api/v1/asset/fixed/edit": {
+            "post": {
+                "description": "更新固定资产信息",
+                "operationId": "AssetFixedController_edit",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAssetFixedDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AssetFixed"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "更新固定资产",
+                "tags": [
+                    "固定资产管理"
+                ]
+            }
+        },
+        "/api/v1/asset/fixed/remove/{id}": {
+            "get": {
+                "description": "根据ID删除固定资产（软删除）",
+                "operationId": "AssetFixedController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "固定资产ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Boolean"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除固定资产",
+                "tags": [
+                    "固定资产管理"
+                ]
+            }
+        },
+        "/api/v1/asset/fixed/get/{id}": {
+            "get": {
+                "description": "根据固定资产ID获取详细信息",
+                "operationId": "AssetFixedController_getById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "固定资产ID",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/AssetFixedResponseDto"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取固定资产详情",
+                "tags": [
+                    "固定资产管理"
+                ]
+            }
+        },
+        "/api/v1/asset/fixed/search": {
+            "post": {
+                "description": "分页查询固定资产列表，支持按名称和组织筛选",
+                "operationId": "AssetFixedController_search",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QueryAssetFixedDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PageResult"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "分页查询固定资产",
+                "tags": [
+                    "固定资产管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/pre-upload": {
+            "post": {
+                "description": "预先上传文件，不绑定业务数据，返回附件ID用于后续关联",
+                "operationId": "AttachmentController_preUploadFile",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "description": "文件预上传",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "上传的文件"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "预上传成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "预上传文件",
+                "tags": [
+                    "附件管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/upload": {
+            "post": {
+                "description": "上传单个文件并保存附件信息到数据库",
+                "operationId": "AttachmentController_uploadFile",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "description": "文件上传",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bizModule": {
+                                        "type": "string",
+                                        "description": "业务模块名称",
+                                        "example": "asset_fixed"
+                                    },
+                                    "bizId": {
+                                        "type": "number",
+                                        "description": "业务数据ID",
+                                        "example": 123
+                                    },
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "上传的文件"
+                                    }
+                                },
+                                "required": [
+                                    "bizModule",
+                                    "bizId",
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "上传成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/SysAttachment"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "上传文件",
+                "tags": [
+                    "附件管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/batch-update-biz-info": {
+            "put": {
+                "description": "将预上传的附件关联到具体的业务数据",
+                "operationId": "AttachmentController_updateAttachmentsBizInfo",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "description": "批量更新附件业务信息",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "attachmentIds": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        },
+                                        "description": "附件ID数组",
+                                        "example": [
+                                            123456789,
+                                            123456790
+                                        ]
+                                    },
+                                    "bizModule": {
+                                        "type": "string",
+                                        "description": "业务模块名称",
+                                        "example": "asset_fixed"
+                                    },
+                                    "bizId": {
+                                        "type": "number",
+                                        "description": "业务数据ID",
+                                        "example": 123
+                                    }
+                                },
+                                "required": [
+                                    "attachmentIds",
+                                    "bizModule",
+                                    "bizId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "批量更新附件业务信息",
+                "tags": [
+                    "附件管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/{id}": {
+            "delete": {
+                "description": "根据附件ID软删除附件记录（保留物理文件）",
+                "operationId": "AttachmentController_deleteAttachment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "附件ID",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "删除附件",
+                "tags": [
+                    "附件管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/list": {
+            "get": {
+                "description": "根据业务模块和业务ID获取所有相关附件",
+                "operationId": "AttachmentController_getAttachmentList",
+                "parameters": [
+                    {
+                        "name": "bizModule",
+                        "required": true,
+                        "in": "query",
+                        "description": "业务模块名称",
+                        "schema": {
+                            "example": "asset_fixed",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bizId",
+                        "required": true,
+                        "in": "query",
+                        "description": "业务数据ID",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SysAttachment"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "获取附件列表",
+                "tags": [
+                    "附件管理"
+                ]
+            }
+        },
+        "/api/v1/attachment/download/{id}": {
+            "get": {
+                "description": "根据附件ID下载文件，使用原始文件名（支持中文）",
+                "operationId": "AttachmentController_downloadAttachment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "附件ID",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "summary": "下载附件",
+                "tags": [
+                    "附件管理"
+                ]
+            }
         }
     },
     "info": {
@@ -3003,6 +3589,88 @@
                     "id"
                 ]
             },
+            "UserResponseDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "用户ID"
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "组织ID"
+                    },
+                    "orgName": {
+                        "type": "string",
+                        "description": "组织名称"
+                    },
+                    "orgNameAbbr": {
+                        "type": "string",
+                        "description": "组织简称"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "用户名称"
+                    },
+                    "gender": {
+                        "type": "string",
+                        "description": "性别"
+                    },
+                    "idCard": {
+                        "type": "string",
+                        "description": "身份证号"
+                    },
+                    "isInitPassword": {
+                        "type": "boolean",
+                        "description": "是否已修改了初始密码"
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "状态"
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除"
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人"
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人"
+                    }
+                },
+                "required": [
+                    "id",
+                    "orgId",
+                    "orgName",
+                    "orgNameAbbr",
+                    "mobile",
+                    "name",
+                    "gender",
+                    "isInitPassword",
+                    "status",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
             "QueryUserDto": {
                 "type": "object",
                 "properties": {
@@ -3559,6 +4227,238 @@
                     "name",
                     "type",
                     "id"
+                ]
+            },
+            "AssetFixed": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "固定资产ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "固定资产名称",
+                        "maxLength": 128
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "所属组织ID"
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除",
+                        "default": false
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "orgId",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime"
+                ]
+            },
+            "CreateAssetFixedDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "固定资产名称",
+                        "maxLength": 128
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "所属组织ID"
+                    }
+                },
+                "required": [
+                    "name",
+                    "orgId"
+                ]
+            },
+            "UpdateAssetFixedDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "固定资产ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "固定资产名称",
+                        "maxLength": 128
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "所属组织ID"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "AssetFixedResponseDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "固定资产ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "固定资产名称"
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "所属组织ID"
+                    },
+                    "orgName": {
+                        "type": "string",
+                        "description": "所属组织名称"
+                    },
+                    "orgNameAbbr": {
+                        "type": "string",
+                        "description": "所属组织简称"
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除"
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人"
+                    },
+                    "updateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "更新时间"
+                    },
+                    "updateBy": {
+                        "type": "string",
+                        "description": "更新人"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "orgId",
+                    "orgName",
+                    "orgNameAbbr",
+                    "isDeleted",
+                    "createTime",
+                    "createBy",
+                    "updateTime",
+                    "updateBy"
+                ]
+            },
+            "QueryAssetFixedDto": {
+                "type": "object",
+                "properties": {
+                    "pageNo": {
+                        "type": "number",
+                        "description": "当前页码",
+                        "minimum": 1,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "type": "number",
+                        "description": "每页显示记录数",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "default": 10
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "固定资产名称关键字"
+                    },
+                    "orgId": {
+                        "type": "number",
+                        "description": "所属组织ID"
+                    }
+                }
+            },
+            "SysAttachment": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "附件ID"
+                    },
+                    "bizModule": {
+                        "type": "string",
+                        "description": "业务模块名称",
+                        "maxLength": 64
+                    },
+                    "bizId": {
+                        "type": "number",
+                        "description": "业务数据ID"
+                    },
+                    "originalName": {
+                        "type": "string",
+                        "description": "原文件名",
+                        "maxLength": 128
+                    },
+                    "savedName": {
+                        "type": "string",
+                        "description": "存储文件名",
+                        "maxLength": 128
+                    },
+                    "extension": {
+                        "type": "string",
+                        "description": "文件扩展名",
+                        "maxLength": 32
+                    },
+                    "fileSize": {
+                        "type": "number",
+                        "description": "文件大小(字节)"
+                    },
+                    "isDeleted": {
+                        "type": "boolean",
+                        "description": "是否删除"
+                    },
+                    "createTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "创建时间"
+                    },
+                    "createBy": {
+                        "type": "string",
+                        "description": "创建人",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "id",
+                    "createTime",
+                    "createBy"
                 ]
             }
         }

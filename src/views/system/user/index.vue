@@ -123,7 +123,7 @@
         />
         <el-table-column 
           v-if="getColumnVisible('orgName')" 
-          prop="orgName" 
+          prop="orgNameAbbr" 
           label="所属组织" 
           min-width="150" 
         />
@@ -249,91 +249,23 @@
       </template>
     </el-dialog>
 
-    <!-- 新增/编辑对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEditMode ? '编辑用户' : '新增用户'"
-      width="600px"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="100px"
-      >
-        <el-form-item label="用户名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入用户名称"
-            maxlength="64"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="手机号" prop="mobile">
-          <el-input
-            v-model="formData.mobile"
-            placeholder="请输入手机号"
-            maxlength="11"
-          />
-        </el-form-item>
-        
-        <el-form-item label="性别" prop="gender">
-          <el-radio-group v-model="formData.gender">
-            <el-radio label="男">男</el-radio>
-            <el-radio label="女">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item label="身份证号" prop="idCard">
-          <el-input
-            v-model="formData.idCard"
-            placeholder="请输入身份证号"
-            maxlength="18"
-          />
-        </el-form-item>
-        
-        <el-form-item label="所属组织" prop="orgId">
-          <OrgSelect
-            v-model="formData.orgId"
-            placeholder="请选择所属组织"
-            width="100%"
-          />
-        </el-form-item>
-        
-        <el-form-item v-if="!isEditMode" label="初始密码" prop="password">
-          <el-input
-            v-model="formData.password"
-            type="password"
-            placeholder="请输入初始密码"
-            show-password
-            maxlength="32"
-          />
-        </el-form-item>
-        
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio :label="1">启用</el-radio>
-            <el-radio :label="0">禁用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">
-            确定
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 新增用户对话框 -->
+    <CreateUserDialog
+      v-model:visible="createDialogVisible"
+      @success="handleFormSuccess"
+    />
+
+    <!-- 编辑用户对话框 -->
+    <EditUserDialog
+      v-model:visible="editDialogVisible"
+      :user-data="currentEditUser"
+      @success="handleFormSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search,
@@ -346,28 +278,29 @@ import {
   SwitchFilled,
   UserFilled
 } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { userApi } from '@/api/modules/user'
 import { orgApi } from '@/api/modules/org'
 import { permissionApi } from '@/api/modules/permission'
 import { roleApi } from '@/api/modules/role'
+import CreateUserDialog from './components/CreateUserDialog.vue'
+import EditUserDialog from './components/EditUserDialog.vue'
 
 // 组件引用
 const searchFormRef = ref<FormInstance>()
-const formRef = ref<FormInstance>()
 
 // 响应式数据
 const tableLoading = ref(false)
-const saving = ref(false)
-const dialogVisible = ref(false)
-const isEditMode = ref(false)
-const tableData = ref<SysUser[]>([])
+const createDialogVisible = ref(false)
+const editDialogVisible = ref(false)
+const tableData = ref<UserResponseDto[]>([])
+const currentEditUser = ref<UserResponseDto | null>(null)
 
 // 角色设置相关
 const roleDialogVisible = ref(false)
 const roleLoading = ref(false)
 const roleSaving = ref(false)
-const currentUser = ref<SysUser | null>(null)
+const currentUser = ref<UserResponseDto | null>(null)
 const currentUserRoles = ref<SysRole[]>([])
 const allRoles = ref<SysRole[]>([])
 const selectedRoleIds = ref<number[]>([])
@@ -405,47 +338,6 @@ const pagination = reactive({
   total: 0
 })
 
-// 表单数据
-const formData = reactive<CreateUserDto & UpdateUserDto>({
-  id: 0,
-  name: '',
-  mobile: '',
-  gender: '男',
-  idCard: '',
-  orgId: 0,
-  password: '',
-  status: 1
-})
-
-// 表单验证规则
-const formRules = computed((): FormRules => ({
-  name: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 2, max: 64, message: '长度在 2 到 64 个字符', trigger: 'blur' }
-  ],
-  mobile: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
-  ],
-  orgId: [
-    { required: true, message: '请选择所属组织', trigger: 'change' }
-  ],
-  password: !isEditMode.value ? [
-    { required: true, message: '请输入初始密码', trigger: 'blur' },
-    { min: 6, max: 32, message: '长度在 6 到 32 个字符', trigger: 'blur' }
-  ] : [],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
-  ]
-}))
-
 // 初始化列配置
 const initColumnConfig = () => {
   const savedConfig = localStorage.getItem('userManageColumns')
@@ -476,22 +368,8 @@ const fetchUserList = async () => {
     }
     
     const { data } = await userApi.getUserList(params)
-    tableData.value = data.rows
-    pagination.total = data.total
-
-    // 补充组织名称 - 现在通过单独的API调用获取
-    for (const user of tableData.value) {
-      if (user.orgId) {
-        try {
-          const orgResponse = await orgApi.getOrgById(user.orgId)
-          user.orgName = orgResponse.data?.name || '未知组织'
-        } catch {
-          user.orgName = '未知组织'
-        }
-      } else {
-        user.orgName = '未分配'
-      }
-    }
+    tableData.value = data.rows || []
+    pagination.total = data.total || 0
   } catch (error: any) {
     console.error('获取用户列表失败:', error)
     ElMessage.error(error.message || '获取用户列表失败，请重试')
@@ -515,9 +393,7 @@ const handleReset = () => {
 
 // 新增用户
 const handleCreate = () => {
-  isEditMode.value = false
-  resetFormData()
-  dialogVisible.value = true
+  createDialogVisible.value = true
 }
 
 // 获取列是否可见
@@ -536,7 +412,7 @@ const toggleColumn = (key: string, visible: boolean) => {
 }
 
 // 处理表格操作下拉菜单命令
-const handleCommand = (command: string, row: SysUser) => {
+const handleCommand = (command: string, row: UserResponseDto) => {
   switch (command) {
     case 'edit':
       handleEdit(row)
@@ -554,22 +430,13 @@ const handleCommand = (command: string, row: SysUser) => {
 }
 
 // 编辑用户
-const handleEdit = (row: SysUser) => {
-  isEditMode.value = true
-  Object.assign(formData, {
-    id: row.id,
-    name: row.name,
-    mobile: row.mobile,
-    gender: row.gender,
-    idCard: row.idCard,
-    orgId: row.orgId,
-    status: row.status
-  })
-  dialogVisible.value = true
+const handleEdit = (row: UserResponseDto) => {
+  currentEditUser.value = row
+  editDialogVisible.value = true
 }
 
 // 删除用户
-const handleDelete = async (row: SysUser) => {
+const handleDelete = async (row: UserResponseDto) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除用户"${row.name}"吗？`,
@@ -593,7 +460,7 @@ const handleDelete = async (row: SysUser) => {
 }
 
 // 重置密码
-const handleResetPassword = async (row: SysUser) => {
+const handleResetPassword = async (row: UserResponseDto) => {
   try {
     await ElMessageBox.confirm(
       `确定要重置用户"${row.name}"的密码吗？`,
@@ -616,50 +483,12 @@ const handleResetPassword = async (row: SysUser) => {
   }
 }
 
-// 保存
-const handleSave = async () => {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validate()
-    saving.value = true
-    
-    if (isEditMode.value) {
-      // 编辑模式下排除 password 字段
-      const { password, ...updateData } = formData
-      await userApi.updateUser(updateData as UpdateUserDto)
-      ElMessage.success('更新成功')
-    } else {
-      await userApi.createUser(formData as CreateUserDto)
-      ElMessage.success('创建成功')
-    }
-    
-    dialogVisible.value = false
-    fetchUserList()
-  } catch (error: any) {
-    if (error !== 'validation-failed') {
-      console.error('保存用户失败:', error)
-      ElMessage.error(error.message || '保存用户失败，请重试')
-    }
-  } finally {
-    saving.value = false
-  }
+// 表单成功回调
+const handleFormSuccess = () => {
+  fetchUserList()
 }
 
-// 重置表单数据
-const resetFormData = () => {
-  Object.assign(formData, {
-    id: undefined,
-    name: '',
-    mobile: '',
-    gender: '男',
-    idCard: '',
-    orgId: undefined,
-    password: '',
-    status: 1
-  })
-  formRef.value?.resetFields()
-}
+
 
 // 分页大小变化
 const handleSizeChange = (size: number) => {
@@ -675,7 +504,7 @@ const handleCurrentChange = (page: number) => {
 }
 
 // 角色设置
-const handleSetRoles = async (row: SysUser) => {
+const handleSetRoles = async (row: UserResponseDto) => {
   currentUser.value = row
   roleDialogVisible.value = true
   await loadUserRolesAndAllRoles(row.id)
@@ -719,7 +548,7 @@ const handleSaveRoles = async () => {
     roleSaving.value = true
     
     const assignData: AssignUserRoleDto = {
-      userId: currentUser.value.id,
+      userId: Number(currentUser.value.id),
       roleIds: selectedRoleIds.value
     }
     
@@ -803,10 +632,6 @@ const handleSaveRoles = async () => {
   display: flex;
   justify-content: center;
   margin-top: 20px;
-}
-
-.dialog-footer {
-  text-align: right;
 }
 
 :deep(.el-table .cell) {

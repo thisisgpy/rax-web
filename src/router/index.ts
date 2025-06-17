@@ -65,7 +65,7 @@ const router = createRouter({
             {
               path: 'organization',
               name: 'Organization',
-              component: () => import('../views/system/OrganizationManage.vue'),
+              component: () => import('../views/system/organization/index.vue'),
               meta: {
                 title: '组织架构',
                 requiresAuth: true,
@@ -75,7 +75,7 @@ const router = createRouter({
             {
               path: 'dict',
               name: 'Dict',
-              component: () => import('../views/system/DictManage.vue'),
+              component: () => import('../views/system/dict/index.vue'),
               meta: {
                 title: '字典管理',
                 requiresAuth: true,
@@ -85,7 +85,7 @@ const router = createRouter({
             {
               path: 'bank',
               name: 'Bank',
-              component: () => import('../views/system/BankManage.vue'),
+              component: () => import('../views/system/bank/index.vue'),
               meta: {
                 title: '银行管理',
                 requiresAuth: true,
@@ -95,7 +95,7 @@ const router = createRouter({
             {
               path: 'user',
               name: 'UserManagement',
-              component: () => import('../views/system/UserManage.vue'),
+              component: () => import('../views/system/user/index.vue'),
               meta: {
                 title: '用户管理',
                 requiresAuth: true,
@@ -105,7 +105,7 @@ const router = createRouter({
             {
               path: 'role',
               name: 'RoleManagement',
-              component: () => import('../views/system/RoleManage.vue'),
+              component: () => import('../views/system/role/index.vue'),
               meta: {
                 title: '角色管理',
                 requiresAuth: true,
@@ -115,7 +115,7 @@ const router = createRouter({
             {
               path: 'resource',
               name: 'ResourceManagement',
-              component: () => import('../views/system/ResourceManage.vue'),
+              component: () => import('../views/system/resource/index.vue'),
               meta: {
                 title: '资源管理',
                 requiresAuth: true,

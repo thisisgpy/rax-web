@@ -14,8 +14,18 @@ src/views/
 ├── dashboard/      # 仪表板相关
 │   └── Dashboard.vue # 首页仪表板
 ├── system/         # 系统管理相关
-│   ├── OrganizationManage.vue # 组织架构管理
-│   └── DictManage.vue # 数据字典管理
+│   ├── organization/        # 组织架构管理
+│   │   └── index.vue       # 主页面
+│   ├── dict/               # 数据字典管理
+│   │   └── index.vue       # 主页面
+│   ├── user/               # 用户管理
+│   │   └── index.vue       # 主页面
+│   ├── role/               # 角色管理
+│   │   └── index.vue       # 主页面
+│   ├── resource/           # 资源管理
+│   │   └── index.vue       # 主页面
+│   └── bank/               # 银行管理
+│       └── index.vue       # 主页面
 └── README.md       # 本说明文档
 ```
 
@@ -38,8 +48,15 @@ src/views/
 
 ### 4. system/ - 系统管理模块
 - **用途**: 系统配置和管理相关页面
-- **包含**: 组织管理、用户管理、角色权限、数据字典管理、银行管理等
+- **包含**: 组织管理、用户管理、角色权限、数据字典管理、银行管理、资源管理等
 - **特点**: 管理员功能，CRUD操作较多
+- **目录结构**: 每个功能模块独立成目录，主页面命名为 `index.vue`
+  - `organization/` - 组织架构管理
+  - `user/` - 用户管理  
+  - `role/` - 角色管理
+  - `resource/` - 资源管理
+  - `dict/` - 数据字典管理
+  - `bank/` - 银行管理
 
 ## 📋 未来扩展建议
 
@@ -110,6 +127,23 @@ workflow/
 2. **统一布局**: 除auth模块外，其他模块都应使用common/Layout.vue布局
 3. **代码复用**: 通用组件应放在src/components目录，而非views
 4. **类型定义**: 相关的类型定义应放在对应的模块或全局types目录
+5. **页面组件**: 每个页面应独立成目录，主页面命名为 `index.vue`
+6. **独立组件**: 如果页面有专用的组件，应放在同级的 `components/` 目录下
+
+### 页面组件组织示例
+
+```
+system/
+├── user/                   # 用户管理页面
+│   ├── index.vue          # 主页面
+│   └── components/        # 页面专用组件
+│       ├── UserForm.vue   # 用户表单组件
+│       └── UserList.vue   # 用户列表组件
+└── role/                  # 角色管理页面
+    ├── index.vue          # 主页面
+    └── components/        # 页面专用组件
+        └── RoleTree.vue   # 角色树组件
+```
 
 ## 🔧 维护建议
 

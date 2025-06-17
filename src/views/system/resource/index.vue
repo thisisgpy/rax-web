@@ -161,114 +161,23 @@
       </el-table>
     </el-card>
 
-    <!-- 新增/编辑对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEditMode ? '编辑资源' : '新增资源'"
-      width="600px"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="100px"
-      >
-        <el-form-item label="资源名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入资源名称"
-            maxlength="64"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="资源编码" prop="code">
-          <el-input
-            v-model="formData.code"
-            placeholder="请输入资源编码"
-            maxlength="64"
-          />
-        </el-form-item>
-        
-        <el-form-item label="资源类型" prop="type">
-          <el-radio-group v-model="formData.type">
-            <el-radio :label="0">目录</el-radio>
-            <el-radio :label="1">菜单</el-radio>
-            <el-radio :label="2">按钮</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type !== 2" label="资源路径" prop="path">
-          <el-input
-            v-model="formData.path"
-            placeholder="请输入资源路径"
-            maxlength="128"
-          />
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type === 1" label="组件路径" prop="component">
-          <el-input
-            v-model="formData.component"
-            placeholder="请输入组件路径"
-            maxlength="128"
-          />
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type !== 2" label="资源图标" prop="icon">
-          <IconSelector v-model="formData.icon" />
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type !== 2" label="排序" prop="sort">
-          <el-input-number
-            v-model="formData.sort"
-            :min="0"
-            :max="9999"
-            controls-position="right"
-            style="width: 100%"
-          />
-        </el-form-item>
-        
-        <el-form-item v-if="parentResource" label="父级资源">
-          <el-input :value="parentResource.name" readonly />
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type !== 2" label="是否隐藏" prop="isHidden">
-          <el-radio-group v-model="formData.isHidden">
-            <el-radio :label="false">显示</el-radio>
-            <el-radio :label="true">隐藏</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type === 1" label="是否缓存" prop="isKeepAlive">
-          <el-radio-group v-model="formData.isKeepAlive">
-            <el-radio :label="false">不缓存</el-radio>
-            <el-radio :label="true">缓存</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item v-if="formData.type === 1" label="外部链接" prop="isExternalLink">
-          <el-radio-group v-model="formData.isExternalLink">
-            <el-radio :label="false">否</el-radio>
-            <el-radio :label="true">是</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">
-            确定
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 新增和编辑对话框 -->
+    <CreateResourceDialog
+      v-model:visible="createDialogVisible"
+      :parent-resource="currentParentResource"
+      @success="fetchRootResources"
+    />
+    
+    <EditResourceDialog
+      v-model:visible="editDialogVisible"
+      :resource-data="currentEditResource"
+      @success="fetchRootResources"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Plus,
@@ -277,21 +186,20 @@ import {
   ArrowDown,
   SwitchFilled
 } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules } from 'element-plus'
 import { resourceApi } from '@/api/modules/resource'
-import IconSelector from '@/components/IconSelector.vue'
+import CreateResourceDialog from './components/CreateResourceDialog.vue'
+import EditResourceDialog from './components/EditResourceDialog.vue'
 
 // 组件引用
-const formRef = ref<FormInstance>()
 const resourceTableRef = ref()
 
 // 响应式数据
 const tableLoading = ref(false)
-const saving = ref(false)
-const dialogVisible = ref(false)
-const isEditMode = ref(false)
+const createDialogVisible = ref(false)
+const editDialogVisible = ref(false)
 const tableData = ref<SysResource[]>([])
-const parentResource = ref<SysResource | null>(null)
+const currentParentResource = ref<SysResource | null>(null)
+const currentEditResource = ref<SysResource | null>(null)
 
 // 列配置
 const columnConfig = ref([
@@ -305,42 +213,7 @@ const columnConfig = ref([
   { key: 'isHidden', label: '是否隐藏', visible: true }
 ])
 
-// 表单数据
-const formData = reactive<CreateResourceDto & UpdateResourceDto>({
-  id: 0,
-  code: '',
-  name: '',
-  type: 0,
-  parentId: 0,
-  path: '',
-  component: '',
-  icon: '',
-  sort: 0,
-  isHidden: false,
-  isKeepAlive: false,
-  isExternalLink: false
-})
 
-// 表单验证规则
-const formRules = computed((): FormRules => ({
-  name: [
-    { required: true, message: '请输入资源名称', trigger: 'blur' },
-    { min: 2, max: 64, message: '长度在 2 到 64 个字符', trigger: 'blur' }
-  ],
-  code: [
-    { required: true, message: '请输入资源编码', trigger: 'blur' },
-    { min: 2, max: 64, message: '长度在 2 到 64 个字符', trigger: 'blur' }
-  ],
-  type: [
-    { required: true, message: '请选择资源类型', trigger: 'change' }
-  ],
-  path: formData.type !== 2 ? [
-    { required: true, message: '请输入资源路径', trigger: 'blur' }
-  ] : [],
-  component: formData.type === 1 ? [
-    { required: true, message: '请输入组件路径', trigger: 'blur' }
-  ] : []
-}))
 
 // 初始化列配置
 const initColumnConfig = () => {
@@ -379,7 +252,7 @@ const fetchRootResources = async () => {
 }
 
 // 懒加载子节点
-const loadChildren = async (row: SysResource, treeNode: any, resolve: (data: SysResource[]) => void) => {
+const loadChildren = async (row: SysResource, _treeNode: any, resolve: (data: SysResource[]) => void) => {
   try {
     const { data } = await resourceApi.getChildrenResources(row.id)
     const children = data.map(item => ({
@@ -408,10 +281,8 @@ const getTypeTagType = (type: number) => {
 
 // 新增资源
 const handleCreate = () => {
-  isEditMode.value = false
-  parentResource.value = null
-  resetFormData()
-  dialogVisible.value = true
+  currentParentResource.value = null
+  createDialogVisible.value = true
 }
 
 // 获取列是否可见
@@ -445,32 +316,14 @@ const handleCommand = (command: string, row: SysResource) => {
 
 // 新增子资源
 const handleAddChild = (row: SysResource) => {
-  isEditMode.value = false
-  parentResource.value = row
-  resetFormData()
-  formData.parentId = row.id
-  dialogVisible.value = true
+  currentParentResource.value = row
+  createDialogVisible.value = true
 }
 
 // 编辑资源
 const handleEdit = (row: SysResource) => {
-  isEditMode.value = true
-  parentResource.value = null
-  Object.assign(formData, {
-    id: row.id,
-    code: row.code,
-    name: row.name,
-    type: row.type,
-    parentId: row.parentId,
-    path: row.path || '',
-    component: row.component || '',
-    icon: row.icon || '',
-    sort: row.sort,
-    isHidden: row.isHidden,
-    isKeepAlive: row.isKeepAlive,
-    isExternalLink: row.isExternalLink
-  })
-  dialogVisible.value = true
+  currentEditResource.value = row
+  editDialogVisible.value = true
 }
 
 // 删除资源
@@ -497,52 +350,7 @@ const handleDelete = async (row: SysResource) => {
   }
 }
 
-// 保存
-const handleSave = async () => {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validate()
-    saving.value = true
-    
-    if (isEditMode.value) {
-      await resourceApi.updateResource(formData as UpdateResourceDto)
-      ElMessage.success('更新成功')
-    } else {
-      await resourceApi.createResource(formData as CreateResourceDto)
-      ElMessage.success('创建成功')
-    }
-    
-    dialogVisible.value = false
-    fetchRootResources()
-  } catch (error: any) {
-    if (error !== 'validation-failed') {
-      console.error('保存资源失败:', error)
-      ElMessage.error(error.message || '保存资源失败，请重试')
-    }
-  } finally {
-    saving.value = false
-  }
-}
 
-// 重置表单数据
-const resetFormData = () => {
-  Object.assign(formData, {
-    id: undefined,
-    code: '',
-    name: '',
-    type: 0,
-    parentId: 0,
-    path: '',
-    component: '',
-    icon: '',
-    sort: 0,
-    isHidden: false,
-    isKeepAlive: false,
-    isExternalLink: false
-  })
-  formRef.value?.resetFields()
-}
 
 // 展开所有节点
 const expandAllNodes = async () => {
@@ -649,10 +457,6 @@ const collapseAllNodes = () => {
 
 :deep(.el-dropdown-menu .el-popper__arrow) {
   display: none;
-}
-
-.dialog-footer {
-  text-align: right;
 }
 
 :deep(.el-table .cell) {
