@@ -1,0 +1,83 @@
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* 移除所有 Ant Design 组件的 outline */
+.ant-btn:focus,
+.ant-btn:active,
+.ant-input:focus,
+.ant-input-focused,
+.ant-select:focus,
+.ant-select-focused,
+.ant-select-selector:focus,
+.ant-select-selector:active,
+.ant-tree-select:focus,
+.ant-tree-select-focused,
+.ant-tree-select-selector:focus,
+.ant-tree-select-selector:active,
+.ant-picker:focus,
+.ant-picker-focused,
+.ant-picker-input > input:focus,
+.ant-checkbox-wrapper:focus,
+.ant-checkbox:focus,
+.ant-radio-wrapper:focus,
+.ant-radio:focus,
+.ant-switch:focus,
+.ant-slider:focus,
+.ant-slider-handle:focus,
+.ant-menu-item:focus,
+.ant-menu-submenu-title:focus,
+.ant-tabs-tab:focus,
+.ant-tabs-tab:active,
+.ant-dropdown-trigger:focus,
+.ant-dropdown-link:focus,
+.ant-pagination-item:focus,
+.ant-pagination-prev:focus,
+.ant-pagination-next:focus,
+.ant-table-tbody > tr > td:focus,
+.ant-table-thead > tr > th:focus,
+.ant-form-item-control-input:focus,
+.ant-upload:focus,
+.ant-upload-btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
