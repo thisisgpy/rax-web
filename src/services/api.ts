@@ -24,8 +24,11 @@ class ApiService {
   private errorHandler?: (message: string) => void;
 
   constructor() {
+    // 在生产环境直接调用 API，开发环境使用代理
+    const baseURL = import.meta.env.PROD ? 'http://api.ganpengyu.com' : '';
+    
     this.instance = axios.create({
-      baseURL: '/api',
+      baseURL,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
