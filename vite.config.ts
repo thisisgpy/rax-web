@@ -7,9 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://api.ganpengyu.com',
+        target: 'https://api.ganpengyu.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },

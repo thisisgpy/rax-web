@@ -25,7 +25,7 @@ class ApiService {
 
   constructor() {
     // 在生产环境直接调用 API，开发环境使用代理
-    const baseURL = import.meta.env.PROD ? 'http://api.ganpengyu.com' : '';
+    const baseURL = import.meta.env.PROD ? 'https://api.ganpengyu.com' : '/api';
     
     this.instance = axios.create({
       baseURL,
