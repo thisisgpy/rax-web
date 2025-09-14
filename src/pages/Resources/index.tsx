@@ -510,7 +510,19 @@ export const Resources: React.FC = () => {
             name="icon"
             label="资源图标"
           >
-            <Input placeholder="请输入图标名称（如：UserOutlined）" />
+            <Input 
+              placeholder="请输入图标名称（如：UserOutlined）"
+              addonAfter={
+                <Button 
+                  type="link" 
+                  size="small"
+                  onClick={() => window.open('https://ant.design/components/icon-cn', '_blank')}
+                  style={{ padding: 0 }}
+                >
+                  查看图标
+                </Button>
+              }
+            />
           </Form.Item>
 
           <Row gutter={16}>
