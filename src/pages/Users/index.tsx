@@ -15,18 +15,24 @@ import {
   Col,
   Tooltip,
   Dropdown,
+  List,
+  Checkbox,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SettingOutlined, UserOutlined, SafetyOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { businessApiService } from '@/services/api';
+import { roleApi } from '@/services/role';
+import { authApi } from '@/services/auth';
 import type { 
   SysUserDto, 
   CreateUserDto, 
   UpdateUserDto, 
   QueryUserDto,
-  PageResult 
+  PageResult,
+  SysRoleDto,
+  AssignUserRoleDto
 } from '@/types/swagger-api';
 import { OrgSelect } from '@/components/OrgSelect';
 
@@ -41,6 +47,13 @@ export const Users: React.FC = () => {
     pageNo: 1,
     pageSize: 10,
   });
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [assignRoleModalVisible, setAssignRoleModalVisible] = useState(false);
+  const [viewingUser, setViewingUser] = useState<SysUserDto | null>(null);
+  const [assigningUser, setAssigningUser] = useState<SysUserDto | null>(null);
+  const [userRoles, setUserRoles] = useState<SysRoleDto[]>([]);
+  const [allRoles, setAllRoles] = useState<SysRoleDto[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([]);
 
   const queryClient = useQueryClient();
 
@@ -79,6 +92,49 @@ export const Users: React.FC = () => {
     onSuccess: () => {
       message.success('用户删除成功');
       queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
+  // 获取用户角色
+  const getUserRolesMutation = useMutation({
+    mutationFn: (userId: number) => roleApi.getRole(userId),
+    onSuccess: (response) => {
+      if (response.success) {
+        const roles = response.data || [];
+        setUserRoles(roles);
+        // 如果是在分配角色模态框中，自动设置已分配的角色为选中状态
+        if (assignRoleModalVisible) {
+          setSelectedRoleIds(roles.map(role => role.id));
+        }
+      } else {
+        message.error('获取用户角色失败');
+      }
+    },
+  });
+
+  // 获取所有角色
+  const getAllRolesMutation = useMutation({
+    mutationFn: () => roleApi.list(),
+    onSuccess: (response) => {
+      if (response.success) {
+        setAllRoles(response.data || []);
+      } else {
+        message.error('获取角色列表失败');
+      }
+    },
+  });
+
+  // 分配用户角色
+  const assignUserRoleMutation = useMutation({
+    mutationFn: (data: AssignUserRoleDto) => authApi.assignUserRole(data),
+    onSuccess: () => {
+      message.success('角色分配成功');
+      setAssignRoleModalVisible(false);
+      setAssigningUser(null);
+      setSelectedRoleIds([]);
+    },
+    onError: () => {
+      message.error('角色分配失败');
     },
   });
 
@@ -127,6 +183,34 @@ export const Users: React.FC = () => {
   const confirmDelete = (id: number) => {
     if (!id) return;
     deleteUserMutation.mutate(id);
+  };
+
+  // 查看用户角色
+  const handleViewRoles = (user: SysUserDto) => {
+    setViewingUser(user);
+    setRoleModalVisible(true);
+    getUserRolesMutation.mutate(user.id);
+  };
+
+  // 分配用户角色
+  const handleAssignRoles = (user: SysUserDto) => {
+    setAssigningUser(user);
+    setAssignRoleModalVisible(true);
+    // 获取所有角色和用户当前角色
+    getAllRolesMutation.mutate();
+    getUserRolesMutation.mutate(user.id);
+  };
+
+  // 确认分配角色
+  const handleConfirmAssignRoles = () => {
+    if (!assigningUser) return;
+    
+    const data: AssignUserRoleDto = {
+      userId: assigningUser.id,
+      roleIds: selectedRoleIds,
+    };
+    
+    assignUserRoleMutation.mutate(data);
   };
 
   // 提交表单
@@ -230,6 +314,21 @@ export const Users: React.FC = () => {
       width: 80,
       render: (_, record) => {
         const getMenuItems = (record: SysUserDto): MenuProps['items'] => [
+          {
+            key: 'viewRoles',
+            label: '查看角色',
+            icon: <UserOutlined />,
+            onClick: () => handleViewRoles(record)
+          },
+          {
+            key: 'assignRoles',
+            label: '分配角色',
+            icon: <SafetyOutlined />,
+            onClick: () => handleAssignRoles(record)
+          },
+          {
+            type: 'divider'
+          },
           {
             key: 'edit',
             label: '编辑',
@@ -471,6 +570,316 @@ export const Users: React.FC = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 查看用户角色模态框 */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 40 }}>
+            <span>查看用户角色 - {viewingUser?.name || ''}</span>
+            {userRoles.length > 0 && (
+              <Tag color="blue">
+                共 {userRoles.length} 个角色
+              </Tag>
+            )}
+          </div>
+        }
+        open={roleModalVisible}
+        onCancel={() => {
+          setRoleModalVisible(false);
+          setViewingUser(null);
+          setUserRoles([]);
+        }}
+        footer={[
+          <Button key="close" onClick={() => {
+            setRoleModalVisible(false);
+            setViewingUser(null);
+            setUserRoles([]);
+          }}>
+            关闭
+          </Button>
+        ]}
+        width={700}
+        style={{ top: 50 }}
+      >
+        <div style={{ minHeight: 200, maxHeight: 500 }}>
+          {getUserRolesMutation.isPending ? (
+            <div style={{ textAlign: 'center', padding: '50px 0' }}>
+              <SafetyOutlined style={{ fontSize: 24, color: '#1890ff', marginBottom: 16 }} />
+              <div>加载中...</div>
+            </div>
+          ) : userRoles.length > 0 ? (
+            <List
+              dataSource={userRoles}
+              style={{ 
+                maxHeight: 450, 
+                overflowY: 'auto',
+                border: '1px solid #f0f0f0',
+                borderRadius: 6,
+                backgroundColor: '#fafafa'
+              }}
+              pagination={userRoles.length > 10 ? {
+                pageSize: 10,
+                size: 'small',
+                showSizeChanger: false,
+                showQuickJumper: false,
+                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
+                style: { textAlign: 'center', marginTop: 16, marginBottom: 8 }
+              } : false}
+              renderItem={(role, index) => (
+                <List.Item 
+                  style={{ 
+                    padding: '12px 16px',
+                    backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
+                    border: 'none'
+                  }}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      <div style={{ 
+                        width: 32, 
+                        height: 32, 
+                        borderRadius: '50%', 
+                        backgroundColor: '#1890ff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white'
+                      }}>
+                        <SafetyOutlined />
+                      </div>
+                    }
+                    title={
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontWeight: 500 }}>{role.name}</span>
+                        <Tag color="blue" size="small">{role.code}</Tag>
+                      </div>
+                    }
+                    description={
+                      <div style={{ color: '#666', fontSize: 13, marginTop: 4 }}>
+                        {role.comment || '无描述信息'}
+                      </div>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '60px 20px', 
+              color: '#999',
+              backgroundColor: '#fafafa',
+              borderRadius: 6,
+              border: '1px dashed #d9d9d9'
+            }}>
+              <SafetyOutlined style={{ fontSize: 32, marginBottom: 16, color: '#d9d9d9' }} />
+              <div style={{ fontSize: 14 }}>该用户暂无分配角色</div>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* 分配用户角色模态框 */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 40 }}>
+            <span>分配角色 - {assigningUser?.name || ''}</span>
+            {allRoles.length > 0 && (
+              <Tag color="blue">共 {allRoles.length} 个角色</Tag>
+            )}
+            {selectedRoleIds.length > 0 && (
+              <Tag color="green">已选 {selectedRoleIds.length} 个</Tag>
+            )}
+          </div>
+        }
+        open={assignRoleModalVisible}
+        onOk={handleConfirmAssignRoles}
+        onCancel={() => {
+          setAssignRoleModalVisible(false);
+          setAssigningUser(null);
+          setSelectedRoleIds([]);
+          setAllRoles([]);
+          setUserRoles([]);
+        }}
+        confirmLoading={assignUserRoleMutation.isPending}
+        width={800}
+        style={{ top: 50 }}
+        okText="确认分配"
+        cancelText="取消"
+      >
+        <div style={{ minHeight: 300, maxHeight: 600 }}>
+          {getAllRolesMutation.isPending || getUserRolesMutation.isPending ? (
+            <div style={{ textAlign: 'center', padding: '50px 0' }}>
+              <SafetyOutlined style={{ fontSize: 24, color: '#1890ff', marginBottom: 16 }} />
+              <div>加载角色数据中...</div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ 
+                marginBottom: 16, 
+                padding: '12px 16px', 
+                backgroundColor: '#f0f7ff', 
+                border: '1px solid #91d5ff',
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <SafetyOutlined style={{ color: '#1890ff' }} />
+                  <span>请选择要为用户分配的角色</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button 
+                    size="small" 
+                    onClick={() => setSelectedRoleIds(allRoles.map(r => r.id))}
+                    disabled={selectedRoleIds.length === allRoles.length}
+                  >
+                    全选
+                  </Button>
+                  <Button 
+                    size="small" 
+                    onClick={() => setSelectedRoleIds([])}
+                    disabled={selectedRoleIds.length === 0}
+                  >
+                    反选
+                  </Button>
+                </div>
+              </div>
+              
+              <div style={{ 
+                maxHeight: 450, 
+                overflowY: 'auto',
+                border: '1px solid #f0f0f0',
+                borderRadius: 6,
+                backgroundColor: '#fafafa'
+              }}>
+                <Row gutter={[8, 8]} style={{ padding: '8px' }}>
+                  {allRoles.map((role) => {
+                    const isCurrentlyAssigned = userRoles.some(ur => ur.id === role.id);
+                    const isSelected = selectedRoleIds.includes(role.id);
+                    
+                    return (
+                      <Col key={role.id} xs={24} sm={12} md={12} lg={8} xl={8}>
+                        <div style={{
+                          border: isSelected ? '2px solid #1890ff' : '1px solid #f0f0f0',
+                          borderRadius: 6,
+                          padding: 12,
+                          backgroundColor: isSelected ? '#f0f7ff' : '#ffffff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          minHeight: 80,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between'
+                        }}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedRoleIds(prev => prev.filter(id => id !== role.id));
+                          } else {
+                            setSelectedRoleIds(prev => [...prev, role.id]);
+                          }
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#91d5ff';
+                            e.currentTarget.style.backgroundColor = '#f9f9f9';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#f0f0f0';
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                          }
+                        }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                if (e.target.checked) {
+                                  setSelectedRoleIds(prev => [...prev, role.id]);
+                                } else {
+                                  setSelectedRoleIds(prev => prev.filter(id => id !== role.id));
+                                }
+                              }}
+                              style={{ marginTop: 2 }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ 
+                                fontWeight: 500, 
+                                fontSize: 14, 
+                                marginBottom: 4,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6
+                              }}>
+                                <SafetyOutlined style={{ color: '#1890ff', fontSize: 12 }} />
+                                <span style={{ 
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {role.name}
+                                </span>
+                              </div>
+                              <div style={{ marginBottom: 6 }}>
+                                <Tag color="blue" size="small">{role.code}</Tag>
+                                {isCurrentlyAssigned && (
+                                  <Tag color="green" size="small">已分配</Tag>
+                                )}
+                              </div>
+                              {role.comment && (
+                                <div style={{ 
+                                  fontSize: 12, 
+                                  color: '#666',
+                                  lineHeight: 1.3,
+                                  overflow: 'hidden',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical'
+                                }}>
+                                  {role.comment}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              </div>
+              
+              {selectedRoleIds.length > 0 && (
+                <div style={{ 
+                  marginTop: 16, 
+                  padding: '12px 16px', 
+                  background: 'linear-gradient(90deg, #f0f9ff 0%, #e6f7ff 100%)', 
+                  border: '1px solid #91d5ff',
+                  borderRadius: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <SafetyOutlined style={{ color: '#1890ff' }} />
+                    <span>已选择 <strong>{selectedRoleIds.length}</strong> 个角色</span>
+                  </div>
+                  <Button 
+                    size="small" 
+                    type="link" 
+                    onClick={() => setSelectedRoleIds([])}
+                  >
+                    清空选择
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );
