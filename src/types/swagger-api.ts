@@ -110,42 +110,31 @@ export interface ChangePasswordDto {
 
 // 系统角色信息
 export interface SysRoleDto {
-  id: number;
-  roleName: string;
-  roleCode: string;
-  description?: string;
-  status: number;      // 状态 0:禁用 1:启用
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
+  id: number; // 角色 ID
+  name: string; // 角色名称
+  code: string; // 角色编码
+  comment?: string; // 角色说明
+  isDeleted?: boolean;          // 是否删除
 }
 
 // 创建角色请求
 export interface CreateRoleDto {
-  roleName: string;
-  roleCode: string;
-  description?: string;
-  status?: number;
-  remark?: string;
+  code: string; // 角色编码
+  name: string; // 角色名称
+  comment?: string; // 角色说明
 }
 
 // 更新角色请求
 export interface UpdateRoleDto {
-  id: number;
-  roleName?: string;
-  roleCode?: string;
-  description?: string;
-  status?: number;
-  remark?: string;
+  id: number; // 角色 ID
+  code: string; // 角色编码
+  name: string; // 角色名称
+  comment?: string; // 角色说明
 }
 
 // 角色查询请求
 export interface QueryRoleDto extends PageRequest {
-  roleName?: string;
-  roleCode?: string;
-  status?: number;
+  name?: string; // 角色名称
 }
 
 // ===== 资源管理类型 =====
@@ -153,47 +142,58 @@ export interface QueryRoleDto extends PageRequest {
 // 系统资源信息
 export interface SysResourceDto {
   id: number;
-  parentId?: number;
-  resourceName: string;
-  resourceCode: string;
-  resourceType: number;  // 资源类型 1:菜单 2:按钮
-  resourceUrl?: string;
-  resourceIcon?: string;
-  sortOrder: number;
-  status: number;        // 状态 0:禁用 1:启用
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
-  children?: SysResourceDto[];
+  code: string;           // 资源编码
+  name: string;           // 资源名称
+  type: number;           // 资源类型. 0:目录, 1:菜单, 2:按钮
+  parentId: number;       // 父级资源ID. 0表示没有父级资源
+  path?: string;          // 资源路径
+  component?: string;     // 资源组件
+  icon?: string;          // 资源图标
+  sort: number;           // 资源排序
+  isHidden: boolean;      // 是否隐藏
+  isKeepAlive: boolean;   // 是否缓存
+  isExternalLink: boolean; // 是否外部链接
+  isDeleted?: boolean;    // 是否删除
+  children?: SysResourceDto[]; // 子资源
 }
 
 // 创建资源请求
 export interface CreateResourceDto {
-  parentId?: number;
-  resourceName: string;
-  resourceCode: string;
-  resourceType: number;
-  resourceUrl?: string;
-  resourceIcon?: string;
-  sortOrder: number;
-  status?: number;
-  remark?: string;
+  code: string;           // 资源编码
+  name: string;           // 资源名称
+  type: number;           // 资源类型. 0:目录, 1:菜单, 2:按钮
+  parentId: number;       // 父级资源ID. 0表示没有父级资源
+  path?: string;          // 资源路径
+  component?: string;     // 资源组件
+  icon?: string;          // 资源图标
+  sort?: number;          // 资源排序
+  isHidden?: boolean;     // 是否隐藏
+  isKeepAlive?: boolean;  // 是否缓存
+  isExternalLink?: boolean; // 是否外部链接
 }
 
 // 更新资源请求
 export interface UpdateResourceDto {
-  id: number;
-  parentId?: number;
-  resourceName?: string;
-  resourceCode?: string;
-  resourceType?: number;
-  resourceUrl?: string;
-  resourceIcon?: string;
-  sortOrder?: number;
-  status?: number;
-  remark?: string;
+  id: number;             // 资源ID
+  code?: string;          // 资源编码
+  name?: string;          // 资源名称
+  type?: number;          // 资源类型. 0:目录, 1:菜单, 2:按钮
+  parentId?: number;      // 父级资源ID. 0表示没有父级资源
+  path?: string;          // 资源路径
+  component?: string;     // 资源组件
+  icon?: string;          // 资源图标
+  sort?: number;          // 资源排序
+  isHidden?: boolean;     // 是否隐藏
+  isKeepAlive?: boolean;  // 是否缓存
+  isExternalLink?: boolean; // 是否外部链接
+}
+
+// 资源查询请求
+export interface QueryResourceDto extends PageRequest {
+  name?: string;          // 资源名称
+  code?: string;          // 资源编码
+  type?: number;          // 资源类型
+  parentId?: number;      // 父级资源ID
 }
 
 // ===== 组织管理类型 =====

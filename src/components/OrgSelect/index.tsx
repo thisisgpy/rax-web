@@ -63,21 +63,17 @@ export const OrgSelect: React.FC<OrgSelectProps> = ({
       .map(org => {
         const orgName = org.name || '未命名组织';
         const orgNameAbbr = org.nameAbbr || '';
-        const orgCode = org.code || '';
         
-        // 构建显示标题：组织名称 [简称] (编码)
+        // 构建显示标题：组织名称 [简称]
         let title = orgName;
         if (orgNameAbbr) {
           title += ` [${orgNameAbbr}]`;
-        }
-        if (orgCode) {
-          title += ` (${orgCode})`;
         }
         
         return {
           title,
           value: org.id,
-          key: org.id, // 确保 key 是唯一的字符串
+          key: String(org.id), // 确保 key 是唯一的字符串
           children: org.children && org.children.length > 0 
             ? convertToTreeSelectData(org.children) 
             : undefined,
@@ -112,7 +108,7 @@ export const OrgSelect: React.FC<OrgSelectProps> = ({
       showSearch
       treeDefaultExpandAll
       multiple={multiple}
-      treeData={treeData}
+      treeData={treeData as any}
       filterTreeNode={(search, node) => {
         return (node.title as string)?.toLowerCase().includes(search.toLowerCase()) || false;
       }}

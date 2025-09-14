@@ -1,8 +1,7 @@
 import React from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { 
-  DashboardOutlined, 
-  ApiOutlined,
+  DashboardOutlined,
   SettingOutlined,
   UserOutlined,
   SafetyOutlined,
@@ -21,6 +20,8 @@ import {
 import { Dashboard } from '@/pages/Dashboard';
 import { Organization } from '@/pages/Organization';
 import { Users } from '@/pages/Users';
+import { Roles } from '@/pages/Roles';
+import { Resources } from '@/pages/Resources';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -59,13 +60,13 @@ export const routes: AppRouteObject[] = [
       {
         path: '/system/roles',
         title: '角色',
-        element: <div>角色管理页面 - 待开发</div>,
+        element: <Roles />,
         icon: <SafetyOutlined />,
       },
       {
         path: '/system/resources',
         title: '资源',
-        element: <div>资源管理页面 - 待开发</div>,
+        element: <Resources />,
         icon: <FileTextOutlined />,
       },
       {
