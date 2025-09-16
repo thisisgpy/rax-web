@@ -1,7 +1,8 @@
-import React from 'react';
-import { Card, Row, Col, Typography, List, Statistic } from 'antd';
+import React, { useState } from 'react';
+import { Card, Row, Col, Typography, List, Statistic, Form } from 'antd';
 import { CheckOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { AmountDisplay } from '@/components/AmountDisplay';
+import { DictSelect } from '@/components/DictSelect';
 
 const { Title } = Typography;
 
@@ -31,6 +32,7 @@ const mockStats = [
 ];
 
 export const Dashboard: React.FC = () => {
+  const [selectedCapitalStructure, setSelectedCapitalStructure] = useState<string | undefined>();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -139,6 +141,37 @@ export const Dashboard: React.FC = () => {
                 </Col>
               ))}
             </Row>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* 字典组件展示区域 */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24}>
+          <Card title="数据字典组件演示">
+            <Form layout="vertical">
+              <Row gutter={[16, 16]}>
+                <Col xs={24} sm={12} md={8}>
+                  <Form.Item label="资本结构类型">
+                    <DictSelect
+                      dictCode="capital.structure"
+                      placeholder="请选择资本结构类型"
+                      value={selectedCapitalStructure}
+                      onChange={setSelectedCapitalStructure}
+                      showDisabled={true}
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={16}>
+                  <Form.Item label="选择的值">
+                    <Typography.Text code>
+                      {selectedCapitalStructure || '未选择'}
+                    </Typography.Text>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
           </Card>
         </Col>
       </Row>

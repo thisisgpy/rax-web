@@ -22,6 +22,7 @@ import { Organization } from '@/pages/Organization';
 import { Users } from '@/pages/Users';
 import { Roles } from '@/pages/Roles';
 import { Resources } from '@/pages/Resources';
+import { Dictionary } from '@/pages/Dictionary';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -72,7 +73,7 @@ export const routes: AppRouteObject[] = [
       {
         path: '/system/dictionary',
         title: '数据字典',
-        element: <div>数据字典管理页面 - 待开发</div>,
+        element: <Dictionary />,
         icon: <BookOutlined />,
       },
     ],

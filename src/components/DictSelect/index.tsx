@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { TreeSelect, Spin, message } from 'antd';
 import type { TreeSelectProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { dictionaryApi } from '@/services/dictionary';
-import type { SysDictItemDto } from '@/types';
+import { dictApi } from '@/services/dict';
+import type { SysDictItemDto } from '@/types/swagger-api';
 
 interface DictSelectProps extends Omit<TreeSelectProps<string | string[]>, 'treeData'> {
   dictCode: string; // 字典编码，必填
@@ -30,7 +30,7 @@ export const DictSelect: React.FC<DictSelectProps> = ({
     error,
   } = useQuery({
     queryKey: ['dictTree', dictCode],
-    queryFn: () => dictionaryApi.getItemTreeByCode(dictCode),
+    queryFn: () => dictApi.getItemTreeByCode(dictCode),
     enabled: !!dictCode,
     staleTime: 5 * 60 * 1000, // 5分钟缓存
   });
@@ -43,18 +43,32 @@ export const DictSelect: React.FC<DictSelectProps> = ({
 
   // 转换字典数据为 TreeSelect 需要的格式
   const convertToTreeData = (items: SysDictItemDto[]): any[] => {
-    return items
-      .filter((item) => showDisabled || item.isEnabled) // 根据配置过滤禁用项
+    console.log('convertToTreeData input:', items);
+    const result = items
+      .filter((item) => {
+        const shouldShow = showDisabled || item.isEnabled !== false;
+        console.log(`Item ${item.label} (enabled: ${item.isEnabled}), shouldShow: ${shouldShow}`);
+        return shouldShow;
+      })
       .map((item) => ({
-        title: item.itemLabel,
-        value: item.itemValue,
+        title: item.label,
+        value: item.value,
         key: item.id.toString(),
-        disabled: !item.isEnabled,
-        children: item.children ? convertToTreeData(item.children) : undefined,
+        disabled: item.isEnabled === false,
+        children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : undefined,
       }));
+    console.log('convertToTreeData result:', result);
+    return result;
   };
 
   const treeData = dictResponse?.success ? convertToTreeData(dictResponse.data) : [];
+  
+  // 调试信息
+  console.log('DictSelect Debug:', {
+    dictCode,
+    dictResponse,
+    treeData
+  });
 
   // 过滤树节点
   const filterTreeNode = (input: string, node: any): boolean => {
