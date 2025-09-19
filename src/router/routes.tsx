@@ -23,6 +23,7 @@ import { Users } from '@/pages/Users';
 import { Roles } from '@/pages/Roles';
 import { Resources } from '@/pages/Resources';
 import { Dictionary } from '@/pages/Dictionary';
+import { Institution } from '@/pages/Institution';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -95,7 +96,7 @@ export const routes: AppRouteObject[] = [
       {
         path: '/infrastructure/institution',
         title: '金融机构',
-        element: <div>金融机构管理页面 - 待开发</div>,
+        element: <Institution />,
         icon: <BankOutlined />,
       },
       {

@@ -347,46 +347,39 @@ export interface UpdateFinReserveProgressDto {
 // 金融机构信息
 export interface FinInstitutionDto {
   id: number;
-  institutionName: string;  // 机构名称
-  institutionType: string;  // 机构类型
+  name: string;             // 金融机构名称
+  branchName?: string;      // 分支机构名称
+  type: string;             // 金融机构类型. 1 - 银行, 2 - 非银行金融机构
   province: string;         // 省份
   city: string;             // 城市
   district: string;         // 区县
-  address?: string;         // 详细地址
-  contactPerson?: string;   // 联系人
-  contactPhone?: string;    // 联系电话
-  contactEmail?: string;    // 联系邮箱
-  status: number;           // 状态
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
+  createBy?: string;        // 创建人
+  createTime?: string;      // 创建时间
 }
 
 // 创建金融机构请求
-export interface CreateFinInstitutionDto {
-  institutionName: string;
-  institutionType: string;
-  province: string;
-  city: string;
-  district: string;
-  address?: string;
-  contactPerson?: string;
-  contactPhone?: string;
-  contactEmail?: string;
-  status?: number;
-  remark?: string;
+export interface CreateInstitutionDto {
+  name: string;             // 金融机构名称 (必填)
+  branchName?: string;      // 分支机构名称
+  type: string;             // 金融机构类型. 1 - 银行, 2 - 非银行金融机构 (必填)
+  province: string;         // 省份 (必填)
+  city: string;             // 城市 (必填)
+  district: string;         // 区县 (必填)
+}
+
+// 更新金融机构请求
+export interface UpdateInstitutionDto extends CreateInstitutionDto {
+  id: number;
 }
 
 // 金融机构查询请求
-export interface QueryFinInstitutionDto extends PageRequest {
-  institutionName?: string;
-  institutionType?: string;
-  province?: string;
-  city?: string;
-  district?: string;
-  status?: number;
+export interface QueryInstitutionDto extends PageRequest {
+  name?: string;            // 金融机构名称
+  branchName?: string;      // 分支机构名称
+  type?: string;            // 金融机构类型. 1 - 银行, 2 - 非银行金融机构
+  province?: string;        // 省份
+  city?: string;            // 城市
+  district?: string;        // 区县
 }
 
 // ===== 字典管理类型 =====
@@ -619,20 +612,10 @@ export interface QueryFixedAssetDto extends PageRequest {
 
 // ===== 行政区域类型 =====
 
-// 行政区域信息
-export interface AdminAreaDto {
-  id: number;
-  parentId?: number;
-  areaName: string;      // 区域名称
-  areaCode: string;      // 区域编码
-  level: number;         // 级别 1:省 2:市 3:区/县
-  sortOrder: number;     // 排序
-  status: number;        // 状态
-  children?: AdminAreaDto[];
-}
-
-// 区域名称信息
-export interface AreaNameDto {
-  id: number;
-  name: string;
+// 行政区域信息 - 基于最新API文档
+export interface SysAreaDto {
+  id: number;            // 区域ID
+  parentId?: number;     // 父级ID
+  name: string;          // 名称
+  code: string;          // 行政区划代码
 }

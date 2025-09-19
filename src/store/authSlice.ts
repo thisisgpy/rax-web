@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authApi } from '@/services/auth';
-import type { AuthState, User, LoginRequest } from '@/types';
+import type { AuthState, UserLoginDto } from '@/types';
 
 const initialState: AuthState = {
   isAuthenticated: authApi.isAuthenticated(),
@@ -11,7 +11,7 @@ const initialState: AuthState = {
 // 异步 thunks
 export const loginAsync = createAsyncThunk(
   'auth/login',
-  async (credentials: LoginRequest, { rejectWithValue }) => {
+  async (credentials: UserLoginDto, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials);
       if (response.success) {
@@ -27,7 +27,7 @@ export const loginAsync = createAsyncThunk(
 
 export const logoutAsync = createAsyncThunk(
   'auth/logout',
-  async (userId: string, { rejectWithValue }) => {
+  async (userId: number) => {
     try {
       await authApi.logout(userId);
     } catch (error: any) {
@@ -55,7 +55,7 @@ const authSlice = createSlice({
     builder
       .addCase(loginAsync.fulfilled, (state, action) => {
         state.isAuthenticated = true;
-        state.user = action.payload.user;
+        state.user = action.payload.userInfo;
         state.token = action.payload.token;
       })
       .addCase(loginAsync.rejected, (state) => {

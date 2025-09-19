@@ -1,6 +1,7 @@
-// 重新导出 API 类型
-export * from './api';
+// 重新导出 API 类型 - 避免重复导出
 export * from './swagger-api';
+// 导出 api.ts 中不重复的类型
+export type { User, Organization, DictionaryItem, Dictionary } from './api';
 
 // 前端特有类型
 export interface MenuItem {
@@ -15,7 +16,7 @@ export type PrecisionLevel = 2 | 4 | 6;
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: any | null;  // 使用 any 暂时避免循环依赖
   token: string | null;
 }
 

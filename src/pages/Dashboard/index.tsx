@@ -3,6 +3,7 @@ import { Card, Row, Col, Typography, List, Statistic, Form } from 'antd';
 import { CheckOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { AmountDisplay } from '@/components/AmountDisplay';
 import { DictSelect } from '@/components/DictSelect';
+import { AreaCascaderDemo } from '@/components/AreaCascader/demo';
 
 const { Title } = Typography;
 
@@ -176,14 +177,21 @@ export const Dashboard: React.FC = () => {
         </Col>
       </Row>
 
+      {/* AreaCascader 组件演示区域 */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24}>
+          <AreaCascaderDemo />
+        </Col>
+      </Row>
+
       {/* 图表区域 */}
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
           <Card title="收支趋势">
-            <div style={{ 
-              height: 200, 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              height: 200,
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               background: '#f5f5f5',
               borderRadius: '4px'
@@ -194,13 +202,13 @@ export const Dashboard: React.FC = () => {
             </div>
           </Card>
         </Col>
-        
+
         <Col xs={24} lg={12}>
           <Card title="业务分布">
-            <div style={{ 
-              height: 200, 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              height: 200,
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               background: '#f5f5f5',
               borderRadius: '4px'

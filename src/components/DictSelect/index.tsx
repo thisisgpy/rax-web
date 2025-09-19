@@ -43,32 +43,22 @@ export const DictSelect: React.FC<DictSelectProps> = ({
 
   // 转换字典数据为 TreeSelect 需要的格式
   const convertToTreeData = (items: SysDictItemDto[]): any[] => {
-    console.log('convertToTreeData input:', items);
     const result = items
       .filter((item) => {
         const shouldShow = showDisabled || item.isEnabled !== false;
-        console.log(`Item ${item.label} (enabled: ${item.isEnabled}), shouldShow: ${shouldShow}`);
         return shouldShow;
       })
       .map((item) => ({
         title: item.label,
         value: item.value,
-        key: item.id.toString(),
+        key: item.value, // 使用 value 作为 key，确保一致性
         disabled: item.isEnabled === false,
         children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : undefined,
       }));
-    console.log('convertToTreeData result:', result);
     return result;
   };
 
   const treeData = dictResponse?.success ? convertToTreeData(dictResponse.data) : [];
-  
-  // 调试信息
-  console.log('DictSelect Debug:', {
-    dictCode,
-    dictResponse,
-    treeData
-  });
 
   // 过滤树节点
   const filterTreeNode = (input: string, node: any): boolean => {
@@ -103,7 +93,11 @@ export const DictSelect: React.FC<DictSelectProps> = ({
       onSearch={setSearchValue}
       notFoundContent={isLoading ? <Spin size="small" /> : '暂无数据'}
       style={{ width: '100%', ...restProps.style }}
-      dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+      styles={{
+        popup: {
+          root: { maxHeight: 400, overflow: 'auto' }
+        }
+      }}
       treeNodeFilterProp="title"
     />
   );

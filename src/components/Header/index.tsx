@@ -32,7 +32,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   // 处理消息点击
   const handleMessageClick = (messageId: number) => {
-    console.log('处理消息:', messageId);
     // 这里可以添加具体的消息处理逻辑
   };
 
