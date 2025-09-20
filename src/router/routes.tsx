@@ -24,6 +24,7 @@ import { Roles } from '@/pages/Roles';
 import { Resources } from '@/pages/Resources';
 import { Dictionary } from '@/pages/Dictionary';
 import { Institution } from '@/pages/Institution';
+import { BankCard } from '@/pages/BankCard';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -102,7 +103,7 @@ export const routes: AppRouteObject[] = [
       {
         path: '/infrastructure/bank-card',
         title: '银行卡',
-        element: <div>银行卡管理页面 - 待开发</div>,
+        element: <BankCard />,
         icon: <CreditCardOutlined />,
       },
     ],

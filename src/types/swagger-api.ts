@@ -458,50 +458,44 @@ export interface UpdateDictItemDto {
 
 // 银行卡信息
 export interface SysBankCardDto {
-  id: number;
-  cardNumber: string;    // 卡号
-  cardType: string;      // 卡类型
-  bankName: string;      // 银行名称
-  cardHolder: string;    // 持卡人
-  expiryDate?: string;   // 有效期
-  status: number;        // 状态
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
+  id: number;                    // 银行卡ID
+  orgId: number;                 // 所属组织ID
+  orgName?: string;              // 所属组织名称
+  orgNameAbbr?: string;          // 所属组织简称
+  institutionId: number;         // 金融机构ID
+  institutionName?: string;      // 开户行名称
+  cardName: string;              // 银行卡名称
+  cardNumber: string;            // 银行卡号
+  createTime?: string;           // 创建时间
+  createBy?: string;             // 创建人
+  updateTime?: string;           // 信息更新时间
+  updateBy?: string;             // 信息更新人
 }
 
 // 创建银行卡请求
 export interface CreateBankCardDto {
-  cardNumber: string;
-  cardType: string;
-  bankName: string;
-  cardHolder: string;
-  expiryDate?: string;
-  status?: number;
-  remark?: string;
+  orgId: number;                 // 所属组织ID (必填)
+  institutionId: number;         // 金融机构ID (必填)
+  cardName: string;              // 银行卡名称 (必填)
+  cardNumber: string;            // 银行卡号 (必填)
 }
 
 // 更新银行卡请求
 export interface UpdateBankCardDto {
-  id: number;
-  cardNumber?: string;
-  cardType?: string;
-  bankName?: string;
-  cardHolder?: string;
-  expiryDate?: string;
-  status?: number;
-  remark?: string;
+  id: number;                    // 银行卡ID (必填)
+  orgId?: number;                // 所属组织ID
+  institutionId?: number;        // 金融机构ID
+  cardName?: string;             // 银行卡名称
+  cardNumber?: string;           // 银行卡号
 }
 
 // 银行卡查询请求
 export interface QueryBankCardDto extends PageRequest {
-  cardNumber?: string;
-  cardType?: string;
-  bankName?: string;
-  cardHolder?: string;
-  status?: number;
+  cardId?: number;               // 银行卡ID
+  orgId?: number;                // 所属组织ID
+  institutionName?: string;      // 金融机构名称
+  cardName?: string;             // 银行卡名称
+  cardNumber?: string;           // 银行卡号
 }
 
 // ===== 银行类型 =====
