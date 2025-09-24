@@ -547,61 +547,58 @@ export interface PresignedUrlDto {
 
 // 固定资产信息
 export interface FixedAssetDto {
-  id: number;
-  assetName: string;     // 资产名称
-  assetCode: string;     // 资产编码
-  assetCategory: string; // 资产类别
-  purchaseDate: string;  // 购买日期
-  originalValue: number; // 原值
-  currentValue: number;  // 现值
-  depreciationMethod: string; // 折旧方法
-  usefulLife: number;    // 使用年限
-  location?: string;     // 存放地点
-  status: number;        // 状态
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
+  id: number;                    // 固定资产ID
+  name: string;                  // 固定资产名称
+  categoryCode: string;          // 固定资产分类编码
+  categoryName: string;          // 固定资产分类名称
+  code: string;                  // 固定资产编号
+  address: string;               // 固定资产地址
+  bookValue: number;             // 固定资产账面价值（以分计算）
+  orgId: number;                 // 所属组织ID
+  orgName?: string;              // 所属组织名称
+  orgNameAbbr?: string;          // 所属组织简称
 }
 
 // 创建固定资产请求
 export interface CreateFixedAssetDto {
-  assetName: string;
-  assetCode: string;
-  assetCategory: string;
-  purchaseDate: string;
-  originalValue: number;
-  currentValue: number;
-  depreciationMethod: string;
-  usefulLife: number;
-  location?: string;
-  status?: number;
-  remark?: string;
+  name: string;                  // 固定资产名称 (必填)
+  categoryCode: string;          // 固定资产分类编码 (必填)
+  categoryName: string;          // 固定资产分类名称 (必填)
+  code: string;                  // 固定资产编号 (必填)
+  address: string;               // 固定资产地址 (必填)
+  bookValue: number;             // 固定资产账面价值 (必填, 最小值: 0)
+  orgId: number;                 // 所属组织ID (必填, 最小值: 0)
 }
 
 // 更新固定资产请求
 export interface UpdateFixedAssetDto {
-  id: number;
-  assetName?: string;
-  assetCode?: string;
-  assetCategory?: string;
-  purchaseDate?: string;
-  originalValue?: number;
-  currentValue?: number;
-  depreciationMethod?: string;
-  usefulLife?: number;
-  location?: string;
-  status?: number;
-  remark?: string;
+  id: number;                    // 固定资产ID (必填)
+  name: string;                  // 固定资产名称 (必填)
+  categoryCode: string;          // 固定资产分类编码 (必填)
+  categoryName: string;          // 固定资产分类名称 (必填)
+  code: string;                  // 固定资产编号 (必填)
+  address: string;               // 固定资产地址 (必填)
+  bookValue: number;             // 固定资产账面价值 (必填, 最小值: 0)
+  orgId: number;                 // 所属组织ID (必填, 最小值: 0)
 }
 
 // 固定资产查询请求
 export interface QueryFixedAssetDto extends PageRequest {
-  assetName?: string;
-  assetCode?: string;
-  assetCategory?: string;
-  status?: number;
+  fixedAssetId?: number;         // 固定资产ID
+  name?: string;                 // 固定资产名称
+  categoryCode?: string;         // 固定资产分类编码
+  categoryName?: string;         // 固定资产分类名称
+  code?: string;                 // 固定资产编号
+  address?: string;              // 固定资产地址
+  orgId?: number;                // 所属组织ID
+}
+
+// 固定资产分类信息
+export interface SysFixedAssetCategoryDto {
+  id: number;                    // 固定资产分类ID
+  parentId: number;              // 父级ID
+  code: string;                  // 固定资产分类编码
+  name: string;                  // 固定资产分类名称
 }
 
 // ===== 行政区域类型 =====

@@ -24,9 +24,9 @@ interface PrecisionProviderProps {
   defaultPrecision?: PrecisionLevel;
 }
 
-export const PrecisionProvider: React.FC<PrecisionProviderProps> = ({ 
-  children, 
-  defaultPrecision = 4 
+export const PrecisionProvider: React.FC<PrecisionProviderProps> = ({
+  children,
+  defaultPrecision = 2
 }) => {
   const [precision, setPrecision] = useState<PrecisionLevel>(defaultPrecision);
 

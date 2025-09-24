@@ -13,7 +13,7 @@ import {
   Col,
   Tooltip,
 } from 'antd';
-import { PlusOutlined, DeleteOutlined, SearchOutlined, CreditCardOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, CreditCardOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { bankCardApi } from '@/services/bankCard';
@@ -24,8 +24,7 @@ import type {
   CreateBankCardDto,
   UpdateBankCardDto,
   QueryBankCardDto,
-  PageResult,
-  FinInstitutionDto
+  PageResult
 } from '@/types/swagger-api';
 
 export const BankCard: React.FC = () => {

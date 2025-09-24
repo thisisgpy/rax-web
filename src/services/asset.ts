@@ -1,10 +1,11 @@
 import { apiService } from './api';
-import type { 
-  RaxResult, 
-  FixedAssetDto, 
-  CreateFixedAssetDto, 
-  UpdateFixedAssetDto, 
+import type {
+  RaxResult,
+  FixedAssetDto,
+  CreateFixedAssetDto,
+  UpdateFixedAssetDto,
   QueryFixedAssetDto,
+  SysFixedAssetCategoryDto,
   PageResult
 } from '@/types/swagger-api';
 
@@ -32,5 +33,10 @@ export const assetApi = {
   // 删除固定资产
   remove: async (id: number): Promise<RaxResult<void>> => {
     return apiService.get<void>(`/v1/asset/fixed/remove/${id}`);
+  },
+
+  // 获取固定资产分类
+  getCategories: async (parentId: number = 0): Promise<RaxResult<SysFixedAssetCategoryDto[]>> => {
+    return apiService.get<SysFixedAssetCategoryDto[]>(`/v1/asset/fixed/category/${parentId}`);
   },
 };
