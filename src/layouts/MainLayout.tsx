@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, ConfigProvider, theme } from 'antd';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
 import type { User, MenuItem } from '@/types';
 
 const { Content } = Layout;

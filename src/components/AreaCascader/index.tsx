@@ -20,7 +20,7 @@ interface AreaCascaderProps extends Omit<CascaderProps<AreaOption>, 'options' | 
   level?: number; // 1: 仅省份, 2: 省市, 3: 省市区 (默认)
 }
 
-export const AreaCascader: React.FC<AreaCascaderProps> = ({
+const AreaCascader: React.FC<AreaCascaderProps> = ({
   value,
   onChange,
   placeholder = '请选择省/市/区',
@@ -201,6 +201,9 @@ export const AreaCascader: React.FC<AreaCascaderProps> = ({
     />
   );
 };
+
+// 默认导出组件
+export default AreaCascader;
 
 // 导出类型以供外部使用
 export type { AreaOption, AreaCascaderProps };

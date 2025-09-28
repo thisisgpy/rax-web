@@ -64,6 +64,34 @@ src/
 └── types/              # TypeScript definitions
 ```
 
+### Component Development Standards
+
+**🚨 CRITICAL: 组件导入导出规范**
+
+所有组件必须同时提供**命名导出**和**默认导出**以保证兼容性：
+
+```typescript
+// ✅ 正确的组件导出方式
+const ComponentName: React.FC<ComponentNameProps> = ({ ... }) => {
+  // 组件实现
+};
+
+// 同时提供命名导出和默认导出
+export { ComponentName };           // 命名导出 - 兼容现有代码
+export default ComponentName;       // 默认导出 - 支持统一管理
+export type { ComponentNameProps }; // 类型导出
+```
+
+**组件导入方式：**
+- 直接导入：`import ComponentName from '@/components/ComponentName'`
+- 通过索引导入：`import { ComponentName } from '@/components'`
+- 类型导入：`import type { ComponentNameProps } from '@/components'`
+
+**重要说明：**
+- `src/components/index.ts` 文件统一管理所有组件导出
+- 添加新组件时必须在 index.ts 中注册：`export { default as NewComponent } from './NewComponent'`
+- 所有组件必须有默认导出，否则会导致导入错误
+
 ### Core Components
 
 **OrgSelect Component:**
@@ -85,6 +113,17 @@ src/
 - Header-mounted precision control
 - Affects all currency displays globally
 - Options: 2 digits (百元), 4 digits (元), 6 digits (分)
+
+**RaxUpload Component:**
+- Unified file upload component based on Ant Design Upload
+- OSS presigned URL upload workflow
+- Supports progress tracking and cancellation
+- File validation (type, size, count limits)
+
+**AttachmentDisplay Component:**
+- Table-based attachment information display
+- Delete functionality with confirmation
+- Configurable display options
 
 ## API Integration
 
@@ -154,3 +193,38 @@ this.post('/api/v1/user/page', data)
 - Chinese-only interface (no i18n needed)
 - Support light/dark themes
 - Responsive design with Ant Design components
+
+## 开发经验教训
+
+### 导入导出兼容性问题 (2024-09-28)
+
+**问题描述：**
+在开发文件上传组件时创建了 `src/components/index.ts` 统一导出文件，但由于原有组件只有命名导出（`export const`）而没有默认导出（`export default`），导致大量导入错误。
+
+**根本原因：**
+1. `components/index.ts` 期望所有组件都有默认导出：`export { default as ComponentName }`
+2. 原有组件只有命名导出：`export const ComponentName`
+3. 导入导出不匹配导致编译错误
+
+**解决方案：**
+1. 为所有组件添加默认导出，保持命名导出兼容性
+2. 更新所有导入语句使用默认导入语法
+3. 建立标准化的组件导出规范
+
+**预防措施：**
+- 新组件必须同时提供命名导出和默认导出
+- 使用统一的组件模板和导出格式
+- 在 `components/index.ts` 中注册新组件时确保导出正确
+
+**标准化模板：**
+```typescript
+// 组件实现
+const ComponentName: React.FC<ComponentNameProps> = ({ ... }) => {
+  // 实现内容
+};
+
+// 导出
+export { ComponentName };           // 命名导出
+export default ComponentName;       // 默认导出
+export type { ComponentNameProps }; // 类型导出
+```

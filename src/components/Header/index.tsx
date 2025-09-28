@@ -3,7 +3,7 @@ import { Layout, Dropdown, Button, Switch, Space, Badge, Popover } from 'antd';
 import { UserOutlined, SettingOutlined, LogoutOutlined, SunOutlined, MoonOutlined, BellOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import type { User } from '@/types';
-import { GlobalPrecisionControl } from '@/components/GlobalPrecision';
+import GlobalPrecisionControl from '@/components/GlobalPrecision';
 
 const { Header: AntHeader } = Layout;
 
@@ -225,3 +225,5 @@ export const Header: React.FC<HeaderProps> = ({
     </AntHeader>
   );
 };
+
+export default Header;

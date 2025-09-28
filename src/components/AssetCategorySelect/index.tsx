@@ -127,3 +127,5 @@ export const AssetCategorySelect: React.FC<AssetCategorySelectProps> = ({
     />
   );
 };
+
+export default AssetCategorySelect;

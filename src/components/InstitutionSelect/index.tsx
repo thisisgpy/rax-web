@@ -14,8 +14,8 @@ import { BankOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery } from '@tanstack/react-query';
 import { institutionApi } from '@/services/institution';
-import { DictSelect } from '@/components/DictSelect';
-import { AreaCascader } from '@/components/AreaCascader';
+import DictSelect from '@/components/DictSelect';
+import AreaCascader from '@/components/AreaCascader';
 import { dictApi } from '@/services/dict';
 import type {
   FinInstitutionDto,
@@ -337,3 +337,5 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
     </>
   );
 };
+
+export default InstitutionSelect;

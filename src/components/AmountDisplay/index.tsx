@@ -10,7 +10,7 @@ interface AmountDisplayProps {
   type?: 'default' | 'secondary' | 'success' | 'warning' | 'danger';
 }
 
-export const AmountDisplay: React.FC<AmountDisplayProps> = ({
+const AmountDisplay: React.FC<AmountDisplayProps> = ({
   value,
   showUnit = true,
   style,
@@ -36,3 +36,6 @@ export const AmountDisplay: React.FC<AmountDisplayProps> = ({
     </Typography.Text>
   );
 };
+
+export default AmountDisplay;
+export type { AmountDisplayProps };

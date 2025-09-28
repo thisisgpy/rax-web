@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Space, Typography } from 'antd';
-import { AreaCascader } from './index';
+import AreaCascader from './index';
 
 const { Title, Text } = Typography;
 

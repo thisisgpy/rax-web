@@ -34,7 +34,7 @@ import type {
   SysRoleDto,
   AssignUserRoleDto
 } from '@/types/swagger-api';
-import { OrgSelect } from '@/components/OrgSelect';
+import OrgSelect from '@/components/OrgSelect';
 
 const { Option } = Select;
 

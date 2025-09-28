@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Typography, List, Statistic, Form } from 'antd';
 import { CheckOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { AmountDisplay } from '@/components/AmountDisplay';
-import { DictSelect } from '@/components/DictSelect';
+import AmountDisplay from '@/components/AmountDisplay';
+import DictSelect from '@/components/DictSelect';
 import { AreaCascaderDemo } from '@/components/AreaCascader/demo';
 
 const { Title } = Typography;

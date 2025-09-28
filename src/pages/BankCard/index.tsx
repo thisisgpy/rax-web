@@ -17,8 +17,8 @@ import { PlusOutlined, SearchOutlined, CreditCardOutlined } from '@ant-design/ic
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { bankCardApi } from '@/services/bankCard';
-import { OrgSelect } from '@/components/OrgSelect';
-import { InstitutionSelect } from '@/components/InstitutionSelect';
+import OrgSelect from '@/components/OrgSelect';
+import InstitutionSelect from '@/components/InstitutionSelect';
 import type {
   SysBankCardDto,
   CreateBankCardDto,

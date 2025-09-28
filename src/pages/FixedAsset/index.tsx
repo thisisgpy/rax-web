@@ -18,9 +18,9 @@ import { PlusOutlined, SearchOutlined, GoldOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { assetApi } from '@/services/asset';
-import { OrgSelect } from '@/components/OrgSelect';
-import { AssetCategorySelect } from '@/components/AssetCategorySelect';
-import { AmountDisplay } from '@/components/AmountDisplay';
+import OrgSelect from '@/components/OrgSelect';
+import AssetCategorySelect from '@/components/AssetCategorySelect';
+import AmountDisplay from '@/components/AmountDisplay';
 import type {
   FixedAssetDto,
   CreateFixedAssetDto,

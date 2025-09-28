@@ -113,3 +113,5 @@ export const GlobalPrecisionControl: React.FC = () => {
     </Dropdown>
   );
 };
+
+export default GlobalPrecisionControl;

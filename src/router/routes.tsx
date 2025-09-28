@@ -15,7 +15,8 @@ import {
   FundOutlined,
   ShoppingOutlined,
   SafetyCertificateOutlined,
-  NodeIndexOutlined
+  NodeIndexOutlined,
+  CloudUploadOutlined
 } from '@ant-design/icons';
 import { Dashboard } from '@/pages/Dashboard';
 import { Organization } from '@/pages/Organization';
@@ -26,6 +27,7 @@ import { Dictionary } from '@/pages/Dictionary';
 import { Institution } from '@/pages/Institution';
 import { BankCard } from '@/pages/BankCard';
 import { FixedAsset } from '@/pages/FixedAsset';
+import FileUploadDemo from '@/pages/FileUploadDemo';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -166,6 +168,22 @@ export const routes: AppRouteObject[] = [
         title: '担保图谱',
         element: <div>担保图谱页面 - 待开发</div>,
         icon: <NodeIndexOutlined />,
+      },
+    ],
+  },
+
+  // 系统工具（菜单）
+  {
+    path: '/tools',
+    title: '系统工具',
+    icon: <CloudUploadOutlined />,
+    order: 90,
+    children: [
+      {
+        path: '/tools/file-upload',
+        title: '文件上传功能',
+        element: <FileUploadDemo />,
+        icon: <CloudUploadOutlined />,
       },
     ],
   },

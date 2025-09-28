@@ -128,3 +128,5 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </Sider>
   );
 };
+
+export default Sidebar;

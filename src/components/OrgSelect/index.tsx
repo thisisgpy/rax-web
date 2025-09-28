@@ -122,3 +122,5 @@ export const OrgSelect: React.FC<OrgSelectProps> = ({
     />
   );
 };
+
+export default OrgSelect;

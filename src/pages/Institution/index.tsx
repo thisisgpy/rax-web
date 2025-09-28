@@ -17,8 +17,8 @@ import { PlusOutlined, DeleteOutlined, SearchOutlined, BankOutlined } from '@ant
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { institutionApi } from '@/services/institution';
-import { DictSelect } from '@/components/DictSelect';
-import { AreaCascader } from '@/components/AreaCascader';
+import DictSelect from '@/components/DictSelect';
+import AreaCascader from '@/components/AreaCascader';
 import { dictApi } from '@/services/dict';
 import type {
   FinInstitutionDto,

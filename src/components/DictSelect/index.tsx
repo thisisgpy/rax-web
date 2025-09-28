@@ -102,3 +102,5 @@ export const DictSelect: React.FC<DictSelectProps> = ({
     />
   );
 };
+
+export default DictSelect;
