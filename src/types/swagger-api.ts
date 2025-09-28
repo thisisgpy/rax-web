@@ -230,116 +230,146 @@ export interface UpdateOrgDto {
 
 // 储备融资信息
 export interface FinReserveDto {
-  id: number;
-  orgId: number;
-  financialInstitutionId: number;
-  fundingMode: string;           // 融资方式
-  fundingAmount: number;         // 融资金额（万元）
-  expectedDisbursementDate: string; // 预期放款日期
-  combinedRatio: number;         // 综合成本比率
-  actualDisbursementDate?: string;  // 实际放款日期
-  actualFundingAmount?: number;  // 实际融资金额
-  actualCombinedRatio?: number;  // 实际综合成本比率
-  status: number;                // 状态
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
-  remark?: string;
-  costs?: FinReserveCostDto[];
-  progresses?: FinReserveProgressDto[];
-  reports?: FinReserveReportDto[];
+  id: number;                            // 储备融资ID
+  orgId: number;                         // 融资主体 ID
+  orgName?: string;                      // 融资主体名称
+  orgNameAbbr?: string;                  // 融资主体简称
+  institutionType?: string;              // 金融机构类型. 1: 银行, 2: 非银行金融机构
+  financialInstitutionId: number;        // 金融机构 ID
+  financialInstitutionName?: string;     // 金融机构名称
+  financialInstitutionBranchName?: string; // 金融机构分支名称
+  fundingMode: string;                   // 融资方式
+  fundingAmount: number;                 // 融资金额. 单位：分
+  expectedDisbursementDate: string;      // 预计放款日期
+  loanRenewalFromId?: number;            // 续贷来源 ID. 0 表示非续贷
+  leaderName?: string;                   // 牵头领导名称
+  handlerName?: string;                  // 经办人名称
+  combinedRatio: number;                 // 综合成本率
+  additionalCosts?: number;              // 额外成本. 单位：分
+  status?: string;                       // 状态. 0:待放款, 1:已放款, 2:已取消
+  createTime?: string;                   // 创建时间
+  createBy?: string;                     // 创建人
+  updateTime?: string;                   // 信息更新时间
+  updateBy?: string;                     // 信息更新人
+  costs?: FinReserveCostDto[];           // 储备融资成本列表
+  progresses?: FinReserveProgressDto[];  // 储备融资进度列表
+  reports?: FinReserveReportDto[];       // 储备融资报告列表
 }
 
 // 储备融资成本
 export interface FinReserveCostDto {
-  id?: number;
-  reserveId?: number;
-  costType: string;         // 成本类型
-  costDescription: string;  // 成本描述
-  costAmount?: number;      // 成本金额
-  costRatio?: number;       // 成本比率
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
+  id?: number;              // 储备融资成本 ID
+  reserveId?: number;       // 储备融资 ID
+  costType?: string;        // 成本类型
+  costDescription?: string; // 成本描述
+  createTime?: string;      // 创建时间
+  createBy?: string;        // 创建人
 }
 
 // 储备融资进度
 export interface FinReserveProgressDto {
-  id?: number;
-  reserveId?: number;
-  progressName: string;     // 进度名称
-  planDate: string;         // 计划日期
-  actualDate?: string;      // 实际日期
-  status?: number;          // 状态
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
+  id?: number;              // 储备融资进度 ID
+  reserveId?: number;       // 储备融资 ID
+  progressName?: string;    // 进度名称
+  planDate?: string;        // 计划完成日期
+  actualDate?: string;      // 实际完成日期
+  createTime?: string;      // 创建时间
+  createBy?: string;        // 创建人
+  updateTime?: string;      // 信息更新时间
+  updateBy?: string;        // 信息更新人
 }
 
 // 储备融资报告
 export interface FinReserveReportDto {
-  id?: number;
-  reserveId?: number;
-  reportName: string;       // 报告名称
-  reportContent: string;    // 报告内容
-  reportDate: string;       // 报告日期
-  attachmentIds?: string;   // 附件ID列表
-  createBy?: number;
-  createTime?: string;
-  updateBy?: number;
-  updateTime?: string;
+  id?: number;              // 储备融资进度报告 ID
+  reserveId?: number;       // 储备融资 ID
+  reportContent?: string;   // 报告内容
+  createTime?: string;      // 创建时间
+  createBy?: string;        // 创建人
+  attachments?: SysAttachmentDto[]; // 附件列表
 }
 
 // 创建储备融资请求
-export interface CreateFinReserveDto {
-  orgId: number;
-  financialInstitutionId: number;
-  fundingMode: string;
-  fundingAmount: number;
-  expectedDisbursementDate: string;
-  combinedRatio: number;
-  remark?: string;
-  costs?: FinReserveCostDto[];
-  progresses?: FinReserveProgressDto[];
+export interface CreateReserveDto {
+  orgId?: number;                        // 融资主体 ID
+  financialInstitutionId?: number;       // 金融机构 ID
+  fundingMode: string;                   // 融资方式 (必填)
+  fundingAmount: number;                 // 融资金额，以分计算 (必填)
+  expectedDisbursementDate: string;      // 预计放款日期 (必填)
+  loanRenewalFromId?: number;            // 续贷来源 ID. 0 表示非续贷
+  leaderName?: string;                   // 牵头领导名称
+  handlerName?: string;                  // 经办人名称
+  combinedRatio: number;                 // 综合成本率 (必填)
+  additionalCosts?: number;              // 额外成本，以分计算
+  costs?: CreateReserveCostDto[];        // 储备融资成本列表
+  progresses?: CreateReserveProgressDto[]; // 储备融资进度列表
 }
 
 // 更新储备融资请求
-export interface UpdateFinReserveDto {
-  id: number;
-  orgId?: number;
-  financialInstitutionId?: number;
-  fundingMode?: string;
-  fundingAmount?: number;
-  expectedDisbursementDate?: string;
-  combinedRatio?: number;
-  actualDisbursementDate?: string;
-  actualFundingAmount?: number;
-  actualCombinedRatio?: number;
-  status?: number;
-  remark?: string;
-  costs?: FinReserveCostDto[];
-  progresses?: FinReserveProgressDto[];
+export interface UpdateReserveDto {
+  id: number;                            // 储备融资ID (必填)
+  orgId?: number;                        // 融资主体 ID
+  financialInstitutionId?: number;       // 金融机构 ID
+  fundingMode: string;                   // 融资方式 (必填)
+  fundingAmount: number;                 // 融资金额，以分计算 (必填)
+  expectedDisbursementDate: string;      // 预计放款日期 (必填)
+  loanRenewalFromId?: number;            // 续贷来源 ID. 0 表示非续贷
+  leaderName?: string;                   // 牵头领导名称
+  handlerName?: string;                  // 经办人名称
+  combinedRatio: number;                 // 综合成本率 (必填)
+  additionalCosts?: number;              // 额外成本. 单位：分
+  status: string;                        // 状态. 0:待放款, 1:已放款, 2:已取消 (必填)
+  costs?: CreateReserveCostDto[];        // 储备融资成本列表
+  progresses?: UpdateReserveProgressDto[]; // 储备融资进度列表
 }
 
 // 储备融资查询请求
-export interface QueryFinReserveDto extends PageRequest {
-  orgId?: number;
-  financialInstitutionId?: number;
-  fundingMode?: string;
-  status?: number;
-  startDate?: string;
-  endDate?: string;
+export interface QueryReserveDto extends PageRequest {
+  reserveId?: number;                    // 储备融资 ID
+  reserveIds?: number[];                 // 储备融资 ID列表
+  orgId?: number;                        // 融资主体 ID
+  institutionType?: string;              // 金融机构类型. 1: 银行, 2: 非银行金融机构
+  financialInstitutionName?: string;     // 金融机构名称
+  financialInstitutionBranchName?: string; // 金融机构分支名称
+  fundingMode?: string;                  // 融资方式
+  expectedDisbursementDateStart?: string; // 起始预计放款日期
+  expectedDisbursementDateEnd?: string;  // 截止预计放款日期
+  isRenewal?: boolean;                   // 是否为续贷
+  leaderId?: number;                     // 牵头领导ID
+  handlerId?: number;                    // 经办人ID
+  status?: string;                       // 状态. 0:待放款, 1:已放款, 2:已取消
+}
+
+// 创建储备融资报告请求
+export interface CreateReserveReportDto {
+  reserveId: number;                     // 储备融资 ID (必填)
+  reportContent: string;                 // 报告内容 (必填)
+  uploadedAttachments?: UploadedAttachmentDto[]; // 附件信息列表
+}
+
+// 创建储备融资成本请求
+export interface CreateReserveCostDto {
+  costType: string;                      // 成本类型 (必填)
+  costDescription: string;               // 成本描述 (必填)
+}
+
+// 创建储备融资进度请求
+export interface CreateReserveProgressDto {
+  progressName: string;                  // 进度名称 (必填)
+  planDate: string;                      // 计划完成日期 (必填)
 }
 
 // 更新储备融资进度请求
-export interface UpdateFinReserveProgressDto {
-  id: number;
-  actualDate?: string;
-  status?: number;
-  remark?: string;
+export interface UpdateReserveProgressDto {
+  id: number;                            // 储备融资进度 ID (必填)
+  planDate?: string;                     // 计划完成日期
+  actualDate: string;                    // 实际完成日期 (必填)
+}
+
+// 储备融资进度步骤
+export interface FinReserveProgressStep {
+  name?: string;                         // 进度名称
+  gap?: number;                          // 计划完成日期和预期放款日期相差的月份
 }
 
 // ===== 金融机构类型 =====
@@ -524,23 +554,30 @@ export interface QueryBankDto extends PageRequest {
 
 // 附件信息
 export interface SysAttachmentDto {
-  id: string;
-  bizModule: string;     // 业务模块
-  bizId: string;         // 业务ID
-  fileName: string;      // 文件名
-  fileUrl: string;       // 文件URL
-  fileSize: number;      // 文件大小
-  fileType: string;      // 文件类型
-  uploadBy?: number;
-  uploadTime?: string;
-  remark?: string;
+  id: number;                    // 附件ID
+  bizModule: string;             // 业务模块名称
+  bizId: number;                 // 业务数据 ID
+  originalName: string;          // 原文件名
+  savedName: string;             // 存储文件名
+  extension: string;             // 文件扩展名
+  fileSize: number;              // 文件大小. 以byte为单位
+  isDeleted: boolean;            // 是否删除. 0:否, 1:是
+  createTime: string;            // 创建时间
+  createBy: string;              // 创建人
 }
 
 // 预签名URL响应
-export interface PresignedUrlDto {
-  uploadUrl: string;     // 上传地址
-  fileUrl: string;       // 文件访问地址
-  expiration: string;    // 过期时间
+export interface UploadPresignedDto {
+  attachmentId: number;          // 附件ID
+  uploadUrl: string;             // 预签名上传链接
+  objectKey: string;             // 对象存储中的对象Key
+  fullUrl: string;               // 最终访问路径
+}
+
+// 上传完成响应
+export interface UploadedAttachmentDto {
+  attachmentId: number;          // 附件ID
+  fileSize: number;              // 文件大小. 单位：byte
 }
 
 // ===== 固定资产类型 =====

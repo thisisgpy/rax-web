@@ -11,7 +11,7 @@ import { routes, generateRouteObjects } from '@/router/routes';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/store';
 import { logoutAsync } from '@/store/authSlice';
-import { apiService } from '@/services';
+import { apiService, businessApiService } from '@/services';
 
 // 创建 React Query 客户端
 const queryClient = new QueryClient({
@@ -28,10 +28,14 @@ const ErrorHandlerInitializer: React.FC<{ children: React.ReactNode }> = ({ chil
   const { message } = AntdApp.useApp();
   
   React.useEffect(() => {
-    // 设置 API 服务的错误处理函数
-    apiService.setErrorHandler((msg: string) => {
+    // 设置统一的错误处理函数
+    const errorHandler = (msg: string) => {
       message.error(msg);
-    });
+    };
+
+    // 为所有 API 服务设置错误处理
+    apiService.setErrorHandler(errorHandler);
+    businessApiService.setErrorHandler(errorHandler);
   }, [message]);
 
   return <>{children}</>;

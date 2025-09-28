@@ -59,23 +59,69 @@ class ApiService {
     // Response interceptor
     this.instance.interceptors.response.use(
       (response: AxiosResponse<RaxResult>) => {
-        // 检查业务层面的错误（HTTP 200 但 success: false）
         const data = response.data;
-        if (data && typeof data === 'object' && 'success' in data && !data.success) {
+
+        // 检查业务层面的错误（HTTP 200 但 success: false）
+        if (data && typeof data === 'object' && 'success' in data && data.success === false) {
+          const errorMessage = data.message || '操作失败';
+
           // 显示错误消息
           if (this.errorHandler) {
-            this.errorHandler(data.message || '操作失败');
+            this.errorHandler(errorMessage);
           }
+
+          // 抛出错误，让调用方也能感知到失败状态
+          const error = new Error(errorMessage);
+          (error as any).code = data.code;
+          (error as any).data = data;
+          return Promise.reject(error);
         }
+
         return response;
       },
       (error) => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_info');
-          window.location.href = '/login';
+        // 处理网络错误和 HTTP 错误状态码
+        let errorMessage = '网络请求失败';
+
+        if (error.response) {
+          const status = error.response.status;
+          const data = error.response.data;
+
+          switch (status) {
+            case 401:
+              errorMessage = '登录已过期，请重新登录';
+              localStorage.removeItem('auth_token');
+              localStorage.removeItem('user_info');
+              window.location.href = '/login';
+              break;
+            case 403:
+              errorMessage = '权限不足';
+              break;
+            case 404:
+              errorMessage = '请求的资源不存在';
+              break;
+            case 500:
+              errorMessage = '服务器内部错误';
+              break;
+            default:
+              // 尝试从响应数据中获取错误信息
+              if (data?.message) {
+                errorMessage = data.message;
+              } else {
+                errorMessage = `请求失败 (${status})`;
+              }
+          }
+        } else if (error.request) {
+          errorMessage = '网络连接失败，请检查网络';
+        } else {
+          errorMessage = error.message || '请求配置错误';
         }
+
+        // 显示错误消息
+        if (this.errorHandler) {
+          this.errorHandler(errorMessage);
+        }
+
         return Promise.reject(error);
       }
     );
@@ -158,3 +204,6 @@ class BusinessApiService extends ApiService {
 
 // 导出业务 API 服务实例
 export const businessApiService = new BusinessApiService();
+
+// 导出默认的 API 服务实例
+export default apiService;

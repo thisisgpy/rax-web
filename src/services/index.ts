@@ -1,5 +1,5 @@
 // 导出 API 服务实例
-export { apiService } from './api';
+export { apiService, businessApiService } from './api';
 
 // 导出所有基于真实Swagger文档的 API 模块
 export { authApi } from './auth';

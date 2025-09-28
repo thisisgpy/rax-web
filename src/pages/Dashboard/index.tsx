@@ -155,7 +155,7 @@ export const Dashboard: React.FC = () => {
                 <Col xs={24} sm={12} md={8}>
                   <Form.Item label="资本结构类型">
                     <DictSelect
-                      dictCode="capital.structure"
+                      dictCode="funding.mode"
                       placeholder="请选择资本结构类型"
                       value={selectedCapitalStructure}
                       onChange={setSelectedCapitalStructure}
