@@ -233,7 +233,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
         }}
         footer={null}
         width={1000}
-        destroyOnClose
+        destroyOnHidden
       >
         {/* 搜索区域 */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">

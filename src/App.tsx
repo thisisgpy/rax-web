@@ -2,7 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { App as AntdApp } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import './App.css';
 import { store } from '@/store';
 import { MainLayout } from '@/layouts/MainLayout';
@@ -12,6 +15,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/store';
 import { logoutAsync } from '@/store/authSlice';
 import { apiService, businessApiService } from '@/services';
+
+// 设置 dayjs 为中文
+dayjs.locale('zh-cn');
 
 // 创建 React Query 客户端
 const queryClient = new QueryClient({
@@ -64,42 +70,56 @@ const AppContent: React.FC = () => {
   const routeElements = generateRouteObjects(routes);
 
   return (
-    <AntdApp>
-      <ErrorHandlerInitializer>
-        <PrecisionProvider defaultPrecision={4}>
-          <Router
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
-            <MainLayout 
-              user={isAuthenticated ? user : mockUser} 
-              onLogout={handleLogout}
+    <ConfigProvider
+      locale={zhCN}
+      theme={{
+        components: {
+          Table: {
+            // 设置表格的默认配置
+          },
+          DatePicker: {
+            // 设置日期选择器的默认配置
+          }
+        }
+      }}
+    >
+      <AntdApp>
+        <ErrorHandlerInitializer>
+          <PrecisionProvider defaultPrecision={2}>
+            <Router
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
             >
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                {routeElements.map((route, index) => (
-                  <Route 
-                    key={route.path || index} 
-                    path={route.path} 
-                    element={route.element}
-                  >
-                    {route.children?.map((childRoute, childIndex) => (
-                      <Route 
-                        key={childRoute.path || childIndex}
-                        path={childRoute.path} 
-                        element={childRoute.element} 
-                      />
-                    ))}
-                  </Route>
-                ))}
-              </Routes>
-            </MainLayout>
-          </Router>
-        </PrecisionProvider>
-      </ErrorHandlerInitializer>
-    </AntdApp>
+              <MainLayout
+                user={isAuthenticated ? user : mockUser}
+                onLogout={handleLogout}
+              >
+                <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  {routeElements.map((route, index) => (
+                    <Route
+                      key={route.path || index}
+                      path={route.path}
+                      element={route.element}
+                    >
+                      {route.children?.map((childRoute, childIndex) => (
+                        <Route
+                          key={childRoute.path || childIndex}
+                          path={childRoute.path}
+                          element={childRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ))}
+                </Routes>
+              </MainLayout>
+            </Router>
+          </PrecisionProvider>
+        </ErrorHandlerInitializer>
+      </AntdApp>
+    </ConfigProvider>
   );
 };
 

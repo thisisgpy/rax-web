@@ -335,8 +335,8 @@ export interface QueryReserveDto extends PageRequest {
   expectedDisbursementDateStart?: string; // 起始预计放款日期
   expectedDisbursementDateEnd?: string;  // 截止预计放款日期
   isRenewal?: boolean;                   // 是否为续贷
-  leaderId?: number;                     // 牵头领导ID
-  handlerId?: number;                    // 经办人ID
+  leaderName?: string;                   // 牵头领导名称
+  handlerName?: string;                  // 经办人名称
   status?: string;                       // 状态. 0:待放款, 1:已放款, 2:已取消
 }
 
@@ -364,6 +364,12 @@ export interface UpdateReserveProgressDto {
   id: number;                            // 储备融资进度 ID (必填)
   planDate?: string;                     // 计划完成日期
   actualDate: string;                    // 实际完成日期 (必填)
+}
+
+// 取消储备融资请求
+export interface CancelReserveDto {
+  id: number;                            // 储备融资 ID (必填)
+  cancelReport: CreateReserveReportDto;  // 取消原因（作为进度报告）
 }
 
 // 储备融资进度步骤

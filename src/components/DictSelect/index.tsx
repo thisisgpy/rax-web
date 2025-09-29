@@ -44,17 +44,26 @@ export const DictSelect: React.FC<DictSelectProps> = ({
   // 转换字典数据为 TreeSelect 需要的格式
   const convertToTreeData = (items: SysDictItemDto[]): any[] => {
     const result = items
-      .filter((item) => {
-        const shouldShow = showDisabled || item.isEnabled !== false;
-        return shouldShow;
+      .map((item) => {
+        const children = item.children && item.children.length > 0 ? convertToTreeData(item.children) : undefined;
+        const hasEnabledChildren = children && children.length > 0;
+
+        // 如果项目本身启用，或者有启用的子项目，或者设置了显示禁用项，则显示
+        const shouldShow = showDisabled || item.isEnabled !== false || hasEnabledChildren;
+
+        if (!shouldShow) {
+          return null;
+        }
+
+        return {
+          title: item.label,
+          value: item.value,
+          key: item.value, // 使用 value 作为 key，确保一致性
+          disabled: item.isEnabled === false,
+          children,
+        };
       })
-      .map((item) => ({
-        title: item.label,
-        value: item.value,
-        key: item.value, // 使用 value 作为 key，确保一致性
-        disabled: item.isEnabled === false,
-        children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : undefined,
-      }));
+      .filter(Boolean); // 过滤掉 null 值
     return result;
   };
 

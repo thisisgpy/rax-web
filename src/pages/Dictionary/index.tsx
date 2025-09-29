@@ -558,14 +558,12 @@ export const Dictionary: React.FC = () => {
                 pageSize: searchParams.pageSize,
                 total: dictListResult?.totalCount || 0,
                 showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => 
+                showTotal: (total, range) =>
                   `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
                 pageSizeOptions: ['10', '20', '50'],
                 showQuickJumper: {
                   goButton: '跳转',
                 },
-                showSizeChanger: true,
                 locale: {
                   items_per_page: '条/页',
                   jump_to: '跳至',

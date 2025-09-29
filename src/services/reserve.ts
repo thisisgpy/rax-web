@@ -10,7 +10,8 @@ import type {
   UpdateReserveProgressDto,
   FinReserveProgressDto,
   FinReserveProgressStep,
-  PageResult
+  PageResult,
+  CancelReserveDto
 } from '@/types/swagger-api';
 
 export const reserveApi = {
@@ -67,5 +68,10 @@ export const reserveApi = {
   // 获取储备融资进度列表
   getProgressList: async (reserveId: number): Promise<RaxResult<FinReserveProgressDto[]>> => {
     return apiService.get<FinReserveProgressDto[]>(`/v1/fin/reserve/progress/list/${reserveId}`);
+  },
+
+  // 取消储备融资
+  cancel: async (data: CancelReserveDto): Promise<RaxResult<boolean>> => {
+    return apiService.post<boolean>('/v1/fin/reserve/cancel', data);
   },
 };

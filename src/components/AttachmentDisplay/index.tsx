@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Popconfirm, Space, Typography, Tag } from 'antd';
+import { Table, Button, Popconfirm, Space, Typography, Tag, message } from 'antd';
 import { DeleteOutlined, FileOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { attachmentApi } from '@/services';
@@ -7,6 +7,9 @@ import { formatFileSize } from '@/components/RaxUpload/constants';
 import type { SysAttachmentDto } from '@/types/swagger-api';
 
 const { Text } = Typography;
+
+// 静态资源域名配置
+const STATIC_DOMAIN = 'https://rax-static.ganpengyu.com/';
 
 /**
  * AttachmentDisplay 组件属性
@@ -24,6 +27,8 @@ export interface AttachmentDisplayProps {
   className?: string;
   /** 表格大小 */
   size?: 'small' | 'middle' | 'large';
+  /** 静态资源域名前缀，默认使用配置的域名 */
+  staticDomain?: string;
 }
 
 /**
@@ -72,7 +77,8 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
   disableDelete = false,
   showDownload = true,
   className,
-  size = 'middle'
+  size = 'middle',
+  staticDomain = STATIC_DOMAIN
 }) => {
   const [loading, setLoading] = useState<Set<number>>(new Set());
 
@@ -101,11 +107,32 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
     }
   };
 
-  // 处理下载（这里只是示例，实际可能需要根据 fullUrl 或其他方式实现）
+  // 处理下载附件
   const handleDownload = (attachment: SysAttachmentDto) => {
-    // 实际实现可能需要根据具体的文件存储方案来调整
-    console.log('下载文件:', attachment);
-    // 可以通过 window.open 或创建 a 标签来下载
+    try {
+      if (!attachment.savedName) {
+        message.error('文件路径不存在，无法下载');
+        return;
+      }
+
+      // 拼接完整的下载地址
+      const downloadUrl = `${staticDomain}${attachment.savedName}`;
+
+      // 创建一个隐藏的a标签来触发下载
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = attachment.originalName || '文件';
+      link.target = '_blank';
+
+      // 添加到DOM，点击，然后移除
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('下载文件失败:', error);
+      message.error('下载文件失败');
+    }
   };
 
   const columns: ColumnsType<SysAttachmentDto> = [
