@@ -653,3 +653,719 @@ export interface SysAreaDto {
   name: string;          // 名称
   code: string;          // 行政区划代码
 }
+
+// ===== 融资管理类型 =====
+
+// 融资查询响应DTO
+export interface LoanDto {
+  id: number;                              // 融资ID
+  loanCode?: string;                       // 融资编号
+  orgId: number;                           // 融资主体ID
+  loanName: string;                        // 融资名称
+  productFamily: string;                   // 产品族
+  productType: string;                     // 产品类型
+  institutionId: number;                   // 资金方ID
+  institutionName: string;                 // 资金方名称
+  contractAmount: number;                  // 合同金额(分)
+  currency?: string;                       // 币种
+  isMultiDisb?: boolean;                   // 是否多次放款
+  termMonths: number;                      // 期限(月)
+  maturityDate: string;                    // 合同到期日
+  rateMode: string;                        // 利率方式
+  fixedRate?: number;                      // 固定利率
+  baseRate?: number;                       // 基准利率/票面利率
+  spreadBp?: number;                       // 加点(BP)
+  rateResetCycle?: string;                 // 重定价周期
+  rateResetAnchorDate?: string;            // 重定价锚定日
+  dayCountConvention?: string;             // 计息日规则
+  repayMethod: string;                     // 还款方式
+  status: string;                          // 状态
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 修改时间
+  updateBy?: string;                       // 修改人
+  extFieldValList?: FinLoanExtFieldValDto[];        // 扩展字段值列表
+  participantList?: FinLoanParticipantDto[];        // 银团参与行列表
+  cdList?: LoanCdWithMapDto[];                      // 存单关联列表
+  lcList?: LoanLcWithMapDto[];                      // 信用证关联列表
+  arItemList?: FactoringArItemDto[];                // 保理应收款明细列表
+  leasedAssetList?: LeasedAssetDto[];               // 融资租赁资产列表
+  voucherItemList?: ScfVoucherItemDto[];            // 供应链金融凭证列表
+  trancheList?: TrustTrancheDto[];                  // 信托分层信息列表
+  fileAttachments?: SysAttachmentDto[];             // 文件附件列表
+}
+
+// 创建融资请求
+export interface CreateLoanDto {
+  loanCode?: string;                       // 融资编号
+  orgId: number;                           // 融资主体ID (必填)
+  loanName: string;                        // 融资名称 (必填)
+  productFamily: string;                   // 产品族 (必填)
+  productType: string;                     // 产品类型 (必填)
+  institutionId: number;                   // 资金方ID (必填)
+  institutionName: string;                 // 资金方名称 (必填)
+  contractAmount: number;                  // 合同金额 (必填)
+  currency?: string;                       // 币种
+  isMultiDisb?: boolean;                   // 是否多次放款
+  termMonths: number;                      // 期限 (必填)
+  maturityDate: string;                    // 合同到期日 (必填)
+  rateMode: string;                        // 利率方式 (必填)
+  fixedRate?: number;                      // 固定利率
+  baseRate?: number;                       // 基准利率/票面利率
+  spreadBp?: number;                       // 加点
+  rateResetCycle?: string;                 // 重定价周期
+  rateResetAnchorDate?: string;            // 重定价锚定日
+  dayCountConvention?: string;             // 计息日规则
+  repayMethod: string;                     // 还款方式 (必填)
+  status: string;                          // 状态 (必填)
+  remark?: string;                         // 备注
+  extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
+  relatedData?: LoanRelatedData;                    // 关联数据包装器
+  fileAttachments?: UploadedAttachmentDto[];        // 文件附件列表
+}
+
+// 更新融资请求
+export interface UpdateLoanDto {
+  id: number;                              // 融资ID (必填)
+  loanCode?: string;                       // 融资编号
+  orgId: number;                           // 融资主体ID (必填)
+  loanName: string;                        // 融资名称 (必填)
+  productFamily: string;                   // 产品族 (必填)
+  productType: string;                     // 产品类型 (必填)
+  institutionId: number;                   // 资金方ID (必填)
+  institutionName: string;                 // 资金方名称 (必填)
+  contractAmount: number;                  // 合同金额 (必填)
+  currency?: string;                       // 币种
+  isMultiDisb?: boolean;                   // 是否多次放款
+  termMonths: number;                      // 期限 (必填)
+  maturityDate: string;                    // 合同到期日 (必填)
+  rateMode: string;                        // 利率方式 (必填)
+  fixedRate?: number;                      // 固定利率
+  baseRate?: number;                       // 基准利率/票面利率
+  spreadBp?: number;                       // 加点
+  rateResetCycle?: string;                 // 重定价周期
+  rateResetAnchorDate?: string;            // 重定价锚定日
+  dayCountConvention?: string;             // 计息日规则
+  repayMethod: string;                     // 还款方式 (必填)
+  status: string;                          // 状态 (必填)
+  remark?: string;                         // 备注
+  extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
+  relatedData?: LoanRelatedData;                    // 关联数据包装器
+  fileAttachments?: UploadedAttachmentDto[];        // 文件附件列表
+}
+
+// 融资分页查询请求
+export interface QueryLoanDto extends PageRequest {
+  loanCode?: string;                       // 融资编号
+  orgId?: number;                          // 融资主体ID
+  loanName?: string;                       // 融资名称
+  productFamily?: string;                  // 产品族
+  productType?: string;                    // 产品类型
+  institutionName?: string;                // 资金方名称
+  rateMode?: string;                       // 利率方式
+  repayMethod?: string;                    // 还款方式
+  status?: string;                         // 状态
+  maturityDateStart?: string;              // 合同到期日开始
+  maturityDateEnd?: string;                // 合同到期日结束
+  contractAmountMin?: number;              // 合同金额下限（分）
+  contractAmountMax?: number;              // 合同金额上限（分）
+}
+
+// 融资关联数据包装器
+export interface LoanRelatedData {
+  participantList?: CreateLoanParticipantDto[];     // 银团参与行列表（银团贷款）
+  cdMapList?: CreateLoanCdMapDto[];                 // 存单关联列表（存单质押）
+  lcMapList?: CreateLoanLcMapDto[];                 // 信用证关联列表
+  arItemList?: CreateFactoringArItemDto[];          // 应收款明细列表（保理）
+  leasedAssetList?: CreateLeasedAssetDto[];         // 租赁资产列表（融资租赁）
+  voucherItemList?: CreateScfVoucherItemDto[];      // 凭证明细列表（供应链金融）
+  trancheList?: CreateTrustTrancheDto[];            // 分层信息列表（信托/ABS）
+}
+
+// ===== 融资扩展字段类型 =====
+
+// 扩展字段定义DTO
+export interface FinLoanExtFieldDefDto {
+  id: number;                              // 字段定义ID
+  productFamily: string;                   // 产品族
+  productType: string;                     // 产品类型
+  sectionCode: string;                     // 字段所属区块名称
+  fieldKey: string;                        // 字段唯一键
+  fieldLabel: string;                      // 字段显示名
+  dataType: string;                        // 字段数据类型
+  isRequired?: boolean;                    // 是否必填
+  isVisible?: boolean;                     // 是否可见
+  dictCode?: string;                       // 数据字典编码
+  orderNo?: number;                        // 区块内排序号
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+}
+
+// 创建扩展字段定义请求
+export interface CreateFinLoanExtFieldDefDto {
+  productFamily: string;                   // 产品族 (必填)
+  productType: string;                     // 产品类型 (必填)
+  sectionCode: string;                     // 字段所属区块名称 (必填)
+  fieldKey: string;                        // 字段唯一键 (必填)
+  fieldLabel: string;                      // 字段显示名 (必填)
+  dataType: string;                        // 字段数据类型 (必填)
+  isRequired?: boolean;                    // 是否必填
+  isVisible?: boolean;                     // 是否可见
+  dictCode?: string;                       // 数据字典编码
+  orderNo?: number;                        // 区块内排序号
+  remark?: string;                         // 备注
+}
+
+// 更新扩展字段定义请求
+export interface UpdateFinLoanExtFieldDefDto {
+  id: number;                              // 字段定义ID (必填)
+  productFamily: string;                   // 产品族 (必填)
+  productType: string;                     // 产品类型 (必填)
+  sectionCode: string;                     // 字段所属区块名称 (必填)
+  fieldKey: string;                        // 字段唯一键 (必填)
+  fieldLabel: string;                      // 字段显示名 (必填)
+  dataType: string;                        // 字段数据类型 (必填)
+  isRequired?: boolean;                    // 是否必填
+  isVisible?: boolean;                     // 是否可见
+  dictCode?: string;                       // 数据字典编码
+  orderNo?: number;                        // 区块内排序号
+  remark?: string;                         // 备注
+}
+
+// 扩展字段值DTO
+export interface FinLoanExtFieldValDto {
+  id: number;                              // 字段值ID
+  loanId: number;                          // 融资ID
+  fieldKey: string;                        // 字段键
+  dataType: string;                        // 字段数据类型
+  valueStr?: string;                       // 字段值-字符串
+  valueNum?: number;                       // 字段值-数字
+  valueDate?: string;                      // 字段值-日期
+  valueDt?: string;                        // 字段值-日期时间
+  valueBool?: boolean;                     // 字段值-布尔
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+}
+
+// 创建扩展字段值请求
+export interface CreateFinLoanExtFieldValDto {
+  loanId?: number;                         // 融资ID
+  fieldKey?: string;                       // 字段键
+  dataType?: string;                       // 字段数据类型
+  valueStr?: string;                       // 字段值-字符串
+  valueNum?: number;                       // 字段值-数字
+  valueDate?: string;                      // 字段值-日期
+  valueDt?: string;                        // 字段值-日期时间
+  valueBool?: boolean;                     // 字段值-布尔
+  remark?: string;                         // 备注
+}
+
+// ===== 银团参与行类型 =====
+
+// 银团参与行DTO
+export interface FinLoanParticipantDto {
+  id: number;                              // 参与行ID
+  loanId: number;                          // 融资ID
+  role: string;                            // 角色. 牵头行/代理行/参与行
+  institutionId: number;                   // 金融机构ID
+  institutionName: string;                 // 机构名称
+  commitAmount?: number;                   // 承诺额度(分)
+  sharePct?: number;                       // 份额比例(0~1)
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+}
+
+// 创建银团参与行请求
+export interface CreateLoanParticipantDto {
+  role: string;                            // 角色 (必填)
+  institutionId: number;                   // 金融机构ID (必填)
+  institutionName: string;                 // 机构名称 (必填)
+  commitAmount?: number;                   // 承诺额度(分)
+  sharePct?: number;                       // 份额比例(0~1)
+  remark?: string;                         // 备注
+  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+}
+
+// ===== 信用证类型 =====
+
+// 信用证DTO
+export interface LoanLcDto {
+  id: number;                              // 主键ID
+  lcNo: string;                            // 信用证编号
+  lcType?: string;                         // 信用证类型
+  issuingBank?: string;                    // 开证行名称
+  issuingBankId: number;                   // 开证行ID
+  advisingBank?: string;                   // 通知行/保兑行名称
+  advisingBankId?: number;                 // 通知/保兑行ID
+  confirmFlag?: boolean;                   // 是否保兑LC
+  applicant?: string;                      // 申请人
+  beneficiary?: string;                    // 受益人
+  currency: string;                        // 币种
+  lcAmount: number;                        // 信用证金额(分)
+  tolerancePct?: number;                   // 金额容差(%)
+  issueDate: string;                       // 开证日期
+  expiryDate: string;                      // 到期日/有效期止
+  placeOfExpiry?: string;                  // 到期地点
+  availableBy?: string;                    // 可用方式
+  shipmentFrom?: string;                   // 装运港/起运地
+  shipmentTo?: string;                     // 卸货港/目的地
+  latestShipment?: string;                 // 最迟装运期
+  incoterm?: string;                       // 贸易术语
+  presentationDays?: number;               // 交单期限(天)
+  partialShipmentAllowed?: boolean;        // 是否允许分批装运
+  transshipmentAllowed?: boolean;          // 是否允许转运
+  marginRatio?: number;                    // 保证金比例(%)
+  marginAmount?: number;                   // 保证金金额(分)
+  commissionRate?: number;                 // 开证费率(%)
+  advisingChargeBorneBy?: string;          // 通知费承担方
+  ucpVersion?: string;                     // 适用规则版本
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+}
+
+// 创建信用证请求
+export interface CreateLoanLcDto {
+  lcNo: string;                            // 信用证编号 (必填)
+  lcType?: string;                         // 信用证类型
+  issuingBankId: number;                   // 开证行ID (必填)
+  advisingBankId?: number;                 // 通知/保兑行ID
+  confirmFlag?: boolean;                   // 是否保兑LC
+  applicant?: string;                      // 申请人
+  beneficiary?: string;                    // 受益人
+  currency: string;                        // 币种 (必填)
+  lcAmount: number;                        // 信用证金额(分) (必填)
+  tolerancePct?: number;                   // 金额容差(%)
+  issueDate: string;                       // 开证日期 (必填)
+  expiryDate: string;                      // 到期日/有效期止 (必填)
+  placeOfExpiry?: string;                  // 到期地点
+  availableBy?: string;                    // 可用方式
+  shipmentFrom?: string;                   // 装运港/起运地
+  shipmentTo?: string;                     // 卸货港/目的地
+  latestShipment?: string;                 // 最迟装运期
+  incoterm?: string;                       // 贸易术语
+  presentationDays?: number;               // 交单期限(天)
+  partialShipmentAllowed?: boolean;        // 是否允许分批装运
+  transshipmentAllowed?: boolean;          // 是否允许转运
+  marginRatio?: number;                    // 保证金比例(%)
+  marginAmount?: number;                   // 保证金金额(分)
+  commissionRate?: number;                 // 开证费率(%)
+  advisingChargeBorneBy?: string;          // 通知费承担方
+  ucpVersion?: string;                     // 适用规则版本
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+}
+
+// 更新信用证请求
+export interface UpdateLoanLcDto {
+  id: number;                              // 主键ID (必填)
+  lcNo?: string;                           // 信用证编号
+  lcType?: string;                         // 信用证类型
+  issuingBankId?: number;                  // 开证行ID
+  advisingBankId?: number;                 // 通知/保兑行ID
+  confirmFlag?: boolean;                   // 是否保兑LC
+  applicant?: string;                      // 申请人
+  beneficiary?: string;                    // 受益人
+  currency?: string;                       // 币种
+  lcAmount?: number;                       // 信用证金额(分)
+  tolerancePct?: number;                   // 金额容差(%)
+  issueDate?: string;                      // 开证日期
+  expiryDate?: string;                     // 到期日/有效期止
+  placeOfExpiry?: string;                  // 到期地点
+  availableBy?: string;                    // 可用方式
+  shipmentFrom?: string;                   // 装运港/起运地
+  shipmentTo?: string;                     // 卸货港/目的地
+  latestShipment?: string;                 // 最迟装运期
+  incoterm?: string;                       // 贸易术语
+  presentationDays?: number;               // 交单期限(天)
+  partialShipmentAllowed?: boolean;        // 是否允许分批装运
+  transshipmentAllowed?: boolean;          // 是否允许转运
+  marginRatio?: number;                    // 保证金比例(%)
+  marginAmount?: number;                   // 保证金金额(分)
+  commissionRate?: number;                 // 开证费率(%)
+  advisingChargeBorneBy?: string;          // 通知费承担方
+  ucpVersion?: string;                     // 适用规则版本
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+}
+
+// 信用证查询请求
+export interface QueryLoanLcDto extends PageRequest {
+  lcNo?: string;                           // 信用证编号
+  lcType?: string;                         // 信用证类型
+  issuingBankId?: number;                  // 开证行ID
+  issuingBank?: string;                    // 开证行名称
+  advisingBankId?: number;                 // 通知/保兑行ID
+  applicant?: string;                      // 申请人
+  beneficiary?: string;                    // 受益人
+  currency?: string;                       // 币种
+  issueDateStart?: string;                 // 开证日期开始
+  issueDateEnd?: string;                   // 开证日期结束
+  expiryDateStart?: string;                // 到期日开始
+  expiryDateEnd?: string;                  // 到期日结束
+  status?: string;                         // 状态
+}
+
+// 信用证及关联信息DTO
+export interface LoanLcWithMapDto {
+  mapId: number;                           // 关联映射ID
+  securedValue?: number;                   // 本贷款下的认可金额(分)
+  marginLockedAmount?: number;             // 本贷款下实际冻结/占用的保证金金额(分)
+  allocationNote?: string;                 // 本贷款下的用途/分配说明
+  mapStatus?: string;                      // 关联状态
+  mapRemark?: string;                      // 关联备注
+  lcId: number;                            // 信用证ID
+  lcNo: string;                            // 信用证编号
+  lcType?: string;                         // 信用证类型
+  issuingBank?: string;                    // 开证行名称
+  issuingBankId?: number;                  // 开证行ID
+  advisingBank?: string;                   // 通知行/保兑行名称
+  advisingBankId?: number;                 // 通知/保兑行ID
+  confirmFlag?: boolean;                   // 是否保兑LC
+  applicant?: string;                      // 申请人
+  beneficiary?: string;                    // 受益人
+  currency?: string;                       // 币种
+  lcAmount?: number;                       // 信用证金额(分)
+  tolerancePct?: number;                   // 金额容差(%)
+  issueDate?: string;                      // 开证日期
+  expiryDate?: string;                     // 到期日/有效期止
+  placeOfExpiry?: string;                  // 到期地点
+  availableBy?: string;                    // 可用方式
+  shipmentFrom?: string;                   // 装运港/起运地
+  shipmentTo?: string;                     // 卸货港/目的地
+  latestShipment?: string;                 // 最迟装运期
+  incoterm?: string;                       // 贸易术语
+  presentationDays?: number;               // 交单期限(天)
+  partialShipmentAllowed?: boolean;        // 是否允许分批装运
+  transshipmentAllowed?: boolean;          // 是否允许转运
+  marginRatio?: number;                    // 保证金比例(%)
+  marginAmount?: number;                   // 保证金金额(分)
+  commissionRate?: number;                 // 开证费率(%)
+  advisingChargeBorneBy?: string;          // 通知费承担方
+  ucpVersion?: string;                     // 适用规则版本
+  lcStatus?: string;                       // 信用证状态
+  lcRemark?: string;                       // 信用证备注
+}
+
+// 创建贷款-信用证关联请求
+export interface CreateLoanLcMapDto {
+  lcId: number;                            // 信用证ID (必填)
+  securedValue?: number;                   // 本贷款下的认可金额(分)
+  marginLockedAmount?: number;             // 本贷款下实际冻结/占用的保证金金额(分)
+  allocationNote?: string;                 // 本贷款下的用途/分配说明
+  status?: string;                         // 关联状态
+  remark?: string;                         // 备注
+}
+
+// 更新贷款-信用证关联请求
+export interface UpdateLoanLcMapDto {
+  id: number;                              // 主键ID (必填)
+  securedValue?: number;                   // 本贷款下的认可金额(分)
+  marginLockedAmount?: number;             // 本贷款下实际冻结/占用的保证金金额(分)
+  allocationNote?: string;                 // 本贷款下的用途/分配说明
+  status?: string;                         // 关联状态
+  remark?: string;                         // 备注
+}
+
+// ===== 存单类型 =====
+
+// 存单DTO
+export interface LoanCdDto {
+  id: number;                              // 主键ID
+  cdNo: string;                            // 存单编号/凭证号
+  bankId: number;                          // 开立银行id
+  bankName?: string;                       // 开立银行名称
+  cardId?: number;                         // 关联银行账户id
+  cardNumber?: string;                     // 关联银行账户卡号
+  currency: string;                        // 币种
+  principalAmount: number;                 // 本金(分)
+  interestRate?: number;                   // 名义利率(%)
+  dayCountConvention?: string;             // 计息规则
+  interestPayFreq?: string;                // 付息频率
+  compoundFlag?: boolean;                  // 是否复利
+  issueDate: string;                       // 起息/开立日
+  maturityDate: string;                    // 到期日
+  termMonths?: number;                     // 期限(月)
+  autoRenewFlag?: boolean;                 // 是否自动续存
+  rolloverCount?: number;                  // 续存次数
+  certificateHolder?: string;              // 存单持有人/名义户
+  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+}
+
+// 创建存单请求
+export interface CreateLoanCdDto {
+  cdNo: string;                            // 存单编号/凭证号 (必填)
+  bankId: number;                          // 开立银行id (必填)
+  cardId?: number;                         // 关联银行账户id
+  currency: string;                        // 币种 (必填)
+  principalAmount: number;                 // 本金(分) (必填)
+  interestRate?: number;                   // 名义利率(%)
+  dayCountConvention?: string;             // 计息规则
+  interestPayFreq?: string;                // 付息频率
+  compoundFlag?: boolean;                  // 是否复利
+  issueDate: string;                       // 起息/开立日 (必填)
+  maturityDate: string;                    // 到期日 (必填)
+  termMonths?: number;                     // 期限(月)
+  autoRenewFlag?: boolean;                 // 是否自动续存
+  rolloverCount?: number;                  // 续存次数
+  certificateHolder?: string;              // 存单持有人/名义户
+  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+}
+
+// 更新存单请求
+export interface UpdateLoanCdDto {
+  id: number;                              // 主键ID (必填)
+  cdNo: string;                            // 存单编号/凭证号 (必填)
+  bankId: number;                          // 开立银行id (必填)
+  cardId?: number;                         // 关联银行账户id
+  currency: string;                        // 币种 (必填)
+  principalAmount: number;                 // 本金(分) (必填)
+  interestRate?: number;                   // 名义利率(%)
+  dayCountConvention?: string;             // 计息规则
+  interestPayFreq?: string;                // 付息频率
+  compoundFlag?: boolean;                  // 是否复利
+  issueDate: string;                       // 起息/开立日 (必填)
+  maturityDate: string;                    // 到期日 (必填)
+  termMonths?: number;                     // 期限(月)
+  autoRenewFlag?: boolean;                 // 是否自动续存
+  rolloverCount?: number;                  // 续存次数
+  certificateHolder?: string;              // 存单持有人/名义户
+  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+}
+
+// 存单查询请求
+export interface QueryLoanCdDto extends PageRequest {
+  cdNo?: string;                           // 存单编号/凭证号
+  bankId?: number;                         // 开立银行id
+  bankName?: string;                       // 开立银行名称
+  cardId?: number;                         // 关联银行账户id
+  currency?: string;                       // 币种
+  issueDateStart?: string;                 // 起息日开始
+  issueDateEnd?: string;                   // 起息日结束
+  maturityDateStart?: string;              // 到期日开始
+  maturityDateEnd?: string;                // 到期日结束
+  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
+  status?: string;                         // 状态
+}
+
+// 存单及关联信息DTO
+export interface LoanCdWithMapDto {
+  mapId: number;                           // 关联映射ID
+  pledgeRatio?: number;                    // 质押比例(%)
+  securedValue?: number;                   // 本贷款下的认可/计价价值(分)
+  registrationNo?: string;                 // 抵/质押登记号
+  registrationDate?: string;               // 抵/质押登记日期
+  releaseDate?: string;                    // 解押日期
+  mapStatus?: string;                      // 关联状态
+  voucherNo?: string;                      // 记账凭证编号
+  mapRemark?: string;                      // 关联备注
+  cdId: number;                            // 存单ID
+  cdNo: string;                            // 存单编号/凭证号
+  bankId?: number;                         // 开立银行id
+  bankName?: string;                       // 开立银行名称
+  cardId?: number;                         // 关联银行账户id
+  cardNumber?: string;                     // 关联银行账户卡号
+  currency?: string;                       // 币种
+  principalAmount?: number;                // 本金(分)
+  interestRate?: number;                   // 名义利率(%)
+  dayCountConvention?: string;             // 计息规则
+  interestPayFreq?: string;                // 付息频率
+  compoundFlag?: boolean;                  // 是否复利
+  issueDate?: string;                      // 起息/开立日
+  maturityDate?: string;                   // 到期日
+  termMonths?: number;                     // 期限(月)
+  autoRenewFlag?: boolean;                 // 是否自动续存
+  rolloverCount?: number;                  // 续存次数
+  certificateHolder?: string;              // 存单持有人/名义户
+  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
+  cdStatus?: string;                       // 存单状态
+  cdRemark?: string;                       // 存单备注
+}
+
+// 创建贷款-存单关联请求
+export interface CreateLoanCdMapDto {
+  cdId: number;                            // 存单ID (必填)
+  pledgeRatio?: number;                    // 质押比例(%)
+  securedValue?: number;                   // 本贷款下的认可/计价价值(分)
+  registrationNo?: string;                 // 抵/质押登记号
+  registrationDate?: string;               // 抵/质押登记日期
+  releaseDate?: string;                    // 解押日期
+  status?: string;                         // 关联状态
+  voucherNo?: string;                      // 记账凭证编号
+  remark?: string;                         // 备注
+}
+
+// 更新贷款-存单关联请求
+export interface UpdateLoanCdMapDto {
+  id: number;                              // 主键ID (必填)
+  pledgeRatio?: number;                    // 质押比例(%)
+  securedValue?: number;                   // 本贷款下的认可/计价价值(分)
+  registrationNo?: string;                 // 抵/质押登记号
+  registrationDate?: string;               // 抵/质押登记日期
+  releaseDate?: string;                    // 解押日期
+  status?: string;                         // 关联状态
+  voucherNo?: string;                      // 记账凭证编号
+  remark?: string;                         // 备注
+}
+
+// ===== 保理应收款类型 =====
+
+// 保理应收明细DTO
+export interface FactoringArItemDto {
+  id: number;                              // 主键ID
+  loanId: number;                          // 关联贷款ID
+  invoiceNo: string;                       // 发票号/应收编号
+  debtorName: string;                      // 买方/债务人名称
+  arFaceAmount: number;                    // 应收票面金额(分)
+  assignedAmount?: number;                 // 转让/已融资金额(分)
+  issueDate: string;                       // 开具/应收形成日期
+  dueDate: string;                         // 到期日
+  paidFlag?: boolean;                      // 是否已回款
+  paidDate?: string;                       // 回款日期
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+}
+
+// 创建保理应收明细请求
+export interface CreateFactoringArItemDto {
+  invoiceNo: string;                       // 发票号/应收编号 (必填)
+  debtorName: string;                      // 买方/债务人名称 (必填)
+  arFaceAmount: number;                    // 应收票面金额(分) (必填)
+  assignedAmount?: number;                 // 转让/已融资金额(分)
+  issueDate: string;                       // 开具/应收形成日期 (必填)
+  dueDate: string;                         // 到期日 (必填)
+  paidFlag?: boolean;                      // 是否已回款
+  paidDate?: string;                       // 回款日期
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+}
+
+// ===== 融资租赁资产类型 =====
+
+// 融资租赁租赁物DTO
+export interface LeasedAssetDto {
+  id: number;                              // 主键ID
+  loanId: number;                          // 关联贷款ID
+  assetId?: number;                        // 固定资产ID
+  assetCodeSnapshot?: string;              // 资产编码快照
+  assetNameSnapshot?: string;              // 资产名称快照
+  quantity?: number;                       // 数量
+  unit?: string;                           // 计量单位
+  bookValueAtLease?: number;               // 签约时账面价值(分)
+  appraisedValueAtLease?: number;          // 签约时评估/认可价值(分)
+  serialNo?: string;                       // 序列号/车架号等
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+}
+
+// 创建融资租赁租赁物请求
+export interface CreateLeasedAssetDto {
+  assetId?: number;                        // 固定资产ID
+  assetCodeSnapshot?: string;              // 资产编码快照
+  assetNameSnapshot?: string;              // 资产名称快照
+  quantity?: number;                       // 数量
+  unit?: string;                           // 计量单位
+  bookValueAtLease?: number;               // 签约时账面价值(分)
+  appraisedValueAtLease?: number;          // 签约时评估/认可价值(分)
+  serialNo?: string;                       // 序列号/车架号等
+  remark?: string;                         // 备注
+  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+}
+
+// ===== 供应链金融凭证类型 =====
+
+// 供应链金融凭证明细DTO
+export interface ScfVoucherItemDto {
+  id: number;                              // 主键ID
+  loanId: number;                          // 关联贷款ID
+  voucherNo?: string;                      // 凭证/订单/应收确认编号
+  voucherType?: string;                    // 凭证类型
+  coreCorpName?: string;                   // 核心企业名称
+  debtorName?: string;                     // 债务人/付款方
+  underlyingAmount?: number;               // 底层金额(分)
+  issueDate?: string;                      // 凭证/订单生成日期
+  dueDate?: string;                        // 到期日/预计回款日
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+}
+
+// 创建供应链金融凭证明细请求
+export interface CreateScfVoucherItemDto {
+  voucherNo?: string;                      // 凭证/订单/应收确认编号
+  voucherType?: string;                    // 凭证类型
+  coreCorpName?: string;                   // 核心企业名称
+  debtorName?: string;                     // 债务人/付款方
+  underlyingAmount?: number;               // 底层金额(分)
+  issueDate?: string;                      // 凭证/订单生成日期
+  dueDate?: string;                        // 到期日/预计回款日
+  status?: string;                         // 状态
+  remark?: string;                         // 备注
+  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+}
+
+// ===== 信托分层类型 =====
+
+// 信托分层明细DTO
+export interface TrustTrancheDto {
+  id: number;                              // 主键ID
+  loanId: number;                          // 关联贷款ID
+  trancheName?: string;                    // 分层名称
+  trancheLevel?: string;                   // 分层级别/类型
+  paymentRank?: number;                    // 清偿顺序
+  subscribeAmount?: number;                // 认购金额(分)
+  sharePct?: number;                       // 份额占比(%)
+  expectedYieldRate?: number;              // 预期收益率(%)
+  distributionRule?: string;               // 收益分配规则
+  remark?: string;                         // 备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+}
+
+// 创建信托分层明细请求
+export interface CreateTrustTrancheDto {
+  trancheName?: string;                    // 分层名称
+  trancheLevel?: string;                   // 分层级别/类型
+  paymentRank?: number;                    // 清偿顺序
+  subscribeAmount?: number;                // 认购金额(分)
+  sharePct?: number;                       // 份额占比(%)
+  expectedYieldRate?: number;              // 预期收益率(%)
+  distributionRule?: string;               // 收益分配规则
+  remark?: string;                         // 备注
+  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+}

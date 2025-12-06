@@ -110,9 +110,6 @@ const ReserveDetail: React.FC = () => {
       message.success('进度更新成功');
       refetch();
       progressForm.resetFields();
-    },
-    onError: (error: any) => {
-      message.error(error.message || '进度更新失败');
     }
   });
 
@@ -125,9 +122,6 @@ const ReserveDetail: React.FC = () => {
       setReportModalVisible(false);
       reportForm.resetFields();
       setReportAttachments([]);
-    },
-    onError: (error: any) => {
-      message.error(error.message || '报告创建失败');
     }
   });
 
@@ -137,9 +131,6 @@ const ReserveDetail: React.FC = () => {
     onSuccess: () => {
       message.success('报告删除成功');
       refetch();
-    },
-    onError: (error: any) => {
-      message.error(error.message || '报告删除失败');
     }
   });
 
@@ -152,9 +143,6 @@ const ReserveDetail: React.FC = () => {
       cancelForm.resetFields();
       setCancelAttachments([]);
       refetch();
-    },
-    onError: (error: any) => {
-      message.error(error.message || '取消失败');
     }
   });
 

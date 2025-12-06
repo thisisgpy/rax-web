@@ -115,9 +115,6 @@ const Reserve: React.FC = () => {
     onSuccess: () => {
       message.success('删除成功');
       refetch();
-    },
-    onError: (error: any) => {
-      message.error(error.message || '删除失败');
     }
   });
 
@@ -144,9 +141,6 @@ const Reserve: React.FC = () => {
       refetch();
       progressForm.resetFields();
       setSelectedProgress(null);
-    },
-    onError: (error: any) => {
-      message.error(error.message || '进度更新失败');
     }
   });
 

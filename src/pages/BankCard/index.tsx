@@ -7,12 +7,12 @@ import {
   Input,
   Modal,
   Space,
-  message,
   Popconfirm,
   Row,
   Col,
   Tooltip,
 } from 'antd';
+import { App } from 'antd';
 import { PlusOutlined, SearchOutlined, CreditCardOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ import type {
 } from '@/types/swagger-api';
 
 export const BankCard: React.FC = () => {
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [bankCardForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -56,9 +57,6 @@ export const BankCard: React.FC = () => {
       bankCardForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['bankCards'] });
     },
-    onError: () => {
-      message.error('银行卡创建失败');
-    },
   });
 
   // 更新银行卡
@@ -72,9 +70,6 @@ export const BankCard: React.FC = () => {
       bankCardForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['bankCards'] });
     },
-    onError: () => {
-      message.error('银行卡更新失败');
-    },
   });
 
   // 删除银行卡
@@ -83,9 +78,6 @@ export const BankCard: React.FC = () => {
     onSuccess: () => {
       message.success('银行卡删除成功');
       queryClient.invalidateQueries({ queryKey: ['bankCards'] });
-    },
-    onError: () => {
-      message.error('银行卡删除失败');
     },
   });
 

@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Tree, 
-  Button, 
-  Space, 
-  Modal, 
-  Form, 
-  Input, 
+import {
+  Card,
+  Tree,
+  Button,
+  Space,
+  Modal,
+  Form,
+  Input,
   Select,
-  message, 
   Popconfirm,
   Tooltip,
   Row,
   Col,
   Switch,
-  Tag
+  Tag,
+  App
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -46,6 +46,7 @@ const RESOURCE_TYPES = [
 ];
 
 export const Resources: React.FC = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
   
@@ -68,57 +69,35 @@ export const Resources: React.FC = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // 处理网络错误
-  useEffect(() => {
-    if (error) {
-      message.error('获取资源树数据失败，请检查网络连接');
-    }
-  }, [error]);
-
   // 创建资源
   const createMutation = useMutation({
     mutationFn: (data: CreateResourceDto) => resourceApi.create(data),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('创建资源成功');
-        setModalVisible(false);
-        form.resetFields();
-        queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
-      }
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '创建资源失败');
+    onSuccess: () => {
+      message.success('创建资源成功');
+      setModalVisible(false);
+      form.resetFields();
+      queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
     },
   });
 
   // 更新资源
   const updateMutation = useMutation({
     mutationFn: (data: UpdateResourceDto) => resourceApi.update(data),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('更新资源成功');
-        setModalVisible(false);
-        form.resetFields();
-        setSelectedResource(null);
-        queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
-      }
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '更新资源失败');
+    onSuccess: () => {
+      message.success('更新资源成功');
+      setModalVisible(false);
+      form.resetFields();
+      setSelectedResource(null);
+      queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
     },
   });
 
   // 删除资源
   const deleteMutation = useMutation({
     mutationFn: (id: number) => resourceApi.remove(id),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('删除资源成功');
-        queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
-      }
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '删除资源失败');
+    onSuccess: () => {
+      message.success('删除资源成功');
+      queryClient.invalidateQueries({ queryKey: ['resourceTree'] });
     },
   });
 

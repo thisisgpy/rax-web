@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { TreeSelect, Spin, message } from 'antd';
+import React, { useState } from 'react';
+import { TreeSelect, Spin } from 'antd';
 import type { TreeSelectProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { dictApi } from '@/services/dict';
@@ -27,19 +27,12 @@ export const DictSelect: React.FC<DictSelectProps> = ({
   const {
     data: dictResponse,
     isLoading,
-    error,
   } = useQuery({
     queryKey: ['dictTree', dictCode],
     queryFn: () => dictApi.getItemTreeByCode(dictCode),
     enabled: !!dictCode,
     staleTime: 5 * 60 * 1000, // 5分钟缓存
   });
-
-  useEffect(() => {
-    if (error) {
-      message.error('获取字典数据失败');
-    }
-  }, [error]);
 
   // 转换字典数据为 TreeSelect 需要的格式
   const convertToTreeData = (items: SysDictItemDto[]): any[] => {

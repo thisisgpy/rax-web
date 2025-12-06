@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Cascader, message } from 'antd';
+import { Cascader } from 'antd';
 import type { CascaderProps } from 'antd';
 import { areaApi } from '@/services/area';
 import type { SysAreaDto } from '@/types/swagger-api';
@@ -98,7 +98,6 @@ const AreaCascader: React.FC<AreaCascaderProps> = ({
         setOptions(updatedOptions);
         optionsRef.current = updatedOptions;
       } else {
-        message.error('加载区域数据失败');
         targetOption.loading = false;
         const updatedOptions = [...optionsRef.current];
         setOptions(updatedOptions);
@@ -106,7 +105,6 @@ const AreaCascader: React.FC<AreaCascaderProps> = ({
       }
     } catch (error) {
       console.error('加载区域数据出错:', error);
-      message.error('加载区域数据出错');
       targetOption.loading = false;
       const updatedOptions = [...optionsRef.current];
       setOptions(updatedOptions);
@@ -127,12 +125,9 @@ const AreaCascader: React.FC<AreaCascaderProps> = ({
         const provinceOptions = convertToOptions(response.data, 1);
         setOptions(provinceOptions);
         optionsRef.current = provinceOptions;
-      } else {
-        message.error('加载省份数据失败');
       }
     } catch (error) {
       console.error('加载省份数据出错:', error);
-      message.error('加载省份数据出错');
     } finally {
       setLoading(false);
     }

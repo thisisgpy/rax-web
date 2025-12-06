@@ -9,7 +9,6 @@ import {
   Space,
   Tag,
   Select,
-  message,
   Popconfirm,
   Row,
   Col,
@@ -17,6 +16,7 @@ import {
   Dropdown,
   List,
   Checkbox,
+  App,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SettingOutlined, UserOutlined, SafetyOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,6 +39,7 @@ import OrgSelect from '@/components/OrgSelect';
 const { Option } = Select;
 
 export const Users: React.FC = () => {
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [userForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -106,8 +107,6 @@ export const Users: React.FC = () => {
         if (assignRoleModalVisible) {
           setSelectedRoleIds(roles.map(role => role.id));
         }
-      } else {
-        message.error('获取用户角色失败');
       }
     },
   });
@@ -118,8 +117,6 @@ export const Users: React.FC = () => {
     onSuccess: (response) => {
       if (response.success) {
         setAllRoles(response.data || []);
-      } else {
-        message.error('获取角色列表失败');
       }
     },
   });
@@ -132,9 +129,6 @@ export const Users: React.FC = () => {
       setAssignRoleModalVisible(false);
       setAssigningUser(null);
       setSelectedRoleIds([]);
-    },
-    onError: () => {
-      message.error('角色分配失败');
     },
   });
 

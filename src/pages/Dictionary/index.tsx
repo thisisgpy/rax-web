@@ -9,7 +9,6 @@ import {
   Space,
   Tag,
   Select,
-  message,
   Popconfirm,
   Row,
   Col,
@@ -18,6 +17,7 @@ import {
   Tree,
   Switch,
   Typography,
+  App,
 } from 'antd';
 import {
   PlusOutlined,
@@ -48,6 +48,7 @@ import type {
 const { Option } = Select;
 
 export const Dictionary: React.FC = () => {
+  const { message } = App.useApp();
   const [dictSearchForm] = Form.useForm();
   const [dictForm] = Form.useForm();
   const [itemForm] = Form.useForm();
@@ -85,9 +86,6 @@ export const Dictionary: React.FC = () => {
       dictForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['dicts'] });
     },
-    onError: () => {
-      message.error('字典创建失败');
-    },
   });
 
   // 更新字典
@@ -100,29 +98,19 @@ export const Dictionary: React.FC = () => {
       setEditingDict(null);
       queryClient.invalidateQueries({ queryKey: ['dicts'] });
     },
-    onError: () => {
-      message.error('字典更新失败');
-    },
   });
 
   // 删除字典
   const deleteDictMutation = useMutation({
     mutationFn: (id: number) => dictApi.remove(id),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('字典删除成功');
-        queryClient.invalidateQueries({ queryKey: ['dicts'] });
-        // 如果删除的是当前选中的字典，清空右侧
-        if (selectedDict && selectedDict.id === selectedDict?.id) {
-          setSelectedDict(null);
-          setDictItems([]);
-        }
-      } else {
-        message.error(response.message || '字典删除失败');
+    onSuccess: () => {
+      message.success('字典删除成功');
+      queryClient.invalidateQueries({ queryKey: ['dicts'] });
+      // 如果删除的是当前选中的字典，清空右侧
+      if (selectedDict && selectedDict.id === selectedDict?.id) {
+        setSelectedDict(null);
+        setDictItems([]);
       }
-    },
-    onError: () => {
-      message.error('字典删除失败');
     },
   });
 
@@ -137,9 +125,6 @@ export const Dictionary: React.FC = () => {
         setExpandedKeys(allKeys);
       }
     },
-    onError: () => {
-      message.error('获取字典项失败');
-    },
   });
 
   // 创建字典项
@@ -153,9 +138,6 @@ export const Dictionary: React.FC = () => {
       if (selectedDict) {
         getItemTreeMutation.mutate(selectedDict.id);
       }
-    },
-    onError: () => {
-      message.error('字典项创建失败');
     },
   });
 
@@ -172,26 +154,16 @@ export const Dictionary: React.FC = () => {
         getItemTreeMutation.mutate(selectedDict.id);
       }
     },
-    onError: () => {
-      message.error('字典项更新失败');
-    },
   });
 
   // 删除字典项
   const deleteItemMutation = useMutation({
     mutationFn: (id: number) => dictApi.removeItem(id),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('字典项删除成功');
-        if (selectedDict) {
-          getItemTreeMutation.mutate(selectedDict.id);
-        }
-      } else {
-        message.error(response.message || '字典项删除失败');
+    onSuccess: () => {
+      message.success('字典项删除成功');
+      if (selectedDict) {
+        getItemTreeMutation.mutate(selectedDict.id);
       }
-    },
-    onError: () => {
-      message.error('字典项删除失败');
     },
   });
 
@@ -423,8 +395,8 @@ export const Dictionary: React.FC = () => {
         <Button
           type="link"
           onClick={() => handleSelectDict(record)}
-          style={{ 
-            padding: 0, 
+          style={{
+            padding: 0,
             height: 'auto',
             fontWeight: selectedDict?.id === record.id ? 'bold' : 'normal',
             color: selectedDict?.id === record.id ? '#1890ff' : undefined,
@@ -438,7 +410,19 @@ export const Dictionary: React.FC = () => {
       title: '字典编码',
       dataIndex: 'code',
       key: 'code',
-      render: (code) => code || '-',
+      render: (code, record) => {
+        if (!code) return '-';
+        if (record.comment) {
+          return (
+            <Tooltip title={record.comment}>
+              <span style={{ cursor: 'help', borderBottom: '1px dashed #ccc' }}>
+                {code}
+              </span>
+            </Tooltip>
+          );
+        }
+        return code;
+      },
     },
     {
       title: '状态',
@@ -449,13 +433,6 @@ export const Dictionary: React.FC = () => {
           {isEnabled ? '启用' : '禁用'}
         </Tag>
       ),
-    },
-    {
-      title: '备注',
-      dataIndex: 'comment',
-      key: 'comment',
-      ellipsis: true,
-      render: (comment) => comment || '-',
     },
     {
       title: '操作',

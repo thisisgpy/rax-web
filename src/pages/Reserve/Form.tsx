@@ -99,31 +99,17 @@ const ReserveForm: React.FC = () => {
   const createMutation = useMutation({
     mutationFn: (data: CreateReserveDto) => reserveApi.create(data),
     onSuccess: (result) => {
-      if (result.success) {
-        message.success('创建成功');
-        navigate(`/financing/reserve/detail/${result.data}`);
-      } else {
-        message.error(result.message || '创建失败');
-      }
-    },
-    onError: (error: any) => {
-      message.error(error.message || '创建失败');
+      message.success('创建成功');
+      navigate(`/financing/reserve/detail/${result.data}`);
     }
   });
 
   // 更新储备融资
   const updateMutation = useMutation({
     mutationFn: (data: UpdateReserveDto) => reserveApi.update(data),
-    onSuccess: (result) => {
-      if (result.success) {
-        message.success('更新成功');
-        navigate(`/financing/reserve/detail/${id}`);
-      } else {
-        message.error(result.message || '更新失败');
-      }
-    },
-    onError: (error: any) => {
-      message.error(error.message || '更新失败');
+    onSuccess: () => {
+      message.success('更新成功');
+      navigate(`/financing/reserve/detail/${id}`);
     }
   });
 

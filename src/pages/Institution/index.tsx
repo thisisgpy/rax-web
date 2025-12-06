@@ -8,10 +8,10 @@ import {
   Modal,
   Space,
   Tag,
-  message,
   Popconfirm,
   Row,
   Col,
+  App,
 } from 'antd';
 import { PlusOutlined, DeleteOutlined, SearchOutlined, BankOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -29,6 +29,7 @@ import type {
 
 
 export const Institution: React.FC = () => {
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [institutionForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -85,9 +86,6 @@ export const Institution: React.FC = () => {
       institutionForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['institutions'] });
     },
-    onError: () => {
-      message.error('金融机构创建失败');
-    },
   });
 
 
@@ -97,9 +95,6 @@ export const Institution: React.FC = () => {
     onSuccess: () => {
       message.success('金融机构删除成功');
       queryClient.invalidateQueries({ queryKey: ['institutions'] });
-    },
-    onError: () => {
-      message.error('金融机构删除失败');
     },
   });
 

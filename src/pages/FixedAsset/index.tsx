@@ -7,12 +7,12 @@ import {
   Input,
   Modal,
   Space,
-  message,
   Popconfirm,
   Row,
   Col,
   Tooltip,
   InputNumber,
+  App,
 } from 'antd';
 import { PlusOutlined, SearchOutlined, GoldOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -30,6 +30,7 @@ import type {
 } from '@/types/swagger-api';
 
 export const FixedAsset: React.FC = () => {
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [assetForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -57,9 +58,6 @@ export const FixedAsset: React.FC = () => {
       assetForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['fixedAssets'] });
     },
-    onError: () => {
-      message.error('固定资产创建失败');
-    },
   });
 
   // 更新固定资产
@@ -73,9 +71,6 @@ export const FixedAsset: React.FC = () => {
       assetForm.resetFields();
       queryClient.invalidateQueries({ queryKey: ['fixedAssets'] });
     },
-    onError: () => {
-      message.error('固定资产更新失败');
-    },
   });
 
   // 删除固定资产
@@ -84,9 +79,6 @@ export const FixedAsset: React.FC = () => {
     onSuccess: () => {
       message.success('固定资产删除成功');
       queryClient.invalidateQueries({ queryKey: ['fixedAssets'] });
-    },
-    onError: () => {
-      message.error('固定资产删除失败');
     },
   });
 

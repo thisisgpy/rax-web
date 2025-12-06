@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Tree, 
-  Button, 
-  Space, 
-  Modal, 
-  Form, 
-  Input, 
-  message, 
+import {
+  Card,
+  Tree,
+  Button,
+  Space,
+  Modal,
+  Form,
+  Input,
   Popconfirm,
   Tooltip,
   Row,
-  Col
+  Col,
+  App
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -32,6 +32,7 @@ interface TreeNodeData extends SysOrgDto {
 }
 
 export const Organization: React.FC = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
   
@@ -54,62 +55,35 @@ export const Organization: React.FC = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // 错误提示已在 ApiService 中统一处理
-
-  // 处理网络错误
-  useEffect(() => {
-    if (error) {
-      message.error('获取组织架构数据失败，请检查网络连接');
-    }
-  }, [error]);
-
   // 创建组织
   const createMutation = useMutation({
     mutationFn: (data: CreateOrgDto) => businessApiService.createOrganization(data),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('创建组织成功');
-        setModalVisible(false);
-        form.resetFields();
-        queryClient.invalidateQueries({ queryKey: ['orgTree'] });
-      }
-      // 错误提示已在 ApiService 中统一处理
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '创建组织失败');
+    onSuccess: () => {
+      message.success('创建组织成功');
+      setModalVisible(false);
+      form.resetFields();
+      queryClient.invalidateQueries({ queryKey: ['orgTree'] });
     },
   });
 
   // 更新组织
   const updateMutation = useMutation({
     mutationFn: (data: UpdateOrgDto) => businessApiService.updateOrganization(data),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('更新组织成功');
-        setModalVisible(false);
-        form.resetFields();
-        setSelectedOrg(null);
-        queryClient.invalidateQueries({ queryKey: ['orgTree'] });
-      }
-      // 错误提示已在 ApiService 中统一处理
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '更新组织失败');
+    onSuccess: () => {
+      message.success('更新组织成功');
+      setModalVisible(false);
+      form.resetFields();
+      setSelectedOrg(null);
+      queryClient.invalidateQueries({ queryKey: ['orgTree'] });
     },
   });
 
   // 删除组织
   const deleteMutation = useMutation({
     mutationFn: (id: number) => businessApiService.deleteOrganization(id),
-    onSuccess: (response) => {
-      if (response.success) {
-        message.success('删除组织成功');
-        queryClient.invalidateQueries({ queryKey: ['orgTree'] });
-      }
-      // 错误提示已在 ApiService 中统一处理
-    },
-    onError: (error: any) => {
-      message.error(error?.message || '删除组织失败');
+    onSuccess: () => {
+      message.success('删除组织成功');
+      queryClient.invalidateQueries({ queryKey: ['orgTree'] });
     },
   });
 

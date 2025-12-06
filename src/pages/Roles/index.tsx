@@ -9,7 +9,6 @@ import {
   Space,
   Tag,
   Select,
-  message,
   Popconfirm,
   Row,
   Col,
@@ -19,6 +18,7 @@ import {
   Tree,
   Checkbox,
   Typography,
+  App,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, SettingOutlined, FileTextOutlined, SafetyOutlined, FolderOutlined, MenuOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -40,6 +40,7 @@ import type {
 const { Option } = Select;
 
 export const Roles: React.FC = () => {
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [roleForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -108,8 +109,6 @@ export const Roles: React.FC = () => {
         if (assignResourceModalVisible) {
           setSelectedResourceIds(resources.map(resource => resource.id));
         }
-      } else {
-        message.error('获取角色资源失败');
       }
     },
   });
@@ -123,8 +122,6 @@ export const Roles: React.FC = () => {
         // 自动展开所有节点
         const allKeys = getAllNodeKeys(response.data || []);
         setExpandedKeys(allKeys);
-      } else {
-        message.error('获取资源列表失败');
       }
     },
   });
@@ -137,9 +134,6 @@ export const Roles: React.FC = () => {
       setAssignResourceModalVisible(false);
       setAssigningRole(null);
       setSelectedResourceIds([]);
-    },
-    onError: () => {
-      message.error('资源分配失败');
     },
   });
 

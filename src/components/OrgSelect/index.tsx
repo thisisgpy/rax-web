@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { TreeSelect, Spin, App } from 'antd';
+import React from 'react';
+import { TreeSelect, Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { businessApiService } from '@/services/api';
 import type { SysOrgDto } from '@/types/swagger-api';
@@ -34,23 +34,12 @@ export const OrgSelect: React.FC<OrgSelectProps> = ({
   size = 'middle',
   multiple = false,
 }) => {
-  const { message } = App.useApp();
-  
   // 获取组织树数据
-  const { data: orgResponse, isLoading, error } = useQuery({
+  const { data: orgResponse, isLoading } = useQuery({
     queryKey: ['orgTree'],
     queryFn: () => businessApiService.getOrganizations(),
     staleTime: 5 * 60 * 1000,
   });
-
-  // 错误提示已在 ApiService 中统一处理
-
-  // 处理网络错误
-  useEffect(() => {
-    if (error) {
-      message.error('获取组织架构数据失败，请检查网络连接');
-    }
-  }, [error, message]);
 
   // 转换组织数据为TreeSelect需要的格式
   const convertToTreeSelectData = (organizations: SysOrgDto[]): OrgTreeNode[] => {
