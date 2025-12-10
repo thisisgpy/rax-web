@@ -661,25 +661,27 @@ export interface LoanDto {
   id: number;                              // 融资ID
   loanCode?: string;                       // 融资编号
   orgId: number;                           // 融资主体ID
+  orgNameAbbr: string;                     // 融资主体简称
+  orgName: string;                         // 融资主体全称
   loanName: string;                        // 融资名称
   productFamily: string;                   // 产品族
   productType: string;                     // 产品类型
   institutionId: number;                   // 资金方ID
   institutionName: string;                 // 资金方名称
   contractAmount: number;                  // 合同金额(分)
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   isMultiDisb?: boolean;                   // 是否多次放款
   termMonths: number;                      // 期限(月)
   maturityDate: string;                    // 合同到期日
-  rateMode: string;                        // 利率方式
+  rateMode: string;                        // 利率方式 rate.mode
   fixedRate?: number;                      // 固定利率
   baseRate?: number;                       // 基准利率/票面利率
   spreadBp?: number;                       // 加点(BP)
-  rateResetCycle?: string;                 // 重定价周期
+  rateResetCycle?: string;                 // 重定价周期 rate.reset.cycle
   rateResetAnchorDate?: string;            // 重定价锚定日
-  dayCountConvention?: string;             // 计息日规则
-  repayMethod: string;                     // 还款方式
-  status: string;                          // 状态
+  dayCountConvention?: string;             // 计息日规则 day.count.convention
+  repayMethod: string;                     // 还款方式 repay.method
+  status: string;                          // 状态 loan.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -698,7 +700,6 @@ export interface LoanDto {
 
 // 创建融资请求
 export interface CreateLoanDto {
-  loanCode?: string;                       // 融资编号
   orgId: number;                           // 融资主体ID (必填)
   loanName: string;                        // 融资名称 (必填)
   productFamily: string;                   // 产品族 (必填)
@@ -706,19 +707,19 @@ export interface CreateLoanDto {
   institutionId: number;                   // 资金方ID (必填)
   institutionName: string;                 // 资金方名称 (必填)
   contractAmount: number;                  // 合同金额 (必填)
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   isMultiDisb?: boolean;                   // 是否多次放款
   termMonths: number;                      // 期限 (必填)
   maturityDate: string;                    // 合同到期日 (必填)
-  rateMode: string;                        // 利率方式 (必填)
+  rateMode: string;                        // 利率方式 (必填) rate.mode
   fixedRate?: number;                      // 固定利率
   baseRate?: number;                       // 基准利率/票面利率
   spreadBp?: number;                       // 加点
-  rateResetCycle?: string;                 // 重定价周期
+  rateResetCycle?: string;                 // 重定价周期 rate.reset.cycle
   rateResetAnchorDate?: string;            // 重定价锚定日
-  dayCountConvention?: string;             // 计息日规则
+  dayCountConvention?: string;             // 计息日规则 day.count.convention
   repayMethod: string;                     // 还款方式 (必填)
-  status: string;                          // 状态 (必填)
+  status: string;                          // 状态 (必填) loan.status
   remark?: string;                         // 备注
   extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
   relatedData?: LoanRelatedData;                    // 关联数据包装器
@@ -728,7 +729,6 @@ export interface CreateLoanDto {
 // 更新融资请求
 export interface UpdateLoanDto {
   id: number;                              // 融资ID (必填)
-  loanCode?: string;                       // 融资编号
   orgId: number;                           // 融资主体ID (必填)
   loanName: string;                        // 融资名称 (必填)
   productFamily: string;                   // 产品族 (必填)
@@ -736,19 +736,19 @@ export interface UpdateLoanDto {
   institutionId: number;                   // 资金方ID (必填)
   institutionName: string;                 // 资金方名称 (必填)
   contractAmount: number;                  // 合同金额 (必填)
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   isMultiDisb?: boolean;                   // 是否多次放款
   termMonths: number;                      // 期限 (必填)
   maturityDate: string;                    // 合同到期日 (必填)
-  rateMode: string;                        // 利率方式 (必填)
+  rateMode: string;                        // 利率方式 (必填) rate.mode
   fixedRate?: number;                      // 固定利率
   baseRate?: number;                       // 基准利率/票面利率
   spreadBp?: number;                       // 加点
-  rateResetCycle?: string;                 // 重定价周期
+  rateResetCycle?: string;                 // 重定价周期 rate.reset.cycle
   rateResetAnchorDate?: string;            // 重定价锚定日
-  dayCountConvention?: string;             // 计息日规则
+  dayCountConvention?: string;             // 计息日规则 day.count.convention
   repayMethod: string;                     // 还款方式 (必填)
-  status: string;                          // 状态 (必填)
+  status: string;                          // 状态 (必填) loan.status
   remark?: string;                         // 备注
   extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
   relatedData?: LoanRelatedData;                    // 关联数据包装器
@@ -763,9 +763,9 @@ export interface QueryLoanDto extends PageRequest {
   productFamily?: string;                  // 产品族
   productType?: string;                    // 产品类型
   institutionName?: string;                // 资金方名称
-  rateMode?: string;                       // 利率方式
-  repayMethod?: string;                    // 还款方式
-  status?: string;                         // 状态
+  rateMode?: string;                       // 利率方式 rate.mode
+  repayMethod?: string;                    // 还款方式 repay.method
+  status?: string;                         // 状态 loan.status
   maturityDateStart?: string;              // 合同到期日开始
   maturityDateEnd?: string;                // 合同到期日结束
   contractAmountMin?: number;              // 合同金额下限（分）
@@ -793,7 +793,7 @@ export interface FinLoanExtFieldDefDto {
   sectionCode: string;                     // 字段所属区块名称
   fieldKey: string;                        // 字段唯一键
   fieldLabel: string;                      // 字段显示名
-  dataType: string;                        // 字段数据类型
+  dataType: string;                        // 字段数据类型 loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
@@ -810,7 +810,7 @@ export interface CreateFinLoanExtFieldDefDto {
   sectionCode: string;                     // 字段所属区块名称 (必填)
   fieldKey: string;                        // 字段唯一键 (必填)
   fieldLabel: string;                      // 字段显示名 (必填)
-  dataType: string;                        // 字段数据类型 (必填)
+  dataType: string;                        // 字段数据类型 (必填) loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
@@ -826,7 +826,7 @@ export interface UpdateFinLoanExtFieldDefDto {
   sectionCode: string;                     // 字段所属区块名称 (必填)
   fieldKey: string;                        // 字段唯一键 (必填)
   fieldLabel: string;                      // 字段显示名 (必填)
-  dataType: string;                        // 字段数据类型 (必填)
+  dataType: string;                        // 字段数据类型 (必填) loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
@@ -839,7 +839,7 @@ export interface FinLoanExtFieldValDto {
   id: number;                              // 字段值ID
   loanId: number;                          // 融资ID
   fieldKey: string;                        // 字段键
-  dataType: string;                        // 字段数据类型
+  dataType: string;                        // 字段数据类型 loan.ext.field.datatype
   valueStr?: string;                       // 字段值-字符串
   valueNum?: number;                       // 字段值-数字
   valueDate?: string;                      // 字段值-日期
@@ -854,7 +854,7 @@ export interface FinLoanExtFieldValDto {
 export interface CreateFinLoanExtFieldValDto {
   loanId?: number;                         // 融资ID
   fieldKey?: string;                       // 字段键
-  dataType?: string;                       // 字段数据类型
+  dataType?: string;                       // 字段数据类型 loan.ext.field.datatype
   valueStr?: string;                       // 字段值-字符串
   valueNum?: number;                       // 字段值-数字
   valueDate?: string;                      // 字段值-日期
@@ -869,7 +869,7 @@ export interface CreateFinLoanExtFieldValDto {
 export interface FinLoanParticipantDto {
   id: number;                              // 参与行ID
   loanId: number;                          // 融资ID
-  role: string;                            // 角色. 牵头行/代理行/参与行
+  role: string;                            // 角色. participant.role
   institutionId: number;                   // 金融机构ID
   institutionName: string;                 // 机构名称
   commitAmount?: number;                   // 承诺额度(分)
@@ -882,7 +882,7 @@ export interface FinLoanParticipantDto {
 
 // 创建银团参与行请求
 export interface CreateLoanParticipantDto {
-  role: string;                            // 角色 (必填)
+  role: string;                            // 角色 (必填) participant.role
   institutionId: number;                   // 金融机构ID (必填)
   institutionName: string;                 // 机构名称 (必填)
   commitAmount?: number;                   // 承诺额度(分)
@@ -897,7 +897,7 @@ export interface CreateLoanParticipantDto {
 export interface LoanLcDto {
   id: number;                              // 主键ID
   lcNo: string;                            // 信用证编号
-  lcType?: string;                         // 信用证类型
+  lcType?: string;                         // 信用证类型 lc.type
   issuingBank?: string;                    // 开证行名称
   issuingBankId: number;                   // 开证行ID
   advisingBank?: string;                   // 通知行/保兑行名称
@@ -905,13 +905,13 @@ export interface LoanLcDto {
   confirmFlag?: boolean;                   // 是否保兑LC
   applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
-  currency: string;                        // 币种
+  currency: string;                        // 币种 sys.currency
   lcAmount: number;                        // 信用证金额(分)
   tolerancePct?: number;                   // 金额容差(%)
   issueDate: string;                       // 开证日期
   expiryDate: string;                      // 到期日/有效期止
   placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式
+  availableBy?: string;                    // 可用方式 lc.available.by
   shipmentFrom?: string;                   // 装运港/起运地
   shipmentTo?: string;                     // 卸货港/目的地
   latestShipment?: string;                 // 最迟装运期
@@ -924,7 +924,7 @@ export interface LoanLcDto {
   commissionRate?: number;                 // 开证费率(%)
   advisingChargeBorneBy?: string;          // 通知费承担方
   ucpVersion?: string;                     // 适用规则版本
-  status?: string;                         // 状态
+  status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -935,19 +935,19 @@ export interface LoanLcDto {
 // 创建信用证请求
 export interface CreateLoanLcDto {
   lcNo: string;                            // 信用证编号 (必填)
-  lcType?: string;                         // 信用证类型
+  lcType?: string;                         // 信用证类型 lc.type
   issuingBankId: number;                   // 开证行ID (必填)
   advisingBankId?: number;                 // 通知/保兑行ID
   confirmFlag?: boolean;                   // 是否保兑LC
   applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
-  currency: string;                        // 币种 (必填)
+  currency: string;                        // 币种 (必填) sys.currency
   lcAmount: number;                        // 信用证金额(分) (必填)
   tolerancePct?: number;                   // 金额容差(%)
   issueDate: string;                       // 开证日期 (必填)
   expiryDate: string;                      // 到期日/有效期止 (必填)
   placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式
+  availableBy?: string;                    // 可用方式 lc.available.by
   shipmentFrom?: string;                   // 装运港/起运地
   shipmentTo?: string;                     // 卸货港/目的地
   latestShipment?: string;                 // 最迟装运期
@@ -960,7 +960,7 @@ export interface CreateLoanLcDto {
   commissionRate?: number;                 // 开证费率(%)
   advisingChargeBorneBy?: string;          // 通知费承担方
   ucpVersion?: string;                     // 适用规则版本
-  status?: string;                         // 状态
+  status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
 }
 
@@ -968,19 +968,19 @@ export interface CreateLoanLcDto {
 export interface UpdateLoanLcDto {
   id: number;                              // 主键ID (必填)
   lcNo?: string;                           // 信用证编号
-  lcType?: string;                         // 信用证类型
+  lcType?: string;                         // 信用证类型 lc.type
   issuingBankId?: number;                  // 开证行ID
   advisingBankId?: number;                 // 通知/保兑行ID
   confirmFlag?: boolean;                   // 是否保兑LC
   applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   lcAmount?: number;                       // 信用证金额(分)
   tolerancePct?: number;                   // 金额容差(%)
   issueDate?: string;                      // 开证日期
   expiryDate?: string;                     // 到期日/有效期止
   placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式
+  availableBy?: string;                    // 可用方式 lc.available.by
   shipmentFrom?: string;                   // 装运港/起运地
   shipmentTo?: string;                     // 卸货港/目的地
   latestShipment?: string;                 // 最迟装运期
@@ -993,25 +993,25 @@ export interface UpdateLoanLcDto {
   commissionRate?: number;                 // 开证费率(%)
   advisingChargeBorneBy?: string;          // 通知费承担方
   ucpVersion?: string;                     // 适用规则版本
-  status?: string;                         // 状态
+  status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
 }
 
 // 信用证查询请求
 export interface QueryLoanLcDto extends PageRequest {
   lcNo?: string;                           // 信用证编号
-  lcType?: string;                         // 信用证类型
+  lcType?: string;                         // 信用证类型 lc.type
   issuingBankId?: number;                  // 开证行ID
   issuingBank?: string;                    // 开证行名称
   advisingBankId?: number;                 // 通知/保兑行ID
   applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   issueDateStart?: string;                 // 开证日期开始
   issueDateEnd?: string;                   // 开证日期结束
   expiryDateStart?: string;                // 到期日开始
   expiryDateEnd?: string;                  // 到期日结束
-  status?: string;                         // 状态
+  status?: string;                         // 状态 lc.status
 }
 
 // 信用证及关联信息DTO
@@ -1024,7 +1024,7 @@ export interface LoanLcWithMapDto {
   mapRemark?: string;                      // 关联备注
   lcId: number;                            // 信用证ID
   lcNo: string;                            // 信用证编号
-  lcType?: string;                         // 信用证类型
+  lcType?: string;                         // 信用证类型 lc.type
   issuingBank?: string;                    // 开证行名称
   issuingBankId?: number;                  // 开证行ID
   advisingBank?: string;                   // 通知行/保兑行名称
@@ -1032,13 +1032,13 @@ export interface LoanLcWithMapDto {
   confirmFlag?: boolean;                   // 是否保兑LC
   applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   lcAmount?: number;                       // 信用证金额(分)
   tolerancePct?: number;                   // 金额容差(%)
   issueDate?: string;                      // 开证日期
   expiryDate?: string;                     // 到期日/有效期止
   placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式
+  availableBy?: string;                    // 可用方式 lc.available.by
   shipmentFrom?: string;                   // 装运港/起运地
   shipmentTo?: string;                     // 卸货港/目的地
   latestShipment?: string;                 // 最迟装运期
@@ -1051,13 +1051,14 @@ export interface LoanLcWithMapDto {
   commissionRate?: number;                 // 开证费率(%)
   advisingChargeBorneBy?: string;          // 通知费承担方
   ucpVersion?: string;                     // 适用规则版本
-  lcStatus?: string;                       // 信用证状态
+  lcStatus?: string;                       // 信用证状态 lc.status
   lcRemark?: string;                       // 信用证备注
 }
 
 // 创建贷款-信用证关联请求
 export interface CreateLoanLcMapDto {
-  lcId: number;                            // 信用证ID (必填)
+  lcId?: number;                           // 信用证ID（引用已有信用证时填写，与newLc二选一）
+  newLc?: CreateLoanLcDto;                 // 新建信用证信息（创建新信用证时填写，与lcId二选一）
   securedValue?: number;                   // 本贷款下的认可金额(分)
   marginLockedAmount?: number;             // 本贷款下实际冻结/占用的保证金金额(分)
   allocationNote?: string;                 // 本贷款下的用途/分配说明
@@ -1085,11 +1086,11 @@ export interface LoanCdDto {
   bankName?: string;                       // 开立银行名称
   cardId?: number;                         // 关联银行账户id
   cardNumber?: string;                     // 关联银行账户卡号
-  currency: string;                        // 币种
+  currency: string;                        // 币种 sys.currency
   principalAmount: number;                 // 本金(分)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则
-  interestPayFreq?: string;                // 付息频率
+  dayCountConvention?: string;             // 计息规则 day.count.convention
+  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
   compoundFlag?: boolean;                  // 是否复利
   issueDate: string;                       // 起息/开立日
   maturityDate: string;                    // 到期日
@@ -1111,11 +1112,11 @@ export interface CreateLoanCdDto {
   cdNo: string;                            // 存单编号/凭证号 (必填)
   bankId: number;                          // 开立银行id (必填)
   cardId?: number;                         // 关联银行账户id
-  currency: string;                        // 币种 (必填)
+  currency: string;                        // 币种 (必填) sys.currency
   principalAmount: number;                 // 本金(分) (必填)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则
-  interestPayFreq?: string;                // 付息频率
+  dayCountConvention?: string;             // 计息规则 day.count.convention
+  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
   compoundFlag?: boolean;                  // 是否复利
   issueDate: string;                       // 起息/开立日 (必填)
   maturityDate: string;                    // 到期日 (必填)
@@ -1134,11 +1135,11 @@ export interface UpdateLoanCdDto {
   cdNo: string;                            // 存单编号/凭证号 (必填)
   bankId: number;                          // 开立银行id (必填)
   cardId?: number;                         // 关联银行账户id
-  currency: string;                        // 币种 (必填)
+  currency: string;                        // 币种 (必填) sys.currency
   principalAmount: number;                 // 本金(分) (必填)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则
-  interestPayFreq?: string;                // 付息频率
+  dayCountConvention?: string;             // 计息规则 day.count.convention
+  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
   compoundFlag?: boolean;                  // 是否复利
   issueDate: string;                       // 起息/开立日 (必填)
   maturityDate: string;                    // 到期日 (必填)
@@ -1157,7 +1158,7 @@ export interface QueryLoanCdDto extends PageRequest {
   bankId?: number;                         // 开立银行id
   bankName?: string;                       // 开立银行名称
   cardId?: number;                         // 关联银行账户id
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   issueDateStart?: string;                 // 起息日开始
   issueDateEnd?: string;                   // 起息日结束
   maturityDateStart?: string;              // 到期日开始
@@ -1183,11 +1184,11 @@ export interface LoanCdWithMapDto {
   bankName?: string;                       // 开立银行名称
   cardId?: number;                         // 关联银行账户id
   cardNumber?: string;                     // 关联银行账户卡号
-  currency?: string;                       // 币种
+  currency?: string;                       // 币种 sys.currency
   principalAmount?: number;                // 本金(分)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则
-  interestPayFreq?: string;                // 付息频率
+  dayCountConvention?: string;             // 计息规则 day.count.convention
+  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
   compoundFlag?: boolean;                  // 是否复利
   issueDate?: string;                      // 起息/开立日
   maturityDate?: string;                   // 到期日
@@ -1202,7 +1203,8 @@ export interface LoanCdWithMapDto {
 
 // 创建贷款-存单关联请求
 export interface CreateLoanCdMapDto {
-  cdId: number;                            // 存单ID (必填)
+  cdId?: number;                           // 存单ID（引用已有存单时填写，与newCd二选一）
+  newCd?: CreateLoanCdDto;                 // 新建存单信息（创建新存单时填写，与cdId二选一）
   pledgeRatio?: number;                    // 质押比例(%)
   securedValue?: number;                   // 本贷款下的认可/计价价值(分)
   registrationNo?: string;                 // 抵/质押登记号
@@ -1240,7 +1242,7 @@ export interface FactoringArItemDto {
   dueDate: string;                         // 到期日
   paidFlag?: boolean;                      // 是否已回款
   paidDate?: string;                       // 回款日期
-  status?: string;                         // 状态
+  status?: string;                         // 状态 factoring.ar.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1259,7 +1261,7 @@ export interface CreateFactoringArItemDto {
   dueDate: string;                         // 到期日 (必填)
   paidFlag?: boolean;                      // 是否已回款
   paidDate?: string;                       // 回款日期
-  status?: string;                         // 状态
+  status?: string;                         // 状态 factoring.ar.status
   remark?: string;                         // 备注
   fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
 }
@@ -1307,13 +1309,13 @@ export interface ScfVoucherItemDto {
   id: number;                              // 主键ID
   loanId: number;                          // 关联贷款ID
   voucherNo?: string;                      // 凭证/订单/应收确认编号
-  voucherType?: string;                    // 凭证类型
+  voucherType?: string;                    // 凭证类型 scf.voucher.type
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
   underlyingAmount?: number;               // 底层金额(分)
   issueDate?: string;                      // 凭证/订单生成日期
   dueDate?: string;                        // 到期日/预计回款日
-  status?: string;                         // 状态
+  status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1325,13 +1327,13 @@ export interface ScfVoucherItemDto {
 // 创建供应链金融凭证明细请求
 export interface CreateScfVoucherItemDto {
   voucherNo?: string;                      // 凭证/订单/应收确认编号
-  voucherType?: string;                    // 凭证类型
+  voucherType?: string;                    // 凭证类型 scf.voucher.type
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
   underlyingAmount?: number;               // 底层金额(分)
   issueDate?: string;                      // 凭证/订单生成日期
   dueDate?: string;                        // 到期日/预计回款日
-  status?: string;                         // 状态
+  status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
   fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
 }
@@ -1343,7 +1345,7 @@ export interface TrustTrancheDto {
   id: number;                              // 主键ID
   loanId: number;                          // 关联贷款ID
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型
+  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
   paymentRank?: number;                    // 清偿顺序
   subscribeAmount?: number;                // 认购金额(分)
   sharePct?: number;                       // 份额占比(%)
@@ -1360,7 +1362,7 @@ export interface TrustTrancheDto {
 // 创建信托分层明细请求
 export interface CreateTrustTrancheDto {
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型
+  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
   paymentRank?: number;                    // 清偿顺序
   subscribeAmount?: number;                // 认购金额(分)
   sharePct?: number;                       // 份额占比(%)

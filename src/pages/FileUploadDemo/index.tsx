@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Divider, Typography, Space, Button, message } from 'antd';
+import { Card, Row, Col, Divider, Typography, Space, Button, App } from 'antd';
 import { RaxUpload, AttachmentDisplay } from '@/components';
 import type { UploadedFile } from '@/components';
 import type { SysAttachmentDto } from '@/types/swagger-api';
@@ -10,6 +10,7 @@ const { Title, Paragraph, Text } = Typography;
  * 文件上传组件演示页面
  */
 const FileUploadDemo: React.FC = () => {
+  const { message } = App.useApp();
   // RaxUpload 组件状态
   const [reserveFiles, setReserveFiles] = useState<UploadedFile[]>([]);
   const [finExistingFiles, setFinExistingFiles] = useState<UploadedFile[]>([]);

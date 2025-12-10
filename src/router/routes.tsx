@@ -31,6 +31,9 @@ import FileUploadDemo from '@/pages/FileUploadDemo';
 import Reserve from '@/pages/Reserve';
 import ReserveForm from '@/pages/Reserve/Form';
 import ReserveDetail from '@/pages/Reserve/Detail';
+import Existing from '@/pages/Existing';
+import ExistingForm from '@/pages/Existing/Form';
+import ExistingDetail from '@/pages/Existing/Detail';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -143,6 +146,7 @@ export const routes: AppRouteObject[] = [
         title: '储备融资',
         element: <Reserve />,
         icon: <MoneyCollectOutlined />,
+        hideInMenu: true,
       },
       {
         path: '/financing/reserve/create',
@@ -162,8 +166,23 @@ export const routes: AppRouteObject[] = [
       {
         path: '/financing/existing',
         title: '存量融资',
-        element: <div>存量融资管理页面 - 待开发</div>,
+        element: <Existing />,
         icon: <FundOutlined />,
+      },
+      {
+        path: '/financing/existing/create',
+        element: <ExistingForm />,
+        hideInMenu: true,
+      },
+      {
+        path: '/financing/existing/edit/:id',
+        element: <ExistingForm />,
+        hideInMenu: true,
+      },
+      {
+        path: '/financing/existing/detail/:id',
+        element: <ExistingDetail />,
+        hideInMenu: true,
       },
     ],
   },

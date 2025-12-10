@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { validateFile, performFileUpload, showError, showSuccess } from './utils';
+import { App } from 'antd';
+import { validateFile, performFileUpload } from './utils';
 import type { UploadedFile, UploadState, BizModule } from './types';
 
 /**
@@ -15,6 +16,7 @@ export const useRaxUpload = (
     maxCount?: number;
   }
 ) => {
+  const { message } = App.useApp();
   const [uploadState, setUploadState] = useState<UploadState>({
     uploading: false,
     progress: 0
@@ -57,7 +59,7 @@ export const useRaxUpload = (
     );
 
     if (!validation.valid) {
-      showError(validation.error!);
+      message.error(validation.error!);
       return false;
     }
 
@@ -90,7 +92,7 @@ export const useRaxUpload = (
         progress: 100
       });
 
-      showSuccess(`文件 "${file.name}" 上传成功`);
+      message.success(`文件 "${file.name}" 上传成功`);
     } catch (error: any) {
       // 如果是用户取消，不显示错误
       if (error.name === 'AbortError') {
@@ -105,20 +107,21 @@ export const useRaxUpload = (
         error: error.message || '上传失败'
       });
 
-      showError(error);
+      const errorMessage = typeof error === 'string' ? error : error.message;
+      message.error(errorMessage);
     } finally {
       abortControllerRef.current = null;
     }
 
     return false; // 阻止 Upload 组件的默认上传行为
-  }, [bizModule, value, options, updateFiles, handleProgress]);
+  }, [bizModule, value, options, updateFiles, handleProgress, message]);
 
   // 删除文件
   const handleRemoveFile = useCallback((index: number) => {
     const newFiles = value.filter((_, i) => i !== index);
     updateFiles(newFiles);
-    showSuccess('文件删除成功');
-  }, [value, updateFiles]);
+    message.success('文件删除成功');
+  }, [value, updateFiles, message]);
 
   // 清除错误状态
   const clearError = useCallback(() => {

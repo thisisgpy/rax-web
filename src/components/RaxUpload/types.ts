@@ -10,7 +10,15 @@ export interface UploadedFile {
 /**
  * 业务模块类型
  */
-export type BizModule = 'ReserveReport' | 'FinExisting';
+export type BizModule =
+  | 'ReserveReport'
+  | 'FinExisting'
+  | 'FinLoan'
+  | 'FinLoanParticipant'
+  | 'FinLoanFactoringArItem'
+  | 'FinLoanLeasedAsset'
+  | 'FinLoanScfVoucherItem'
+  | 'FinLoanTrustTranche';
 
 /**
  * 上传状态

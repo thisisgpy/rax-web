@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Popconfirm, Space, Typography, Tag, message } from 'antd';
+import { Table, Button, Popconfirm, Space, Typography, Tag, App } from 'antd';
 import { DeleteOutlined, FileOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { attachmentApi } from '@/services';
@@ -80,6 +80,7 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
   size = 'middle',
   staticDomain = STATIC_DOMAIN
 }) => {
+  const { message } = App.useApp();
   const [loading, setLoading] = useState<Set<number>>(new Set());
 
   // 处理删除附件

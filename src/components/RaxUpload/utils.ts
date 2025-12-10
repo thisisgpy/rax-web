@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { message } from 'antd';
 import { attachmentApi } from '@/services';
 import { DEFAULT_ACCEPTED_TYPES, DEFAULT_MAX_SIZE, formatFileSize } from './constants';
 import type { FileValidationResult, BizModule, UploadedFile } from './types';
@@ -146,19 +145,4 @@ export const performFileUpload = async (
     console.error('文件上传流程失败:', error);
     throw error;
   }
-};
-
-/**
- * 显示错误消息
- */
-export const showError = (error: string | Error): void => {
-  const errorMessage = typeof error === 'string' ? error : error.message;
-  message.error(errorMessage);
-};
-
-/**
- * 显示成功消息
- */
-export const showSuccess = (msg: string): void => {
-  message.success(msg);
 };
