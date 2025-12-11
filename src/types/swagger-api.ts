@@ -785,52 +785,67 @@ export interface LoanRelatedData {
 
 // ===== 融资扩展字段类型 =====
 
+// 扩展字段配置DTO
+export interface FinLoanExtFieldConfigDto {
+  id: number;                              // 配置ID
+  productFamily: string;                   // 产品族
+  productType: string;                     // 产品类型
+  description?: string;                    // 类型描述
+  orderNo?: number;                        // 排序号
+  isEnabled?: boolean;                     // 是否启用
+}
+
+// 创建扩展字段配置请求
+export interface CreateFinLoanExtFieldConfigDto {
+  productFamily: string;                   // 产品族 (必填)
+  productType: string;                     // 产品类型 (必填)
+  description?: string;                    // 类型描述
+  orderNo?: number;                        // 排序号
+  isEnabled?: boolean;                     // 是否启用
+}
+
+// 更新扩展字段配置请求
+export interface UpdateFinLoanExtFieldConfigDto {
+  id: number;                              // 配置ID (必填)
+  description?: string;                    // 类型描述
+  orderNo?: number;                        // 排序号
+  isEnabled?: boolean;                     // 是否启用
+}
+
 // 扩展字段定义DTO
 export interface FinLoanExtFieldDefDto {
   id: number;                              // 字段定义ID
-  productFamily: string;                   // 产品族
-  productType: string;                     // 产品类型
-  sectionCode: string;                     // 字段所属区块名称
+  configId: number;                        // 融资类型配置ID
   fieldKey: string;                        // 字段唯一键
   fieldLabel: string;                      // 字段显示名
   dataType: string;                        // 字段数据类型 loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
-  orderNo?: number;                        // 区块内排序号
   remark?: string;                         // 备注
-  createTime?: string;                     // 创建时间
-  createBy?: string;                       // 创建人
 }
 
 // 创建扩展字段定义请求
 export interface CreateFinLoanExtFieldDefDto {
-  productFamily: string;                   // 产品族 (必填)
-  productType: string;                     // 产品类型 (必填)
-  sectionCode: string;                     // 字段所属区块名称 (必填)
+  configId: number;                        // 融资类型配置ID (必填)
   fieldKey: string;                        // 字段唯一键 (必填)
   fieldLabel: string;                      // 字段显示名 (必填)
   dataType: string;                        // 字段数据类型 (必填) loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
-  orderNo?: number;                        // 区块内排序号
   remark?: string;                         // 备注
 }
 
 // 更新扩展字段定义请求
 export interface UpdateFinLoanExtFieldDefDto {
   id: number;                              // 字段定义ID (必填)
-  productFamily: string;                   // 产品族 (必填)
-  productType: string;                     // 产品类型 (必填)
-  sectionCode: string;                     // 字段所属区块名称 (必填)
   fieldKey: string;                        // 字段唯一键 (必填)
   fieldLabel: string;                      // 字段显示名 (必填)
   dataType: string;                        // 字段数据类型 (必填) loan.ext.field.datatype
   isRequired?: boolean;                    // 是否必填
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
-  orderNo?: number;                        // 区块内排序号
   remark?: string;                         // 备注
 }
 
