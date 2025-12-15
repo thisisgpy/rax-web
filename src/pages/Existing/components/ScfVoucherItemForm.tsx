@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -8,12 +8,18 @@ import {
   InputNumber,
   DatePicker,
   Space,
-  App
+  App,
+  Popconfirm
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import type { CreateScfVoucherItemDto } from '@/types/swagger-api';
+import type {
+  CreateScfVoucherItemDto,
+  ScfVoucherItemDto,
+  UpdateScfVoucherItemDto
+} from '@/types/swagger-api';
+import { scfVoucherItemApi } from '@/services/scfVoucherItem';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
@@ -22,37 +28,62 @@ import AmountDisplay from '@/components/AmountDisplay';
 interface VoucherItem extends CreateScfVoucherItemDto {
   _key: string;
   _files?: UploadedFile[];
+  id?: number;
 }
 
 interface ScfVoucherItemFormProps {
   value?: CreateScfVoucherItemDto[];
   onChange?: (value: CreateScfVoucherItemDto[]) => void;
   isEdit?: boolean;
+  loanId?: number;
 }
 
 const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
   value = [],
   onChange,
-  isEdit
+  isEdit,
+  loanId
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<VoucherItem | null>(null);
   const [form] = Form.useForm();
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [apiData, setApiData] = useState<ScfVoucherItemDto[]>([]);
 
-  // 转换数据为带 _key 的格式
-  const dataSource: VoucherItem[] = value.map((item, index) => ({
+  useEffect(() => {
+    if (isEdit && loanId) {
+      loadData();
+    }
+  }, [isEdit, loanId]);
+
+  const loadData = async () => {
+    if (!loanId) return;
+    setLoading(true);
+    try {
+      const result = await scfVoucherItemApi.listByLoan(loanId);
+      if (result.success) {
+        setApiData(result.data || []);
+      }
+    } catch (error) {
+      message.error('加载凭证明细数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dataSource: VoucherItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => ({
     ...item,
-    _key: `voucher-${index}`,
-    _files: item.fileAttachments?.map(att => ({
-      attachmentId: att.attachmentId,
-      filename: '',
+    _key: `voucher-${item.id || index}`,
+    id: item.id,
+    _files: item.fileAttachments?.map((att: any) => ({
+      attachmentId: att.attachmentId || att.id,
+      filename: att.originalName || '',
       fileSize: att.fileSize
     }))
   }));
 
-  // 打开新增弹窗
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
@@ -60,7 +91,6 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
     setModalVisible(true);
   };
 
-  // 打开编辑弹窗
   const handleEdit = (record: VoucherItem) => {
     setEditingItem(record);
     form.setFieldsValue({
@@ -73,45 +103,112 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
     setModalVisible(true);
   };
 
-  // 删除
-  const handleDelete = (record: VoucherItem) => {
-    const newData = value.filter((_, index) => `voucher-${index}` !== record._key);
-    onChange?.(newData);
+  const handleDelete = async (record: VoucherItem) => {
+    if (isEdit && loanId && record.id) {
+      try {
+        const result = await scfVoucherItemApi.remove(record.id);
+        if (result.success) {
+          message.success('删除成功');
+          loadData();
+        } else {
+          message.error(result.message || '删除失败');
+        }
+      } catch (error) {
+        message.error('删除失败');
+      }
+    } else {
+      const newData = value.filter((_, index) => `voucher-${index}` !== record._key);
+      onChange?.(newData);
+    }
   };
 
-  // 提交弹窗
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
-      const newItem: CreateScfVoucherItemDto = {
-        voucherNo: values.voucherNo,
-        voucherType: values.voucherType,
-        coreCorpName: values.coreCorpName,
-        debtorName: values.debtorName,
-        underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
-        issueDate: values.issueDate?.format('YYYY-MM-DD'),
-        dueDate: values.dueDate?.format('YYYY-MM-DD'),
-        status: values.status,
-        remark: values.remark,
-        fileAttachments: files.map(f => ({
-          attachmentId: f.attachmentId,
-          fileSize: f.fileSize
-        }))
-      };
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const fileAttachments = files.map(f => ({
+        attachmentId: f.attachmentId,
+        fileSize: f.fileSize,
+        operation: 'ADD' as const
+      }));
 
-      if (editingItem) {
-        const index = dataSource.findIndex(d => d._key === editingItem._key);
-        const newData = [...value];
-        newData[index] = newItem;
-        onChange?.(newData);
+      if (isEdit && loanId) {
+        if (editingItem?.id) {
+          // UpdateScfVoucherItemDto doesn't support fileAttachments
+          const updateData: UpdateScfVoucherItemDto = {
+            id: editingItem.id,
+            voucherNo: values.voucherNo,
+            voucherType: values.voucherType,
+            coreCorpName: values.coreCorpName,
+            debtorName: values.debtorName,
+            underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
+            issueDate: values.issueDate?.format('YYYY-MM-DD'),
+            dueDate: values.dueDate?.format('YYYY-MM-DD'),
+            status: values.status,
+            remark: values.remark
+          };
+          const result = await scfVoucherItemApi.update(updateData);
+          if (result.success) {
+            message.success('更新成功');
+            loadData();
+          } else {
+            message.error(result.message || '更新失败');
+            return;
+          }
+        } else {
+          const createData: CreateScfVoucherItemDto = {
+            voucherNo: values.voucherNo,
+            voucherType: values.voucherType,
+            coreCorpName: values.coreCorpName,
+            debtorName: values.debtorName,
+            underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
+            issueDate: values.issueDate?.format('YYYY-MM-DD'),
+            dueDate: values.dueDate?.format('YYYY-MM-DD'),
+            status: values.status,
+            remark: values.remark,
+            fileAttachments
+          };
+          const result = await scfVoucherItemApi.createBatch(loanId, [createData]);
+          if (result.success) {
+            message.success('添加成功');
+            loadData();
+          } else {
+            message.error(result.message || '添加失败');
+            return;
+          }
+        }
       } else {
-        onChange?.([...value, newItem]);
+        const newItem: CreateScfVoucherItemDto = {
+          voucherNo: values.voucherNo,
+          voucherType: values.voucherType,
+          coreCorpName: values.coreCorpName,
+          debtorName: values.debtorName,
+          underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
+          issueDate: values.issueDate?.format('YYYY-MM-DD'),
+          dueDate: values.dueDate?.format('YYYY-MM-DD'),
+          status: values.status,
+          remark: values.remark,
+          fileAttachments
+        };
+
+        if (editingItem) {
+          const index = dataSource.findIndex(d => d._key === editingItem._key);
+          const newData = [...value];
+          newData[index] = newItem;
+          onChange?.(newData);
+        } else {
+          onChange?.([...value, newItem]);
+        }
       }
 
       setModalVisible(false);
       form.resetFields();
       setFiles([]);
       setEditingItem(null);
-    });
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
   };
 
   const columns: ColumnsType<VoucherItem> = [
@@ -163,15 +260,21 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
           >
             编辑
           </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="确定要删除吗？"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -191,6 +294,7 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
         rowKey="_key"
         pagination={false}
         size="small"
+        loading={loading}
       />
 
       <Modal

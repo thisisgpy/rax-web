@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -12,55 +12,127 @@ import {
   Row,
   Col,
   Divider,
-  App
+  App,
+  Popconfirm
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import type { CreateLoanCdMapDto, CreateLoanCdDto } from '@/types/swagger-api';
+import type {
+  CreateLoanCdMapDto,
+  CreateLoanCdDto,
+  LoanCdWithMapDto,
+  UpdateLoanCdMapDto
+} from '@/types/swagger-api';
+import { cdApi } from '@/services/cd';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
 
 interface CdMapItem extends CreateLoanCdMapDto {
   _key: string;
+  mapId?: number;
+  cdId?: number;
 }
 
 interface CdFormProps {
   value?: CreateLoanCdMapDto[];
   onChange?: (value: CreateLoanCdMapDto[]) => void;
   isEdit?: boolean;
+  loanId?: number;
 }
 
 const CdForm: React.FC<CdFormProps> = ({
   value = [],
   onChange,
-  isEdit
+  isEdit,
+  loanId
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<CdMapItem | null>(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [apiData, setApiData] = useState<LoanCdWithMapDto[]>([]);
 
-  // 转换数据为带 _key 的格式
-  const dataSource: CdMapItem[] = value.map((item, index) => ({
-    ...item,
-    _key: `cd-${index}`
-  }));
+  useEffect(() => {
+    if (isEdit && loanId) {
+      loadData();
+    }
+  }, [isEdit, loanId]);
 
-  // 打开新增弹窗
+  const loadData = async () => {
+    if (!loanId) return;
+    setLoading(true);
+    try {
+      const result = await cdApi.listByLoanId(loanId);
+      if (result.success) {
+        setApiData(result.data || []);
+      }
+    } catch (error) {
+      message.error('加载存单数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Convert API data or local value to table data source
+  const dataSource: CdMapItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => {
+    if (isEdit && loanId) {
+      // API data from LoanCdWithMapDto
+      return {
+        _key: `cd-${item.mapId || index}`,
+        mapId: item.mapId,
+        cdId: item.cdId,
+        pledgeRatio: item.pledgeRatio,
+        securedValue: item.securedValue,
+        registrationNo: item.registrationNo,
+        registrationDate: item.registrationDate,
+        releaseDate: item.releaseDate,
+        status: item.mapStatus,
+        voucherNo: item.voucherNo,
+        remark: item.mapRemark,
+        newCd: {
+          cdNo: item.cdNo,
+          bankId: item.bankId,
+          bankName: item.bankName,
+          cardId: item.cardId,
+          currency: item.currency,
+          principalAmount: item.principalAmount,
+          interestRate: item.interestRate,
+          dayCountConvention: item.dayCountConvention,
+          interestPayFreq: item.interestPayFreq,
+          compoundFlag: item.compoundFlag,
+          issueDate: item.issueDate,
+          maturityDate: item.maturityDate,
+          termMonths: item.termMonths,
+          autoRenewFlag: item.autoRenewFlag,
+          rolloverCount: item.rolloverCount,
+          certificateHolder: item.certificateHolder,
+          freezeFlag: item.freezeFlag,
+          status: item.cdStatus,
+          remark: item.cdRemark
+        }
+      };
+    } else {
+      // Local value from CreateLoanCdMapDto
+      return {
+        ...item,
+        _key: `cd-${index}`
+      };
+    }
+  });
+
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
     setModalVisible(true);
   };
 
-  // 打开编辑弹窗
   const handleEdit = (record: CdMapItem) => {
     setEditingItem(record);
     const cdData = record.newCd;
     form.setFieldsValue({
-      // 关联字段
       pledgeRatio: record.pledgeRatio,
       securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
       registrationNo: record.registrationNo,
@@ -69,7 +141,6 @@ const CdForm: React.FC<CdFormProps> = ({
       status: record.status,
       voucherNo: record.voucherNo,
       mapRemark: record.remark,
-      // 存单字段
       cdNo: cdData?.cdNo,
       bankId: cdData?.bankId,
       cardId: cdData?.cardId,
@@ -92,15 +163,28 @@ const CdForm: React.FC<CdFormProps> = ({
     setModalVisible(true);
   };
 
-  // 删除
-  const handleDelete = (record: CdMapItem) => {
-    const newData = value.filter((_, index) => `cd-${index}` !== record._key);
-    onChange?.(newData);
+  const handleDelete = async (record: CdMapItem) => {
+    if (isEdit && loanId && record.cdId) {
+      try {
+        const result = await cdApi.removeFromLoan(loanId, record.cdId);
+        if (result.success) {
+          message.success('删除成功');
+          loadData();
+        } else {
+          message.error(result.message || '删除失败');
+        }
+      } catch (error) {
+        message.error('删除失败');
+      }
+    } else {
+      const newData = value.filter((_, index) => `cd-${index}` !== record._key);
+      onChange?.(newData);
+    }
   };
 
-  // 提交弹窗
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
       const newCd: CreateLoanCdDto = {
         cdNo: values.cdNo,
         bankId: values.bankId,
@@ -122,8 +206,7 @@ const CdForm: React.FC<CdFormProps> = ({
         remark: values.cdRemark
       };
 
-      const newItem: CreateLoanCdMapDto = {
-        newCd,
+      const mapData = {
         pledgeRatio: values.pledgeRatio,
         securedValue: values.securedValue ? Math.round(values.securedValue * 1000000) : undefined,
         registrationNo: values.registrationNo,
@@ -134,19 +217,61 @@ const CdForm: React.FC<CdFormProps> = ({
         remark: values.mapRemark
       };
 
-      if (editingItem) {
-        const index = dataSource.findIndex(d => d._key === editingItem._key);
-        const newData = [...value];
-        newData[index] = newItem;
-        onChange?.(newData);
+      if (isEdit && loanId) {
+        if (editingItem?.mapId) {
+          // Update existing map
+          const updateData: UpdateLoanCdMapDto = {
+            id: editingItem.mapId,
+            ...mapData
+          };
+          const result = await cdApi.updateMap(updateData);
+          if (result.success) {
+            message.success('更新成功');
+            loadData();
+          } else {
+            message.error(result.message || '更新失败');
+            return;
+          }
+        } else {
+          // Add new CD to loan
+          const createData: CreateLoanCdMapDto = {
+            newCd,
+            ...mapData
+          };
+          const result = await cdApi.addToLoan(loanId, createData);
+          if (result.success) {
+            message.success('添加成功');
+            loadData();
+          } else {
+            message.error(result.message || '添加失败');
+            return;
+          }
+        }
       } else {
-        onChange?.([...value, newItem]);
+        // Local mode - update parent state
+        const newItem: CreateLoanCdMapDto = {
+          newCd,
+          ...mapData
+        };
+
+        if (editingItem) {
+          const index = dataSource.findIndex(d => d._key === editingItem._key);
+          const newData = [...value];
+          newData[index] = newItem;
+          onChange?.(newData);
+        } else {
+          onChange?.([...value, newItem]);
+        }
       }
 
       setModalVisible(false);
       form.resetFields();
       setEditingItem(null);
-    });
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
   };
 
   const columns: ColumnsType<CdMapItem> = [
@@ -201,15 +326,21 @@ const CdForm: React.FC<CdFormProps> = ({
           >
             编辑
           </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="确定要删除吗？"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -229,6 +360,7 @@ const CdForm: React.FC<CdFormProps> = ({
         rowKey="_key"
         pagination={false}
         size="small"
+        loading={loading}
       />
 
       <Modal

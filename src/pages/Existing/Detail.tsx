@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   Descriptions,
@@ -6,33 +6,91 @@ import {
   Button,
   Space,
   Tag,
-  Divider
+  Divider,
+  Tooltip,
+  Modal,
+  Form,
+  InputNumber,
+  Input,
+  App,
+  Dropdown
 } from 'antd';
 import {
   ArrowLeftOutlined,
-  EditOutlined
+  EditOutlined,
+  PaperClipOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { loanApi } from '@/services/loan';
 import { dictApi } from '@/services/dict';
+import { participantApi } from '@/services/participant';
 import type {
   LoanDto,
   FinLoanParticipantDto,
-  LoanCdWithMapDto,
-  LoanLcWithMapDto,
-  FactoringArItemDto,
-  LeasedAssetDto,
-  ScfVoucherItemDto,
-  TrustTrancheDto
+  UpdateLoanParticipantDto,
+  CreateLoanParticipantDto,
+  AttachmentOperationDto,
+  FinInstitutionDto
 } from '@/types/swagger-api';
+import InstitutionSelect from '@/components/InstitutionSelect';
+import DictSelect from '@/components/DictSelect';
+import RaxUpload from '@/components/RaxUpload';
+import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
 import AttachmentDisplay from '@/components/AttachmentDisplay';
+import { attachmentApi } from '@/services/attachment';
+
+// 紧凑型附件渲染函数
+const renderCompactAttachments = (attachments: any[]) => {
+  if (!attachments || attachments.length === 0) return '-';
+
+  const handleDownload = async (att: any) => {
+    try {
+      const result = await attachmentApi.getDownloadUrl(att.id);
+      if (result.success && result.data) {
+        window.open(result.data, '_blank');
+      }
+    } catch (error) {
+      console.error('下载失败', error);
+    }
+  };
+
+  return (
+    <Space direction="vertical" size={2}>
+      {attachments.map((att: any) => (
+        <Tooltip key={att.id} title={`${att.originalName} (${(att.fileSize / 1024).toFixed(1)} KB)`}>
+          <a
+            onClick={() => handleDownload(att)}
+            style={{ cursor: 'pointer', fontSize: 12 }}
+          >
+            <PaperClipOutlined style={{ marginRight: 4 }} />
+            {att.originalName?.length > 15 ? att.originalName.substring(0, 15) + '...' : att.originalName}
+          </a>
+        </Tooltip>
+      ))}
+    </Space>
+  );
+};
 
 const ExistingDetail: React.FC = () => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
+
+  // 银团参与行编辑相关状态
+  const [participantModalVisible, setParticipantModalVisible] = useState(false);
+  const [editingParticipant, setEditingParticipant] = useState<FinLoanParticipantDto | null>(null);
+  const [participantForm] = Form.useForm();
+  const [participantFiles, setParticipantFiles] = useState<UploadedFile[]>([]);
+  // 附件查看弹窗状态
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<any[]>([]);
 
   // 获取融资详情
   const { data: loanDetail, isLoading } = useQuery({
@@ -141,6 +199,146 @@ const ExistingDetail: React.FC = () => {
     return colorMap[status] || 'default';
   };
 
+  // 刷新详情数据
+  const refreshDetail = () => {
+    queryClient.invalidateQueries({ queryKey: ['loan', 'detail', id] });
+  };
+
+  // 打开新增银团参与行弹窗
+  const handleAddParticipant = () => {
+    setEditingParticipant(null);
+    participantForm.resetFields();
+    setParticipantFiles([]);
+    setParticipantModalVisible(true);
+  };
+
+  // 打开编辑银团参与行弹窗
+  const handleEditParticipant = (record: FinLoanParticipantDto) => {
+    setEditingParticipant(record);
+    participantForm.setFieldsValue({
+      ...record,
+      commitAmount: record.commitAmount ? record.commitAmount / 1000000 : undefined,
+      sharePct: record.sharePct ? record.sharePct * 100 : undefined
+    });
+    setParticipantFiles(
+      (record.fileAttachments || []).map((att: any) => ({
+        attachmentId: att.id || att.attachmentId,
+        filename: att.originalName || '',
+        fileSize: att.fileSize
+      }))
+    );
+    setParticipantModalVisible(true);
+  };
+
+  // 删除银团参与行
+  const handleDeleteParticipant = async (record: FinLoanParticipantDto) => {
+    if (!record.id) return;
+    try {
+      const result = await participantApi.remove(record.id);
+      if (result.success) {
+        message.success('删除成功');
+        refreshDetail();
+      } else {
+        message.error(result.message || '删除失败');
+      }
+    } catch (error) {
+      message.error('删除失败');
+    }
+  };
+
+  // 处理机构选择
+  const handleParticipantInstitutionChange = (_institutionId?: number, institution?: FinInstitutionDto) => {
+    if (institution) {
+      participantForm.setFieldsValue({
+        institutionId: institution.id,
+        institutionName: institution.branchName || institution.name
+      });
+    }
+  };
+
+  // 提交银团参与行弹窗
+  const handleParticipantModalOk = async () => {
+    try {
+      const values = await participantForm.validateFields();
+
+      if (editingParticipant?.id) {
+        // 更新已有记录
+        const originalFileIds = new Set(
+          (editingParticipant.fileAttachments || []).map((f: any) => f.id || f.attachmentId)
+        );
+        const currentFileIds = new Set(participantFiles.map(f => f.attachmentId));
+        const attachmentOperations: AttachmentOperationDto[] = [];
+
+        // 新增和保留的附件
+        participantFiles.forEach(f => {
+          attachmentOperations.push({
+            attachmentId: f.attachmentId,
+            fileSize: f.fileSize,
+            operation: originalFileIds.has(f.attachmentId) ? 'KEEP' : 'ADD'
+          });
+        });
+        // 删除的附件
+        (editingParticipant.fileAttachments || []).forEach((f: any) => {
+          const fId = f.id || f.attachmentId;
+          if (!currentFileIds.has(fId)) {
+            attachmentOperations.push({ attachmentId: fId, fileSize: f.fileSize, operation: 'DELETE' });
+          }
+        });
+
+        const updateData: UpdateLoanParticipantDto = {
+          id: editingParticipant.id,
+          role: values.role,
+          institutionId: values.institutionId,
+          institutionName: values.institutionName,
+          commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
+          sharePct: values.sharePct ? values.sharePct / 100 : undefined,
+          remark: values.remark,
+          attachmentOperations
+        };
+        const result = await participantApi.update(updateData);
+        if (result.success) {
+          message.success('更新成功');
+          refreshDetail();
+        } else {
+          message.error(result.message || '更新失败');
+          return;
+        }
+      } else {
+        // 新增记录
+        const createData: CreateLoanParticipantDto = {
+          role: values.role,
+          institutionId: values.institutionId,
+          institutionName: values.institutionName,
+          commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
+          sharePct: values.sharePct ? values.sharePct / 100 : undefined,
+          remark: values.remark,
+          fileAttachments: participantFiles.map(f => ({
+            attachmentId: f.attachmentId,
+            fileSize: f.fileSize,
+            operation: 'ADD' as const
+          }))
+        };
+        const result = await participantApi.createBatch(Number(id), [createData]);
+        if (result.success) {
+          message.success('添加成功');
+          refreshDetail();
+        } else {
+          message.error(result.message || '添加失败');
+          return;
+        }
+      }
+
+      setParticipantModalVisible(false);
+      participantForm.resetFields();
+      setParticipantFiles([]);
+      setEditingParticipant(null);
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
+  };
+
   // 银团参与行表格列
   const participantColumns = [
     { title: '机构名称', dataIndex: 'institutionName', key: 'institutionName' },
@@ -157,7 +355,50 @@ const ExistingDetail: React.FC = () => {
       key: 'sharePct',
       render: (value: number) => value ? `${(value * 100).toFixed(2)}%` : '-'
     },
-    { title: '备注', dataIndex: 'remark', key: 'remark' }
+    { title: '备注', dataIndex: 'remark', key: 'remark', ellipsis: true },
+    {
+      title: '操作',
+      key: 'action',
+      width: 80,
+      render: (_: any, record: FinLoanParticipantDto) => {
+        const items = [
+          ...(record.fileAttachments && record.fileAttachments.length > 0 ? [{
+            key: 'attachment',
+            label: `附件(${record.fileAttachments.length})`,
+            icon: <PaperClipOutlined />,
+            onClick: () => {
+              setViewingAttachments(record.fileAttachments || []);
+              setAttachmentModalVisible(true);
+            }
+          }] : []),
+          {
+            key: 'edit',
+            label: '编辑',
+            icon: <EditOutlined />,
+            onClick: () => handleEditParticipant(record)
+          },
+          {
+            key: 'delete',
+            label: '删除',
+            icon: <DeleteOutlined />,
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确定要删除吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDeleteParticipant(record)
+              });
+            }
+          }
+        ];
+        return (
+          <Dropdown menu={{ items }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
+    }
   ];
 
   // 存单关联表格列
@@ -254,37 +495,41 @@ const ExistingDetail: React.FC = () => {
       dataIndex: 'paidFlag',
       key: 'paidFlag',
       render: (value: boolean) => value ? '是' : '否'
+    },
+    {
+      title: '附件',
+      dataIndex: 'fileAttachments',
+      key: 'fileAttachments',
+      width: 180,
+      render: renderCompactAttachments
     }
   ];
 
   // 融资租赁资产表格列
   const leasedAssetColumns = [
-    { title: '资产名称', dataIndex: 'assetName', key: 'assetName' },
-    { title: '资产类别', dataIndex: 'assetCategory', key: 'assetCategory' },
+    { title: '资产名称', dataIndex: 'assetNameSnapshot', key: 'assetNameSnapshot' },
+    { title: '资产编码', dataIndex: 'assetCodeSnapshot', key: 'assetCodeSnapshot' },
+    { title: '数量', dataIndex: 'quantity', key: 'quantity' },
+    { title: '单位', dataIndex: 'unit', key: 'unit' },
     {
-      title: '原值',
-      dataIndex: 'originalValue',
-      key: 'originalValue',
+      title: '账面价值',
+      dataIndex: 'bookValueAtLease',
+      key: 'bookValueAtLease',
       render: (value: number) => <AmountDisplay value={value} />
     },
     {
       title: '评估价值',
-      dataIndex: 'appraisedValue',
-      key: 'appraisedValue',
+      dataIndex: 'appraisedValueAtLease',
+      key: 'appraisedValueAtLease',
       render: (value: number) => <AmountDisplay value={value} />
     },
-    { title: '租赁类型', dataIndex: 'leaseType', key: 'leaseType' },
+    { title: '序列号', dataIndex: 'serialNo', key: 'serialNo' },
     {
-      title: '起租日',
-      dataIndex: 'leaseStartDate',
-      key: 'leaseStartDate',
-      render: (value: string) => value ? dayjs(value).format('YYYY-MM-DD') : '-'
-    },
-    {
-      title: '到期日',
-      dataIndex: 'leaseEndDate',
-      key: 'leaseEndDate',
-      render: (value: string) => value ? dayjs(value).format('YYYY-MM-DD') : '-'
+      title: '附件',
+      dataIndex: 'fileAttachments',
+      key: 'fileAttachments',
+      width: 180,
+      render: renderCompactAttachments
     }
   ];
 
@@ -305,6 +550,13 @@ const ExistingDetail: React.FC = () => {
       dataIndex: 'dueDate',
       key: 'dueDate',
       render: (value: string) => value ? dayjs(value).format('YYYY-MM-DD') : '-'
+    },
+    {
+      title: '附件',
+      dataIndex: 'fileAttachments',
+      key: 'fileAttachments',
+      width: 180,
+      render: renderCompactAttachments
     }
   ];
 
@@ -330,6 +582,13 @@ const ExistingDetail: React.FC = () => {
       dataIndex: 'expectedYieldRate',
       key: 'expectedYieldRate',
       render: (value: number) => value ? `${value}%` : '-'
+    },
+    {
+      title: '附件',
+      dataIndex: 'fileAttachments',
+      key: 'fileAttachments',
+      width: 180,
+      render: renderCompactAttachments
     }
   ];
 
@@ -356,6 +615,7 @@ const ExistingDetail: React.FC = () => {
           {/* 基础信息 */}
           <Divider orientation="left">基础信息</Divider>
           <Descriptions bordered column={3}>
+            <Descriptions.Item label="融资编号" span={3}>{loanDetail.loanCode || '-'}</Descriptions.Item>
             <Descriptions.Item label="融资主体">{loanDetail.orgName}</Descriptions.Item>
             <Descriptions.Item label="融资名称">{loanDetail.loanName}</Descriptions.Item>
             <Descriptions.Item label="融资类型">{getProductTypeLabel(loanDetail)}</Descriptions.Item>
@@ -374,9 +634,14 @@ const ExistingDetail: React.FC = () => {
             <Descriptions.Item label="利率方式">{getDictLabel(rateModeDict, loanDetail.rateMode)}</Descriptions.Item>
             {/* 固定利率 */}
             {loanDetail.rateMode === '固定' && (
-              <Descriptions.Item label="固定利率">
-                {loanDetail.fixedRate != null ? `${(loanDetail.fixedRate * 100).toFixed(4)}%` : '-'}
-              </Descriptions.Item>
+              <>
+                <Descriptions.Item label="固定利率">
+                  {loanDetail.fixedRate != null ? `${(loanDetail.fixedRate * 100).toFixed(4)}%` : '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="计息日规则">
+                  {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
+                </Descriptions.Item>
+              </>
             )}
             {/* LPR+BP */}
             {loanDetail.rateMode === 'LPR+BP' && (
@@ -387,40 +652,67 @@ const ExistingDetail: React.FC = () => {
                 <Descriptions.Item label="加点（BP）">
                   {loanDetail.spreadBp != null ? `${(loanDetail.spreadBp * 10000).toFixed(0)}` : '-'}
                 </Descriptions.Item>
-              </>
-            )}
-            {/* 浮动利率 */}
-            {loanDetail.rateMode === '浮动' && (
-              <Descriptions.Item label="基准利率">
-                {loanDetail.baseRate != null ? `${(loanDetail.baseRate * 100).toFixed(4)}%` : '-'}
-              </Descriptions.Item>
-            )}
-            {/* 票面利率 */}
-            {loanDetail.rateMode === '票面' && (
-              <Descriptions.Item label="票面利率">
-                {loanDetail.baseRate != null ? `${(loanDetail.baseRate * 100).toFixed(4)}%` : '-'}
-              </Descriptions.Item>
-            )}
-            {/* 重定价信息 - 浮动或LPR+BP时显示 */}
-            {(loanDetail.rateMode === '浮动' || loanDetail.rateMode === 'LPR+BP') && (
-              <>
                 <Descriptions.Item label="重定价周期">
                   {getDictLabel(rateResetCycleDict, loanDetail.rateResetCycle || '')}
                 </Descriptions.Item>
                 <Descriptions.Item label="重定价锚定日">
                   {loanDetail.rateResetAnchorDate ? dayjs(loanDetail.rateResetAnchorDate).format('YYYY-MM-DD') : '-'}
                 </Descriptions.Item>
+                <Descriptions.Item label="计息日规则">
+                  {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
+                </Descriptions.Item>
               </>
             )}
-            <Descriptions.Item label="计息日规则">
-              {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
-            </Descriptions.Item>
+            {/* 浮动利率 */}
+            {loanDetail.rateMode === '浮动' && (
+              <>
+                <Descriptions.Item label="基准利率">
+                  {loanDetail.baseRate != null ? `${(loanDetail.baseRate * 100).toFixed(4)}%` : '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="重定价周期">
+                  {getDictLabel(rateResetCycleDict, loanDetail.rateResetCycle || '')}
+                </Descriptions.Item>
+                <Descriptions.Item label="重定价锚定日">
+                  {loanDetail.rateResetAnchorDate ? dayjs(loanDetail.rateResetAnchorDate).format('YYYY-MM-DD') : '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="计息日规则">
+                  {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
+                </Descriptions.Item>
+              </>
+            )}
+            {/* 票面利率 */}
+            {loanDetail.rateMode === '票面' && (
+              <>
+                <Descriptions.Item label="票面利率">
+                  {loanDetail.baseRate != null ? `${(loanDetail.baseRate * 100).toFixed(4)}%` : '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="计息日规则">
+                  {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
+                </Descriptions.Item>
+              </>
+            )}
+            {/* 其他利率方式 */}
+            {!['固定', 'LPR+BP', '浮动', '票面'].includes(loanDetail.rateMode) && (
+              <>
+                <Descriptions.Item label="计息日规则">
+                  {getDictLabel(dayCountDict, loanDetail.dayCountConvention || '')}
+                </Descriptions.Item>
+              </>
+            )}
             <Descriptions.Item label="还款方式">{getDictLabel(repayMethodDict, loanDetail.repayMethod)}</Descriptions.Item>
-            <Descriptions.Item label="状态">
+            <Descriptions.Item
+              label="状态"
+              span={['浮动'].includes(loanDetail.rateMode) || !['固定', 'LPR+BP', '浮动', '票面'].includes(loanDetail.rateMode) ? 3 : 2}
+            >
               <Tag color={getStatusColor(loanDetail.status)}>
                 {getDictLabel(loanStatusDict, loanDetail.status)}
               </Tag>
             </Descriptions.Item>
+            <Descriptions.Item label="备注" span={3}>{loanDetail.remark || '-'}</Descriptions.Item>
+          </Descriptions>
+
+          {/* 审计信息 */}
+          <Descriptions bordered column={4} style={{ marginTop: 16 }}>
             <Descriptions.Item label="创建人">{loanDetail.createBy || '-'}</Descriptions.Item>
             <Descriptions.Item label="创建时间">
               {loanDetail.createTime ? dayjs(loanDetail.createTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
@@ -429,22 +721,56 @@ const ExistingDetail: React.FC = () => {
             <Descriptions.Item label="修改时间">
               {loanDetail.updateTime ? dayjs(loanDetail.updateTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label="备注" span={3}>{loanDetail.remark || '-'}</Descriptions.Item>
           </Descriptions>
 
-          {/* 银团参与行 */}
-          {loanDetail.participantList && loanDetail.participantList.length > 0 && (
+          {/* 扩展字段 */}
+          {loanDetail.extFieldValList && loanDetail.extFieldValList.length > 0 && (
             <>
-              <Divider orientation="left">银团参与行</Divider>
-              <Table
-                columns={participantColumns}
-                dataSource={loanDetail.participantList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              <Divider orientation="left">扩展信息</Divider>
+              <Descriptions bordered column={3}>
+                {loanDetail.extFieldValList.map((field: any, index: number) => {
+                  // 根据数据类型获取显示值
+                  let displayValue: React.ReactNode = '-';
+                  if (field.dataType === 'string' && field.valueStr) {
+                    displayValue = field.valueStr;
+                  } else if (field.dataType === 'decimal' && field.valueNum != null) {
+                    displayValue = field.valueNum;
+                  } else if (field.dataType === 'integer' && field.valueNum != null) {
+                    displayValue = field.valueNum;
+                  } else if (field.dataType === 'date' && field.valueDate) {
+                    displayValue = dayjs(field.valueDate).format('YYYY-MM-DD');
+                  } else if (field.dataType === 'datetime' && field.valueDt) {
+                    displayValue = dayjs(field.valueDt).format('YYYY-MM-DD HH:mm:ss');
+                  } else if (field.dataType === 'boolean' && field.valueBool != null) {
+                    displayValue = field.valueBool ? '是' : '否';
+                  }
+
+                  return (
+                    <Descriptions.Item key={field.fieldKey || index} label={field.fieldLabel}>
+                      {displayValue}
+                    </Descriptions.Item>
+                  );
+                })}
+              </Descriptions>
             </>
           )}
+
+          {/* 银团参与行 */}
+          <>
+            <Divider orientation="left">银团参与行</Divider>
+            <div style={{ marginBottom: 16 }}>
+              <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddParticipant}>
+                添加银团参与行
+              </Button>
+            </div>
+            <Table
+              columns={participantColumns}
+              dataSource={loanDetail.participantList || []}
+              rowKey="id"
+              pagination={false}
+              size="small"
+            />
+          </>
 
           {/* 存单关联 */}
           {loanDetail.cdList && loanDetail.cdList.length > 0 && (
@@ -544,6 +870,118 @@ const ExistingDetail: React.FC = () => {
 
         </>
       )}
+
+      {/* 银团参与行编辑弹窗 */}
+      <Modal
+        title={editingParticipant ? '编辑银团参与行' : '添加银团参与行'}
+        open={participantModalVisible}
+        onOk={handleParticipantModalOk}
+        onCancel={() => {
+          setParticipantModalVisible(false);
+          participantForm.resetFields();
+          setParticipantFiles([]);
+          setEditingParticipant(null);
+        }}
+        width={700}
+      >
+        <Form form={participantForm} layout="vertical">
+          <Space.Compact block style={{ display: 'flex', gap: 16 }}>
+            <Form.Item
+              name="role"
+              label="角色"
+              rules={[{ required: true, message: '请选择角色' }]}
+              style={{ flex: 1 }}
+            >
+              <DictSelect
+                dictCode="participant.role"
+                placeholder="请选择角色"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="institutionId"
+              label="金融机构"
+              rules={[{ required: true, message: '请选择金融机构' }]}
+              style={{ flex: 2 }}
+            >
+              <InstitutionSelect
+                placeholder="请选择金融机构"
+                onChange={handleParticipantInstitutionChange}
+              />
+            </Form.Item>
+          </Space.Compact>
+          <Form.Item name="institutionName" hidden>
+            <Input />
+          </Form.Item>
+
+          <Space.Compact block style={{ display: 'flex', gap: 16 }}>
+            <Form.Item
+              name="commitAmount"
+              label="承诺额度（万元）"
+              style={{ flex: 1 }}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="请输入承诺额度"
+                min={0}
+                precision={6}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="sharePct"
+              label="份额比例（%）"
+              style={{ flex: 1 }}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="请输入份额比例"
+                min={0}
+                max={100}
+                precision={2}
+              />
+            </Form.Item>
+          </Space.Compact>
+
+          <Form.Item name="remark" label="备注">
+            <Input.TextArea rows={2} placeholder="请输入备注" />
+          </Form.Item>
+
+          <Form.Item label="附件" style={{ marginBottom: 0 }}>
+            <RaxUpload
+              bizModule="FinLoanParticipant"
+              value={participantFiles}
+              onChange={setParticipantFiles}
+              maxCount={5}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 附件查看弹窗 */}
+      <Modal
+        title="附件列表"
+        open={attachmentModalVisible}
+        onCancel={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
+        }}
+        footer={
+          <Button onClick={() => {
+            setAttachmentModalVisible(false);
+            setViewingAttachments([]);
+          }}>
+            关闭
+          </Button>
+        }
+        width={800}
+      >
+        <AttachmentDisplay
+          attachments={viewingAttachments}
+          disableDelete={true}
+          showDownload={true}
+        />
+      </Modal>
     </Card>
   );
 };

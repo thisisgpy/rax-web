@@ -53,24 +53,6 @@ const getFileTypeColor = (extension: string): string => {
   return colorMap[extension.toLowerCase()] || 'default';
 };
 
-/**
- * 格式化日期时间
- */
-const formatDateTime = (dateString?: string): string => {
-  if (!dateString) return '-';
-  try {
-    return new Date(dateString).toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch {
-    return dateString;
-  }
-};
-
 const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
   attachments,
   onDelete,
@@ -163,15 +145,6 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
       width: 120,
       render: (fileSize: number) => (
         <Text type="secondary">{formatFileSize(fileSize)}</Text>
-      )
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 180,
-      render: (createTime: string) => (
-        <Text type="secondary">{formatDateTime(createTime)}</Text>
       )
     },
     {

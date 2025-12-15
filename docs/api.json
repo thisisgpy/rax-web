@@ -1,0 +1,6886 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rax",
+    "contact": {},
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://api.ganpengyu.com",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/fin/loan/update": {
+      "post": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "更新融资",
+        "operationId": "updateLoan",
+        "parameters": [
+          {
+            "name": "updateLoanDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/update": {
+      "post": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "更新信托分层明细",
+        "operationId": "updateTranche",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateTrustTrancheDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTrustTrancheDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/list": {
+      "post": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "多条件查询信托分层明细列表",
+        "operationId": "findTranchesByCondition",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryTrustTrancheDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryTrustTrancheDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListTrustTrancheDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/create/{loanId}": {
+      "post": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "创建单个信托分层明细",
+        "operationId": "createTranche",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateTrustTrancheDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTrustTrancheDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/create-batch/{loanId}": {
+      "post": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "批量创建信托分层明细",
+        "operationId": "createTranches",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateTrustTrancheDto"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/update": {
+      "post": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "更新供应链金融凭证明细",
+        "operationId": "updateVoucherItem",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateScfVoucherItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScfVoucherItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/list": {
+      "post": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "多条件查询供应链金融凭证明细列表",
+        "operationId": "findVoucherItemsByCondition",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryScfVoucherItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryScfVoucherItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListScfVoucherItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/create/{loanId}": {
+      "post": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "创建单个供应链金融凭证明细",
+        "operationId": "createVoucherItem",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateScfVoucherItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScfVoucherItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/create-batch/{loanId}": {
+      "post": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "批量创建供应链金融凭证明细",
+        "operationId": "createVoucherItems",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateScfVoucherItemDto"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/participant/update": {
+      "post": {
+        "tags": [
+          "银团参与行接口"
+        ],
+        "summary": "更新银团参与行",
+        "operationId": "updateParticipant",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanParticipantDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanParticipantDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/participant/create-batch/{loanId}": {
+      "post": {
+        "tags": [
+          "银团参与行接口"
+        ],
+        "summary": "批量创建银团参与行",
+        "operationId": "createParticipants",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateLoanParticipantDto"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/page": {
+      "post": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "分页查询融资列表",
+        "operationId": "findLoanPage",
+        "parameters": [
+          {
+            "name": "queryLoanDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryLoanDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryLoanDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultPageResultLoanDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/update": {
+      "post": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "更新租赁物",
+        "operationId": "updateAsset",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLeasedAssetDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLeasedAssetDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/list": {
+      "post": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "多条件查询租赁物列表",
+        "operationId": "findAssetsByCondition",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryLeasedAssetDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryLeasedAssetDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListLeasedAssetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/create/{loanId}": {
+      "post": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "创建单个租赁物",
+        "operationId": "createAsset",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLeasedAssetDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeasedAssetDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/create-batch/{loanId}": {
+      "post": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "批量创建租赁物",
+        "operationId": "createAssets",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateLeasedAssetDto"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/update": {
+      "post": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "更新保理应收明细",
+        "operationId": "updateArItem",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateFactoringArItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFactoringArItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/list": {
+      "post": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "多条件查询保理应收明细列表",
+        "operationId": "findArItemsByCondition",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryFactoringArItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryFactoringArItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFactoringArItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/create/{loanId}": {
+      "post": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "创建单个保理应收明细",
+        "operationId": "createArItem",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateFactoringArItemDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFactoringArItemDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/create-batch/{loanId}": {
+      "post": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "批量创建保理应收明细",
+        "operationId": "createArItems",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateFactoringArItemDto"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldDef/update": {
+      "post": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "更新扩展字段定义",
+        "operationId": "updateExtFieldDef",
+        "parameters": [
+          {
+            "name": "updateFinLoanExtFieldDefDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateFinLoanExtFieldDefDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFinLoanExtFieldDefDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldDef/create": {
+      "post": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "创建扩展字段定义",
+        "operationId": "createExtFieldDef",
+        "parameters": [
+          {
+            "name": "createFinLoanExtFieldDefDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateFinLoanExtFieldDefDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFinLoanExtFieldDefDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/update": {
+      "post": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "更新扩展字段配置",
+        "operationId": "updateExtFieldConfig",
+        "parameters": [
+          {
+            "name": "dto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateFinLoanExtFieldConfigDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFinLoanExtFieldConfigDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/create": {
+      "post": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "创建扩展字段配置",
+        "operationId": "createExtFieldConfig",
+        "parameters": [
+          {
+            "name": "dto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateFinLoanExtFieldConfigDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFinLoanExtFieldConfigDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/create": {
+      "post": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "创建融资",
+        "operationId": "createLoan",
+        "parameters": [
+          {
+            "name": "createLoanDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoanDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/update": {
+      "post": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "更新信用证",
+        "operationId": "updateLc",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanLcDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanLcDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/page": {
+      "post": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "分页查询信用证",
+        "operationId": "findLcPage",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryLoanLcDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryLoanLcDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultPageResultLoanLcDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/map/update": {
+      "post": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "更新贷款-信用证关联信息",
+        "operationId": "updateLcMap",
+        "parameters": [
+          {
+            "name": "updateMapDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanLcMapDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanLcMapDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/loan/{loanId}/add": {
+      "post": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "为贷款添加信用证关联",
+        "operationId": "addLcToLoan",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createMapDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoanLcMapDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanLcMapDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/create": {
+      "post": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "创建信用证",
+        "operationId": "createLc",
+        "parameters": [
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoanLcDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanLcDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/update": {
+      "post": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "更新存单",
+        "operationId": "updateCd",
+        "parameters": [
+          {
+            "name": "updateDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanCdDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanCdDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/page": {
+      "post": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "分页查询存单",
+        "operationId": "findCdPage",
+        "parameters": [
+          {
+            "name": "queryDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/QueryLoanCdDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryLoanCdDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultPageResultLoanCdDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/map/update": {
+      "post": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "更新贷款-存单关联信息",
+        "operationId": "updateCdMap",
+        "parameters": [
+          {
+            "name": "updateMapDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateLoanCdMapDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanCdMapDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/loan/{loanId}/add": {
+      "post": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "为贷款添加存单关联",
+        "operationId": "addCdToLoan",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "createMapDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoanCdMapDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanCdMapDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/create": {
+      "post": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "创建存单",
+        "operationId": "createCd",
+        "parameters": [
+          {
+            "name": "createDto",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreateLoanCdDto"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanCdDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/remove/{id}": {
+      "get": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "删除信托分层明细",
+        "operationId": "removeTranche",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "信托分层明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/list-by-loan/{loanId}": {
+      "get": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "根据融资ID查询信托分层明细列表",
+        "operationId": "findTranchesByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListTrustTrancheDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/trust-tranche/get/{id}": {
+      "get": {
+        "tags": [
+          "信托分层明细接口"
+        ],
+        "summary": "查询单个信托分层明细",
+        "operationId": "findTrancheById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "信托分层明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultTrustTrancheDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/remove/{id}": {
+      "get": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "删除供应链金融凭证明细",
+        "operationId": "removeVoucherItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "供应链金融凭证明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/list-by-loan/{loanId}": {
+      "get": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "根据融资ID查询供应链金融凭证明细列表",
+        "operationId": "findVoucherItemsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListScfVoucherItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/scf-voucher-item/get/{id}": {
+      "get": {
+        "tags": [
+          "供应链金融凭证明细接口"
+        ],
+        "summary": "查询单个供应链金融凭证明细",
+        "operationId": "findVoucherItemById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "供应链金融凭证明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultScfVoucherItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/remove/{id}": {
+      "get": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "删除融资",
+        "operationId": "removeLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/participant/remove/{id}": {
+      "get": {
+        "tags": [
+          "银团参与行接口"
+        ],
+        "summary": "删除银团参与行",
+        "operationId": "removeParticipant",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "银团参与行ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/participant/list-by-loan/{loanId}": {
+      "get": {
+        "tags": [
+          "银团参与行接口"
+        ],
+        "summary": "根据融资ID查询银团参与行列表",
+        "operationId": "findParticipantsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFinLoanParticipantDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/participant/get/{id}": {
+      "get": {
+        "tags": [
+          "银团参与行接口"
+        ],
+        "summary": "查询单个银团参与行",
+        "operationId": "findParticipantById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "银团参与行ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultFinLoanParticipantDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/remove/{id}": {
+      "get": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "删除租赁物",
+        "operationId": "removeAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "租赁物ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/list-by-loan/{loanId}": {
+      "get": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "根据融资ID查询租赁物列表",
+        "operationId": "findAssetsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListLeasedAssetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/leased-asset/get/{id}": {
+      "get": {
+        "tags": [
+          "融资租赁租赁物接口"
+        ],
+        "summary": "查询单个租赁物",
+        "operationId": "findAssetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "租赁物ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLeasedAssetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/get/{id}": {
+      "get": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "查询融资详情（含关联数据）",
+        "operationId": "findLoanDtoById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLoanDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/get/basic/{id}": {
+      "get": {
+        "tags": [
+          "融资接口"
+        ],
+        "summary": "查询融资基础信息（不含关联数据）",
+        "operationId": "findBasicLoanDtoById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLoanDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/remove/{id}": {
+      "get": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "删除保理应收明细",
+        "operationId": "removeArItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "保理应收明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/list-by-loan/{loanId}": {
+      "get": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "根据融资ID查询保理应收明细列表",
+        "operationId": "findArItemsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFactoringArItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/factoring-ar-item/get/{id}": {
+      "get": {
+        "tags": [
+          "保理应收明细接口"
+        ],
+        "summary": "查询单个保理应收明细",
+        "operationId": "findArItemById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "保理应收明细ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultFactoringArItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldVal/list/{loanId}": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "查询扩展字段值列表（含定义信息）",
+        "description": "返回已保存的字段值 + 新增的字段定义，用于编辑页面",
+        "operationId": "getExtFieldValList",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "融资ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFinLoanExtFieldValDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldDef/remove/{id}": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "删除扩展字段定义",
+        "operationId": "removeExtFieldDef",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "字段定义ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldDef/list": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "根据产品族和产品类型查询扩展字段定义列表",
+        "description": "先返回通用字段（ALL/ALL），再返回指定配置的字段",
+        "operationId": "getExtFieldDefList",
+        "parameters": [
+          {
+            "name": "productFamily",
+            "in": "query",
+            "description": "产品族",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productType",
+            "in": "query",
+            "description": "产品类型",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFinLoanExtFieldDefDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldDef/get/{id}": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "查询扩展字段定义",
+        "operationId": "getExtFieldDef",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "字段定义ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultFinLoanExtFieldDefDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/{configId}/extFieldDefs": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "查询扩展字段配置下的字段定义列表",
+        "operationId": "getExtFieldDefsByConfig",
+        "parameters": [
+          {
+            "name": "configId",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFinLoanExtFieldDefDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/remove/{id}": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "删除扩展字段配置",
+        "operationId": "removeExtFieldConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/list": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "查询扩展字段配置列表",
+        "operationId": "getExtFieldConfigList",
+        "parameters": [
+          {
+            "name": "productFamily",
+            "in": "query",
+            "description": "产品族（可选）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListFinLoanExtFieldConfigDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/loan/extFieldConfig/get/{id}": {
+      "get": {
+        "tags": [
+          "融资扩展字段接口"
+        ],
+        "summary": "查询扩展字段配置",
+        "operationId": "getExtFieldConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultFinLoanExtFieldConfigDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/remove/{id}": {
+      "get": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "删除信用证",
+        "operationId": "removeLc",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "信用证ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/loan/{loanId}/remove/{lcId}": {
+      "get": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "删除贷款的信用证关联",
+        "operationId": "removeLcFromLoan",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "lcId",
+            "in": "path",
+            "description": "信用证ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/loan/{loanId}/list": {
+      "get": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "查询贷款关联的所有信用证",
+        "operationId": "findLcsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListLoanLcWithMapDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/lc/get/{id}": {
+      "get": {
+        "tags": [
+          "信用证接口"
+        ],
+        "summary": "查询信用证详情",
+        "operationId": "findDtoById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "信用证ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLoanLcDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/remove/{id}": {
+      "get": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "删除存单",
+        "operationId": "removeCd",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "存单ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/loan/{loanId}/remove/{cdId}": {
+      "get": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "删除贷款的存单关联",
+        "operationId": "removeCdFromLoan",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "cdId",
+            "in": "path",
+            "description": "存单ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/loan/{loanId}/list": {
+      "get": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "查询贷款关联的所有存单",
+        "operationId": "findCdsByLoanId",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "description": "贷款ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultListLoanCdWithMapDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fin/bill/cd/get/{id}": {
+      "get": {
+        "tags": [
+          "存单接口"
+        ],
+        "summary": "查询存单详情",
+        "operationId": "findDtoById_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "存单ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaxResultLoanCdDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RaxResultBoolean": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "boolean",
+            "description": "请求数据"
+          }
+        }
+      },
+      "AttachmentOperationDto": {
+        "type": "object",
+        "description": "附件操作DTO",
+        "properties": {
+          "attachmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "附件ID"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件大小(字节)，新上传的附件必填"
+          },
+          "operation": {
+            "type": "string",
+            "description": "操作类型: ADD-新增, KEEP-保留, DELETE-删除",
+            "enum": [
+              "ADD",
+              "KEEP",
+              "DELETE"
+            ]
+          }
+        },
+        "required": [
+          "attachmentId",
+          "operation"
+        ]
+      },
+      "SysAttachmentDto": {
+        "type": "object",
+        "description": "SysAttachmentDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "附件ID"
+          },
+          "bizModule": {
+            "type": "string",
+            "description": "业务模块名称"
+          },
+          "bizId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "业务数据 ID"
+          },
+          "originalName": {
+            "type": "string",
+            "description": "原文件名"
+          },
+          "savedName": {
+            "type": "string",
+            "description": "存储文件名"
+          },
+          "extension": {
+            "type": "string",
+            "description": "文件扩展名"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件大小. 以byte为单位"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "是否删除. 0:否, 1:是"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          }
+        }
+      },
+      "CreateFinLoanExtFieldValDto": {
+        "type": "object",
+        "description": "CreateFinLoanExtFieldValDto",
+        "properties": {
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "fieldKey": {
+            "type": "string",
+            "description": "字段键，对应定义表的 field_key"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "字段数据类型"
+          },
+          "valueStr": {
+            "type": "string",
+            "description": "字段值-字符串"
+          },
+          "valueNum": {
+            "type": "number",
+            "description": "字段值-数字"
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "字段值-日期"
+          },
+          "valueDt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "字段值-日期时间"
+          },
+          "valueBool": {
+            "type": "boolean",
+            "description": "字段值-布尔"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      },
+      "UpdateLoanDto": {
+        "type": "object",
+        "description": "UpdateLoanDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资主体ID"
+          },
+          "loanName": {
+            "type": "string",
+            "description": "融资名称",
+            "minLength": 1
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "产品族",
+            "minLength": 1
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型",
+            "minLength": 1
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "资金方ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "资金方名称",
+            "minLength": 1
+          },
+          "contractAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "合同金额"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "isMultiDisb": {
+            "type": "boolean",
+            "description": "是否多次放款"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "合同到期日"
+          },
+          "rateMode": {
+            "type": "string",
+            "description": "利率方式",
+            "minLength": 1
+          },
+          "fixedRate": {
+            "type": "number",
+            "description": "固定利率"
+          },
+          "baseRate": {
+            "type": "number",
+            "description": "基准利率/票面利率"
+          },
+          "spreadBp": {
+            "type": "number",
+            "description": "加点"
+          },
+          "rateResetCycle": {
+            "type": "string",
+            "description": "重定价周期"
+          },
+          "rateResetAnchorDate": {
+            "type": "string",
+            "format": "date",
+            "description": "重定价锚定日"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息日规则"
+          },
+          "repayMethod": {
+            "type": "string",
+            "description": "还款方式",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "在管/结清/违约/作废",
+            "minLength": 1
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "extFieldValList": {
+            "type": "array",
+            "description": "扩展字段值列表",
+            "items": {
+              "$ref": "#/components/schemas/CreateFinLoanExtFieldValDto"
+            }
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "contractAmount",
+          "id",
+          "institutionId",
+          "institutionName",
+          "loanName",
+          "maturityDate",
+          "orgId",
+          "productFamily",
+          "productType",
+          "rateMode",
+          "repayMethod",
+          "status",
+          "termMonths"
+        ]
+      },
+      "UpdateTrustTrancheDto": {
+        "type": "object",
+        "description": "更新信托分层明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "trancheName": {
+            "type": "string",
+            "description": "分层名称"
+          },
+          "trancheLevel": {
+            "type": "string",
+            "description": "分层级别/类型"
+          },
+          "paymentRank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "清偿顺序"
+          },
+          "subscribeAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "认购金额(分)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额占比(%)"
+          },
+          "expectedYieldRate": {
+            "type": "number",
+            "description": "预期收益率(%)"
+          },
+          "distributionRule": {
+            "type": "string",
+            "description": "收益分配规则"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "QueryTrustTrancheDto": {
+        "type": "object",
+        "description": "信托分层明细查询条件DTO",
+        "properties": {
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "trancheName": {
+            "type": "string",
+            "description": "分层名称"
+          },
+          "trancheLevel": {
+            "type": "string",
+            "description": "分层级别/类型"
+          },
+          "paymentRankMin": {
+            "type": "integer",
+            "format": "int32",
+            "description": "清偿顺序下限"
+          },
+          "paymentRankMax": {
+            "type": "integer",
+            "format": "int32",
+            "description": "清偿顺序上限"
+          },
+          "subscribeAmountMin": {
+            "type": "integer",
+            "format": "int64",
+            "description": "认购金额下限(分)"
+          },
+          "subscribeAmountMax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "认购金额上限(分)"
+          },
+          "expectedYieldRateMin": {
+            "type": "number",
+            "description": "预期收益率下限(%)"
+          },
+          "expectedYieldRateMax": {
+            "type": "number",
+            "description": "预期收益率上限(%)"
+          }
+        }
+      },
+      "RaxResultListTrustTrancheDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/TrustTrancheDto"
+            }
+          }
+        }
+      },
+      "TrustTrancheDto": {
+        "type": "object",
+        "description": "信托分层明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "trancheName": {
+            "type": "string",
+            "description": "分层名称"
+          },
+          "trancheLevel": {
+            "type": "string",
+            "description": "分层级别/类型"
+          },
+          "paymentRank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "清偿顺序"
+          },
+          "subscribeAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "认购金额(分)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额占比(%)"
+          },
+          "expectedYieldRate": {
+            "type": "number",
+            "description": "预期收益率(%)"
+          },
+          "distributionRule": {
+            "type": "string",
+            "description": "收益分配规则"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "CreateTrustTrancheDto": {
+        "type": "object",
+        "description": "创建信托分层明细DTO",
+        "properties": {
+          "trancheName": {
+            "type": "string",
+            "description": "分层名称"
+          },
+          "trancheLevel": {
+            "type": "string",
+            "description": "分层级别/类型"
+          },
+          "paymentRank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "清偿顺序"
+          },
+          "subscribeAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "认购金额(分)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额占比(%)"
+          },
+          "expectedYieldRate": {
+            "type": "number",
+            "description": "预期收益率(%)"
+          },
+          "distributionRule": {
+            "type": "string",
+            "description": "收益分配规则"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        }
+      },
+      "RaxResultLong": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求数据"
+          }
+        }
+      },
+      "UpdateScfVoucherItemDto": {
+        "type": "object",
+        "description": "更新供应链金融凭证明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "凭证/订单/应收确认编号"
+          },
+          "voucherType": {
+            "type": "string",
+            "description": "凭证类型"
+          },
+          "coreCorpName": {
+            "type": "string",
+            "description": "核心企业名称"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "债务人/付款方"
+          },
+          "underlyingAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "底层金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "凭证/订单生成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/预计回款日"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "QueryScfVoucherItemDto": {
+        "type": "object",
+        "description": "供应链金融凭证明细查询条件DTO",
+        "properties": {
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "凭证/订单/应收确认编号"
+          },
+          "voucherType": {
+            "type": "string",
+            "description": "凭证类型"
+          },
+          "coreCorpName": {
+            "type": "string",
+            "description": "核心企业名称"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "债务人/付款方"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "issueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "凭证日期开始"
+          },
+          "issueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "凭证日期结束"
+          },
+          "dueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日开始"
+          },
+          "dueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日结束"
+          },
+          "underlyingAmountMin": {
+            "type": "integer",
+            "format": "int64",
+            "description": "底层金额下限(分)"
+          },
+          "underlyingAmountMax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "底层金额上限(分)"
+          }
+        }
+      },
+      "RaxResultListScfVoucherItemDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/ScfVoucherItemDto"
+            }
+          }
+        }
+      },
+      "ScfVoucherItemDto": {
+        "type": "object",
+        "description": "供应链金融凭证明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "凭证/订单/应收确认编号"
+          },
+          "voucherType": {
+            "type": "string",
+            "description": "凭证类型"
+          },
+          "coreCorpName": {
+            "type": "string",
+            "description": "核心企业名称"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "债务人/付款方"
+          },
+          "underlyingAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "底层金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "凭证/订单生成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/预计回款日"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "CreateScfVoucherItemDto": {
+        "type": "object",
+        "description": "创建供应链金融凭证明细DTO",
+        "properties": {
+          "voucherNo": {
+            "type": "string",
+            "description": "凭证/订单/应收确认编号"
+          },
+          "voucherType": {
+            "type": "string",
+            "description": "凭证类型"
+          },
+          "coreCorpName": {
+            "type": "string",
+            "description": "核心企业名称"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "债务人/付款方"
+          },
+          "underlyingAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "底层金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "凭证/订单生成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/预计回款日"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        }
+      },
+      "UpdateLoanParticipantDto": {
+        "type": "object",
+        "description": "更新银团参与行DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "role": {
+            "type": "string",
+            "description": "角色. 牵头行/代理行/参与行",
+            "minLength": 1
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "金融机构ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "机构名称",
+            "minLength": 1
+          },
+          "commitAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "承诺额度(分, 可空)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额比例(0~1, 可空)"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "institutionName",
+          "role"
+        ]
+      },
+      "CreateLoanParticipantDto": {
+        "type": "object",
+        "description": "CreateLoanParticipantDto",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "角色. 牵头行/代理行/参与行",
+            "minLength": 1
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "金融机构ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "机构名称",
+            "minLength": 1
+          },
+          "commitAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "承诺额度(分, 可空)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额比例(0~1, 可空)"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "institutionId",
+          "institutionName",
+          "role"
+        ]
+      },
+      "QueryLoanDto": {
+        "type": "object",
+        "description": "融资分页查询条件DTO",
+        "properties": {
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "当前页码",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页记录数",
+            "minimum": 1
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "loanCode": {
+            "type": "string",
+            "description": "融资编号"
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资主体ID"
+          },
+          "loanName": {
+            "type": "string",
+            "description": "融资名称"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "产品族"
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "资金方名称"
+          },
+          "rateMode": {
+            "type": "string",
+            "description": "利率方式"
+          },
+          "repayMethod": {
+            "type": "string",
+            "description": "还款方式"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "maturityDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "合同到期日开始"
+          },
+          "maturityDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "合同到期日结束"
+          },
+          "contractAmountMin": {
+            "type": "integer",
+            "format": "int64",
+            "description": "合同金额下限（分）"
+          },
+          "contractAmountMax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "合同金额上限（分）"
+          }
+        }
+      },
+      "FactoringArItemDto": {
+        "type": "object",
+        "description": "保理应收明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "invoiceNo": {
+            "type": "string",
+            "description": "发票号/应收编号"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "买方/债务人名称"
+          },
+          "arFaceAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "应收票面金额(分)"
+          },
+          "assignedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "转让/已融资金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开具/应收形成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "paidFlag": {
+            "type": "boolean",
+            "description": "是否已回款：0否 1是"
+          },
+          "paidDate": {
+            "type": "string",
+            "format": "date",
+            "description": "回款日期（如已回款）"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态（在途/已回购/已核销等）"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "FinLoanExtFieldValDto": {
+        "type": "object",
+        "description": "FinLoanExtFieldValDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "字段值ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "defId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "字段定义ID"
+          },
+          "fieldKey": {
+            "type": "string",
+            "description": "字段键，对应定义表的 field_key"
+          },
+          "fieldLabel": {
+            "type": "string",
+            "description": "字段显示名"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "字段数据类型"
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "isVisible": {
+            "type": "boolean",
+            "description": "是否可见"
+          },
+          "dictCode": {
+            "type": "string",
+            "description": "数据字典编码"
+          },
+          "fieldProductFamily": {
+            "type": "string",
+            "description": "字段所属产品族"
+          },
+          "fieldProductType": {
+            "type": "string",
+            "description": "字段所属产品类型"
+          },
+          "valueStr": {
+            "type": "string",
+            "description": "字段值-字符串"
+          },
+          "valueNum": {
+            "type": "number",
+            "description": "字段值-数字"
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "字段值-日期"
+          },
+          "valueDt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "字段值-日期时间"
+          },
+          "valueBool": {
+            "type": "boolean",
+            "description": "字段值-布尔"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          }
+        }
+      },
+      "FinLoanParticipantDto": {
+        "type": "object",
+        "description": "FinLoanParticipantDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "参与行ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "role": {
+            "type": "string",
+            "description": "角色. 牵头行/代理行/参与行"
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "金融机构ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "机构名称"
+          },
+          "commitAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "承诺额度(分, 可空)"
+          },
+          "sharePct": {
+            "type": "number",
+            "description": "份额比例(0~1, 可空)"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "LeasedAssetDto": {
+        "type": "object",
+        "description": "融资租赁租赁物DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "assetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "固定资产ID"
+          },
+          "assetCodeSnapshot": {
+            "type": "string",
+            "description": "资产编码快照"
+          },
+          "assetNameSnapshot": {
+            "type": "string",
+            "description": "资产名称快照"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "数量"
+          },
+          "unit": {
+            "type": "string",
+            "description": "计量单位"
+          },
+          "bookValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时账面价值(分)"
+          },
+          "appraisedValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时评估/认可价值(分)"
+          },
+          "serialNo": {
+            "type": "string",
+            "description": "序列号/车架号等"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "LoanCdWithMapDto": {
+        "type": "object",
+        "description": "存单及关联信息DTO",
+        "properties": {
+          "mapId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联映射ID"
+          },
+          "pledgeRatio": {
+            "type": "number",
+            "description": "质押比例(%)"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可/计价价值(分)"
+          },
+          "registrationNo": {
+            "type": "string",
+            "description": "抵/质押登记号"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "抵/质押登记日期"
+          },
+          "releaseDate": {
+            "type": "string",
+            "format": "date",
+            "description": "解押日期"
+          },
+          "mapStatus": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "记账凭证编号"
+          },
+          "mapRemark": {
+            "type": "string",
+            "description": "关联备注"
+          },
+          "cdId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "存单ID"
+          },
+          "cdNo": {
+            "type": "string",
+            "description": "存单编号/凭证号"
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开立银行id"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "开立银行名称"
+          },
+          "cardId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联银行账户id"
+          },
+          "cardNumber": {
+            "type": "string",
+            "description": "关联银行账户卡号"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "principalAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本金(分)"
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "名义利率(%)"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息规则"
+          },
+          "interestPayFreq": {
+            "type": "string",
+            "description": "付息频率"
+          },
+          "compoundFlag": {
+            "type": "boolean",
+            "description": "是否复利"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "起息/开立日"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限(月)"
+          },
+          "autoRenewFlag": {
+            "type": "boolean",
+            "description": "是否自动续存"
+          },
+          "rolloverCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "续存次数"
+          },
+          "certificateHolder": {
+            "type": "string",
+            "description": "存单持有人/名义户"
+          },
+          "freezeFlag": {
+            "type": "boolean",
+            "description": "是否处于冻结/质押状态"
+          },
+          "cdStatus": {
+            "type": "string",
+            "description": "存单状态"
+          },
+          "cdRemark": {
+            "type": "string",
+            "description": "存单备注"
+          }
+        }
+      },
+      "LoanDto": {
+        "type": "object",
+        "description": "融资查询响应DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资ID"
+          },
+          "loanCode": {
+            "type": "string",
+            "description": "融资编号"
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资主体ID"
+          },
+          "orgName": {
+            "type": "string",
+            "description": "融资主体名称"
+          },
+          "orgNameAbbr": {
+            "type": "string",
+            "description": "融资主体简称"
+          },
+          "loanName": {
+            "type": "string",
+            "description": "融资名称"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "产品族"
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型"
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "资金方ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "资金方名称"
+          },
+          "contractAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "合同金额(分)"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "isMultiDisb": {
+            "type": "boolean",
+            "description": "是否多次放款"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限(月)"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "合同到期日"
+          },
+          "rateMode": {
+            "type": "string",
+            "description": "利率方式"
+          },
+          "fixedRate": {
+            "type": "number",
+            "description": "固定利率"
+          },
+          "baseRate": {
+            "type": "number",
+            "description": "基准利率/票面利率"
+          },
+          "spreadBp": {
+            "type": "number",
+            "description": "加点(BP)"
+          },
+          "rateResetCycle": {
+            "type": "string",
+            "description": "重定价周期"
+          },
+          "rateResetAnchorDate": {
+            "type": "string",
+            "format": "date",
+            "description": "重定价锚定日"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息日规则"
+          },
+          "repayMethod": {
+            "type": "string",
+            "description": "还款方式"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "修改时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "修改人"
+          },
+          "extFieldValList": {
+            "type": "array",
+            "description": "扩展字段值列表",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanExtFieldValDto"
+            }
+          },
+          "participantList": {
+            "type": "array",
+            "description": "银团参与行列表",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanParticipantDto"
+            }
+          },
+          "cdList": {
+            "type": "array",
+            "description": "存单关联列表",
+            "items": {
+              "$ref": "#/components/schemas/LoanCdWithMapDto"
+            }
+          },
+          "lcList": {
+            "type": "array",
+            "description": "信用证关联列表",
+            "items": {
+              "$ref": "#/components/schemas/LoanLcWithMapDto"
+            }
+          },
+          "arItemList": {
+            "type": "array",
+            "description": "保理应收款明细列表",
+            "items": {
+              "$ref": "#/components/schemas/FactoringArItemDto"
+            }
+          },
+          "leasedAssetList": {
+            "type": "array",
+            "description": "融资租赁资产列表",
+            "items": {
+              "$ref": "#/components/schemas/LeasedAssetDto"
+            }
+          },
+          "voucherItemList": {
+            "type": "array",
+            "description": "供应链金融凭证列表",
+            "items": {
+              "$ref": "#/components/schemas/ScfVoucherItemDto"
+            }
+          },
+          "trancheList": {
+            "type": "array",
+            "description": "信托分层信息列表",
+            "items": {
+              "$ref": "#/components/schemas/TrustTrancheDto"
+            }
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "LoanLcWithMapDto": {
+        "type": "object",
+        "description": "信用证及关联信息DTO",
+        "properties": {
+          "mapId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联映射ID"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可金额(分)"
+          },
+          "marginLockedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下实际冻结/占用的保证金金额(分)"
+          },
+          "allocationNote": {
+            "type": "string",
+            "description": "本贷款下的用途/分配说明"
+          },
+          "mapStatus": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "mapRemark": {
+            "type": "string",
+            "description": "关联备注"
+          },
+          "lcId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证ID"
+          },
+          "lcNo": {
+            "type": "string",
+            "description": "信用证编号"
+          },
+          "lcType": {
+            "type": "string",
+            "description": "信用证类型"
+          },
+          "issuingBank": {
+            "type": "string",
+            "description": "开证行名称"
+          },
+          "issuingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开证行ID"
+          },
+          "advisingBank": {
+            "type": "string",
+            "description": "通知行/保兑行名称"
+          },
+          "advisingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "通知/保兑行ID"
+          },
+          "confirmFlag": {
+            "type": "boolean",
+            "description": "是否保兑LC"
+          },
+          "applicant": {
+            "type": "string",
+            "description": "申请人"
+          },
+          "beneficiary": {
+            "type": "string",
+            "description": "受益人"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "lcAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证金额(分)"
+          },
+          "tolerancePct": {
+            "type": "number",
+            "description": "金额容差(%)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/有效期止"
+          },
+          "placeOfExpiry": {
+            "type": "string",
+            "description": "到期地点"
+          },
+          "availableBy": {
+            "type": "string",
+            "description": "可用方式"
+          },
+          "shipmentFrom": {
+            "type": "string",
+            "description": "装运港/起运地"
+          },
+          "shipmentTo": {
+            "type": "string",
+            "description": "卸货港/目的地"
+          },
+          "latestShipment": {
+            "type": "string",
+            "format": "date",
+            "description": "最迟装运期"
+          },
+          "incoterm": {
+            "type": "string",
+            "description": "贸易术语"
+          },
+          "presentationDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "交单期限(天)"
+          },
+          "partialShipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许分批装运"
+          },
+          "transshipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许转运"
+          },
+          "marginRatio": {
+            "type": "number",
+            "description": "保证金比例(%)"
+          },
+          "marginAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "保证金金额(分)"
+          },
+          "commissionRate": {
+            "type": "number",
+            "description": "开证费率(%)"
+          },
+          "advisingChargeBorneBy": {
+            "type": "string",
+            "description": "通知费承担方"
+          },
+          "ucpVersion": {
+            "type": "string",
+            "description": "适用规则版本"
+          },
+          "lcStatus": {
+            "type": "string",
+            "description": "信用证状态"
+          },
+          "lcRemark": {
+            "type": "string",
+            "description": "信用证备注"
+          }
+        }
+      },
+      "PageResultLoanDto": {
+        "type": "object",
+        "description": "PageResult",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LoanDto"
+            }
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求页码"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求当页数据量"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "数据总量"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "RaxResultPageResultLoanDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultLoanDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "UpdateLeasedAssetDto": {
+        "type": "object",
+        "description": "更新融资租赁租赁物DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "assetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "固定资产ID"
+          },
+          "assetCodeSnapshot": {
+            "type": "string",
+            "description": "资产编码快照"
+          },
+          "assetNameSnapshot": {
+            "type": "string",
+            "description": "资产名称快照"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "数量"
+          },
+          "unit": {
+            "type": "string",
+            "description": "计量单位"
+          },
+          "bookValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时账面价值(分)"
+          },
+          "appraisedValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时评估/认可价值(分)"
+          },
+          "serialNo": {
+            "type": "string",
+            "description": "序列号/车架号等"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "QueryLeasedAssetDto": {
+        "type": "object",
+        "description": "融资租赁租赁物查询条件DTO",
+        "properties": {
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "assetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "固定资产ID"
+          },
+          "assetCodeSnapshot": {
+            "type": "string",
+            "description": "资产编码"
+          },
+          "assetNameSnapshot": {
+            "type": "string",
+            "description": "资产名称"
+          },
+          "serialNo": {
+            "type": "string",
+            "description": "序列号/车架号"
+          },
+          "unit": {
+            "type": "string",
+            "description": "计量单位"
+          },
+          "bookValueAtLeaseMin": {
+            "type": "integer",
+            "format": "int64",
+            "description": "账面价值下限(分)"
+          },
+          "bookValueAtLeaseMax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "账面价值上限(分)"
+          }
+        }
+      },
+      "RaxResultListLeasedAssetDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LeasedAssetDto"
+            }
+          }
+        }
+      },
+      "CreateLeasedAssetDto": {
+        "type": "object",
+        "description": "创建融资租赁租赁物DTO",
+        "properties": {
+          "assetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "固定资产ID"
+          },
+          "assetCodeSnapshot": {
+            "type": "string",
+            "description": "资产编码快照"
+          },
+          "assetNameSnapshot": {
+            "type": "string",
+            "description": "资产名称快照"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "数量"
+          },
+          "unit": {
+            "type": "string",
+            "description": "计量单位"
+          },
+          "bookValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时账面价值(分)"
+          },
+          "appraisedValueAtLease": {
+            "type": "integer",
+            "format": "int64",
+            "description": "签约时评估/认可价值(分)"
+          },
+          "serialNo": {
+            "type": "string",
+            "description": "序列号/车架号等"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        }
+      },
+      "UpdateFactoringArItemDto": {
+        "type": "object",
+        "description": "更新保理应收明细DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "invoiceNo": {
+            "type": "string",
+            "description": "发票号/应收编号",
+            "minLength": 1
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "买方/债务人名称",
+            "minLength": 1
+          },
+          "arFaceAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "应收票面金额(分)"
+          },
+          "assignedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "转让/已融资金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开具/应收形成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "paidFlag": {
+            "type": "boolean",
+            "description": "是否已回款：0否 1是"
+          },
+          "paidDate": {
+            "type": "string",
+            "format": "date",
+            "description": "回款日期（如已回款）"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态（在途/已回购/已核销等）"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "attachmentOperations": {
+            "type": "array",
+            "description": "附件操作列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "arFaceAmount",
+          "debtorName",
+          "dueDate",
+          "id",
+          "invoiceNo",
+          "issueDate"
+        ]
+      },
+      "QueryFactoringArItemDto": {
+        "type": "object",
+        "description": "保理应收明细查询条件DTO",
+        "properties": {
+          "loanId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联贷款ID"
+          },
+          "invoiceNo": {
+            "type": "string",
+            "description": "发票号/应收编号"
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "买方/债务人名称"
+          },
+          "paidFlag": {
+            "type": "boolean",
+            "description": "是否已回款"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "issueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "开具日期开始"
+          },
+          "issueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "开具日期结束"
+          },
+          "dueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日开始"
+          },
+          "dueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日结束"
+          }
+        }
+      },
+      "RaxResultListFactoringArItemDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/FactoringArItemDto"
+            }
+          }
+        }
+      },
+      "CreateFactoringArItemDto": {
+        "type": "object",
+        "description": "创建保理应收明细DTO",
+        "properties": {
+          "invoiceNo": {
+            "type": "string",
+            "description": "发票号/应收编号",
+            "minLength": 1
+          },
+          "debtorName": {
+            "type": "string",
+            "description": "买方/债务人名称",
+            "minLength": 1
+          },
+          "arFaceAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "应收票面金额(分)"
+          },
+          "assignedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "转让/已融资金额(分)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开具/应收形成日期"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "paidFlag": {
+            "type": "boolean",
+            "description": "是否已回款：0否 1是"
+          },
+          "paidDate": {
+            "type": "string",
+            "format": "date",
+            "description": "回款日期（如已回款）"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态（在途/已回购/已核销等）"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "arFaceAmount",
+          "debtorName",
+          "dueDate",
+          "invoiceNo",
+          "issueDate"
+        ]
+      },
+      "UpdateFinLoanExtFieldDefDto": {
+        "type": "object",
+        "description": "UpdateFinLoanExtFieldDefDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "字段定义ID"
+          },
+          "fieldKey": {
+            "type": "string",
+            "description": "字段唯一键",
+            "minLength": 1
+          },
+          "fieldLabel": {
+            "type": "string",
+            "description": "字段显示名",
+            "minLength": 1
+          },
+          "dataType": {
+            "type": "string",
+            "description": "字段数据类型",
+            "minLength": 1
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "isVisible": {
+            "type": "boolean",
+            "description": "是否可见"
+          },
+          "dictCode": {
+            "type": "string",
+            "description": "数据字典编码"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "dataType",
+          "fieldKey",
+          "fieldLabel",
+          "id"
+        ]
+      },
+      "CreateFinLoanExtFieldDefDto": {
+        "type": "object",
+        "description": "CreateFinLoanExtFieldDefDto",
+        "properties": {
+          "configId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资类型配置ID"
+          },
+          "fieldKey": {
+            "type": "string",
+            "description": "字段唯一键",
+            "minLength": 1
+          },
+          "fieldLabel": {
+            "type": "string",
+            "description": "字段显示名",
+            "minLength": 1
+          },
+          "dataType": {
+            "type": "string",
+            "description": "字段数据类型",
+            "minLength": 1
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "isVisible": {
+            "type": "boolean",
+            "description": "是否可见"
+          },
+          "dictCode": {
+            "type": "string",
+            "description": "数据字典编码"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "configId",
+          "dataType",
+          "fieldKey",
+          "fieldLabel"
+        ]
+      },
+      "UpdateFinLoanExtFieldConfigDto": {
+        "type": "object",
+        "description": "更新融资扩展字段配置DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "配置ID"
+          },
+          "description": {
+            "type": "string",
+            "description": "类型描述"
+          },
+          "orderNo": {
+            "type": "integer",
+            "format": "int32",
+            "description": "排序号"
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "是否启用"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "CreateFinLoanExtFieldConfigDto": {
+        "type": "object",
+        "description": "创建融资扩展字段配置DTO",
+        "properties": {
+          "productFamily": {
+            "type": "string",
+            "description": "产品族",
+            "minLength": 1
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "类型描述"
+          },
+          "orderNo": {
+            "type": "integer",
+            "format": "int32",
+            "description": "排序号"
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "是否启用"
+          }
+        },
+        "required": [
+          "productFamily",
+          "productType"
+        ]
+      },
+      "CreateLoanCdDto": {
+        "type": "object",
+        "description": "创建存单DTO",
+        "properties": {
+          "cdNo": {
+            "type": "string",
+            "description": "存单编号/凭证号",
+            "minLength": 1
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开立银行id"
+          },
+          "cardId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联银行账户id"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种",
+            "minLength": 1
+          },
+          "principalAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本金(分)"
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "名义利率(%)"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息规则"
+          },
+          "interestPayFreq": {
+            "type": "string",
+            "description": "付息频率"
+          },
+          "compoundFlag": {
+            "type": "boolean",
+            "description": "是否复利"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "起息/开立日"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限(月)"
+          },
+          "autoRenewFlag": {
+            "type": "boolean",
+            "description": "是否自动续存"
+          },
+          "rolloverCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "续存次数"
+          },
+          "certificateHolder": {
+            "type": "string",
+            "description": "存单持有人/名义户"
+          },
+          "freezeFlag": {
+            "type": "boolean",
+            "description": "是否处于冻结/质押状态"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "bankId",
+          "cdNo",
+          "currency",
+          "issueDate",
+          "maturityDate",
+          "principalAmount"
+        ]
+      },
+      "CreateLoanCdMapDto": {
+        "type": "object",
+        "description": "创建贷款-存单关联DTO",
+        "properties": {
+          "cdId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "存单ID（引用已有存单时填写，与newCd二选一）"
+          },
+          "newCd": {
+            "$ref": "#/components/schemas/CreateLoanCdDto",
+            "description": "新建存单信息（创建新存单时填写，与cdId二选一）"
+          },
+          "pledgeRatio": {
+            "type": "number",
+            "description": "质押比例(%)"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可/计价价值(分)"
+          },
+          "registrationNo": {
+            "type": "string",
+            "description": "抵/质押登记号"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "抵/质押登记日期"
+          },
+          "releaseDate": {
+            "type": "string",
+            "format": "date",
+            "description": "解押日期"
+          },
+          "status": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "记账凭证编号"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      },
+      "CreateLoanDto": {
+        "type": "object",
+        "description": "CreateLoanDto",
+        "properties": {
+          "orgId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "融资主体ID"
+          },
+          "loanName": {
+            "type": "string",
+            "description": "融资名称",
+            "minLength": 1
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "产品族",
+            "minLength": 1
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型",
+            "minLength": 1
+          },
+          "institutionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "资金方ID"
+          },
+          "institutionName": {
+            "type": "string",
+            "description": "资金方名称",
+            "minLength": 1
+          },
+          "contractAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "合同金额"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "isMultiDisb": {
+            "type": "boolean",
+            "description": "是否多次放款"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "合同到期日"
+          },
+          "rateMode": {
+            "type": "string",
+            "description": "利率方式",
+            "minLength": 1
+          },
+          "fixedRate": {
+            "type": "number",
+            "description": "固定利率"
+          },
+          "baseRate": {
+            "type": "number",
+            "description": "基准利率/票面利率"
+          },
+          "spreadBp": {
+            "type": "number",
+            "description": "加点"
+          },
+          "rateResetCycle": {
+            "type": "string",
+            "description": "重定价周期"
+          },
+          "rateResetAnchorDate": {
+            "type": "string",
+            "format": "date",
+            "description": "重定价锚定日"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息日规则"
+          },
+          "repayMethod": {
+            "type": "string",
+            "description": "还款方式",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "在管/结清/违约/作废",
+            "minLength": 1
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "extFieldValList": {
+            "type": "array",
+            "description": "扩展字段值列表",
+            "items": {
+              "$ref": "#/components/schemas/CreateFinLoanExtFieldValDto"
+            }
+          },
+          "relatedData": {
+            "$ref": "#/components/schemas/LoanRelatedData",
+            "description": "关联数据包装器"
+          },
+          "fileAttachments": {
+            "type": "array",
+            "description": "文件附件列表",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOperationDto"
+            }
+          }
+        },
+        "required": [
+          "contractAmount",
+          "institutionId",
+          "institutionName",
+          "loanName",
+          "maturityDate",
+          "orgId",
+          "productFamily",
+          "productType",
+          "rateMode",
+          "repayMethod",
+          "status",
+          "termMonths"
+        ]
+      },
+      "CreateLoanLcDto": {
+        "type": "object",
+        "description": "创建信用证DTO",
+        "properties": {
+          "lcNo": {
+            "type": "string",
+            "description": "信用证编号",
+            "minLength": 1
+          },
+          "lcType": {
+            "type": "string",
+            "description": "信用证类型"
+          },
+          "issuingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开证行ID"
+          },
+          "advisingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "通知/保兑行ID"
+          },
+          "confirmFlag": {
+            "type": "boolean",
+            "description": "是否保兑LC"
+          },
+          "applicant": {
+            "type": "string",
+            "description": "申请人"
+          },
+          "beneficiary": {
+            "type": "string",
+            "description": "受益人"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种",
+            "minLength": 1
+          },
+          "lcAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证金额(分)"
+          },
+          "tolerancePct": {
+            "type": "number",
+            "description": "金额容差(%)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/有效期止"
+          },
+          "placeOfExpiry": {
+            "type": "string",
+            "description": "到期地点"
+          },
+          "availableBy": {
+            "type": "string",
+            "description": "可用方式"
+          },
+          "shipmentFrom": {
+            "type": "string",
+            "description": "装运港/起运地"
+          },
+          "shipmentTo": {
+            "type": "string",
+            "description": "卸货港/目的地"
+          },
+          "latestShipment": {
+            "type": "string",
+            "format": "date",
+            "description": "最迟装运期"
+          },
+          "incoterm": {
+            "type": "string",
+            "description": "贸易术语"
+          },
+          "presentationDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "交单期限(天)"
+          },
+          "partialShipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许分批装运"
+          },
+          "transshipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许转运"
+          },
+          "marginRatio": {
+            "type": "number",
+            "description": "保证金比例(%)"
+          },
+          "marginAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "保证金金额(分)"
+          },
+          "commissionRate": {
+            "type": "number",
+            "description": "开证费率(%)"
+          },
+          "advisingChargeBorneBy": {
+            "type": "string",
+            "description": "通知费承担方"
+          },
+          "ucpVersion": {
+            "type": "string",
+            "description": "适用规则版本"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "currency",
+          "expiryDate",
+          "issueDate",
+          "issuingBankId",
+          "lcAmount",
+          "lcNo"
+        ]
+      },
+      "CreateLoanLcMapDto": {
+        "type": "object",
+        "description": "创建贷款-信用证关联DTO",
+        "properties": {
+          "lcId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证ID（引用已有信用证时填写，与newLc二选一）"
+          },
+          "newLc": {
+            "$ref": "#/components/schemas/CreateLoanLcDto",
+            "description": "新建信用证信息（创建新信用证时填写，与lcId二选一）"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可金额(分)"
+          },
+          "marginLockedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下实际冻结/占用的保证金金额(分)"
+          },
+          "allocationNote": {
+            "type": "string",
+            "description": "本贷款下的用途/分配说明"
+          },
+          "status": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      },
+      "LoanRelatedData": {
+        "type": "object",
+        "description": "融资关联数据包装器",
+        "properties": {
+          "participantList": {
+            "type": "array",
+            "description": "银团参与行列表（银团贷款）",
+            "items": {
+              "$ref": "#/components/schemas/CreateLoanParticipantDto"
+            }
+          },
+          "cdMapList": {
+            "type": "array",
+            "description": "存单关联列表（存单质押）",
+            "items": {
+              "$ref": "#/components/schemas/CreateLoanCdMapDto"
+            }
+          },
+          "lcMapList": {
+            "type": "array",
+            "description": "信用证关联列表",
+            "items": {
+              "$ref": "#/components/schemas/CreateLoanLcMapDto"
+            }
+          },
+          "arItemList": {
+            "type": "array",
+            "description": "应收款明细列表（保理）",
+            "items": {
+              "$ref": "#/components/schemas/CreateFactoringArItemDto"
+            }
+          },
+          "leasedAssetList": {
+            "type": "array",
+            "description": "租赁资产列表（融资租赁）",
+            "items": {
+              "$ref": "#/components/schemas/CreateLeasedAssetDto"
+            }
+          },
+          "voucherItemList": {
+            "type": "array",
+            "description": "凭证明细列表（供应链金融）",
+            "items": {
+              "$ref": "#/components/schemas/CreateScfVoucherItemDto"
+            }
+          },
+          "trancheList": {
+            "type": "array",
+            "description": "分层信息列表（信托/ABS）",
+            "items": {
+              "$ref": "#/components/schemas/CreateTrustTrancheDto"
+            }
+          }
+        }
+      },
+      "UpdateLoanLcDto": {
+        "type": "object",
+        "description": "更新信用证DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "lcNo": {
+            "type": "string",
+            "description": "信用证编号"
+          },
+          "lcType": {
+            "type": "string",
+            "description": "信用证类型"
+          },
+          "issuingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开证行ID"
+          },
+          "advisingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "通知/保兑行ID"
+          },
+          "confirmFlag": {
+            "type": "boolean",
+            "description": "是否保兑LC"
+          },
+          "applicant": {
+            "type": "string",
+            "description": "申请人"
+          },
+          "beneficiary": {
+            "type": "string",
+            "description": "受益人"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "lcAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证金额(分)"
+          },
+          "tolerancePct": {
+            "type": "number",
+            "description": "金额容差(%)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/有效期止"
+          },
+          "placeOfExpiry": {
+            "type": "string",
+            "description": "到期地点"
+          },
+          "availableBy": {
+            "type": "string",
+            "description": "可用方式"
+          },
+          "shipmentFrom": {
+            "type": "string",
+            "description": "装运港/起运地"
+          },
+          "shipmentTo": {
+            "type": "string",
+            "description": "卸货港/目的地"
+          },
+          "latestShipment": {
+            "type": "string",
+            "format": "date",
+            "description": "最迟装运期"
+          },
+          "incoterm": {
+            "type": "string",
+            "description": "贸易术语"
+          },
+          "presentationDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "交单期限(天)"
+          },
+          "partialShipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许分批装运"
+          },
+          "transshipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许转运"
+          },
+          "marginRatio": {
+            "type": "number",
+            "description": "保证金比例(%)"
+          },
+          "marginAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "保证金金额(分)"
+          },
+          "commissionRate": {
+            "type": "number",
+            "description": "开证费率(%)"
+          },
+          "advisingChargeBorneBy": {
+            "type": "string",
+            "description": "通知费承担方"
+          },
+          "ucpVersion": {
+            "type": "string",
+            "description": "适用规则版本"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "QueryLoanLcDto": {
+        "type": "object",
+        "description": "查询信用证DTO",
+        "properties": {
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "当前页码",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页记录数",
+            "minimum": 1
+          },
+          "lcNo": {
+            "type": "string",
+            "description": "信用证编号"
+          },
+          "lcType": {
+            "type": "string",
+            "description": "信用证类型"
+          },
+          "issuingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开证行ID"
+          },
+          "issuingBank": {
+            "type": "string",
+            "description": "开证行名称"
+          },
+          "advisingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "通知/保兑行ID"
+          },
+          "applicant": {
+            "type": "string",
+            "description": "申请人"
+          },
+          "beneficiary": {
+            "type": "string",
+            "description": "受益人"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "issueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期开始"
+          },
+          "issueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期结束"
+          },
+          "expiryDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日开始"
+          },
+          "expiryDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日结束"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          }
+        }
+      },
+      "LoanLcDto": {
+        "type": "object",
+        "description": "信用证DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "lcNo": {
+            "type": "string",
+            "description": "信用证编号"
+          },
+          "lcType": {
+            "type": "string",
+            "description": "信用证类型"
+          },
+          "issuingBank": {
+            "type": "string",
+            "description": "开证行名称"
+          },
+          "issuingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开证行ID"
+          },
+          "advisingBank": {
+            "type": "string",
+            "description": "通知行/保兑行名称"
+          },
+          "advisingBankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "通知/保兑行ID"
+          },
+          "confirmFlag": {
+            "type": "boolean",
+            "description": "是否保兑LC"
+          },
+          "applicant": {
+            "type": "string",
+            "description": "申请人"
+          },
+          "beneficiary": {
+            "type": "string",
+            "description": "受益人"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "lcAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "信用证金额(分)"
+          },
+          "tolerancePct": {
+            "type": "number",
+            "description": "金额容差(%)"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "开证日期"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日/有效期止"
+          },
+          "placeOfExpiry": {
+            "type": "string",
+            "description": "到期地点"
+          },
+          "availableBy": {
+            "type": "string",
+            "description": "可用方式"
+          },
+          "shipmentFrom": {
+            "type": "string",
+            "description": "装运港/起运地"
+          },
+          "shipmentTo": {
+            "type": "string",
+            "description": "卸货港/目的地"
+          },
+          "latestShipment": {
+            "type": "string",
+            "format": "date",
+            "description": "最迟装运期"
+          },
+          "incoterm": {
+            "type": "string",
+            "description": "贸易术语"
+          },
+          "presentationDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "交单期限(天)"
+          },
+          "partialShipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许分批装运"
+          },
+          "transshipmentAllowed": {
+            "type": "boolean",
+            "description": "是否允许转运"
+          },
+          "marginRatio": {
+            "type": "number",
+            "description": "保证金比例(%)"
+          },
+          "marginAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "保证金金额(分)"
+          },
+          "commissionRate": {
+            "type": "number",
+            "description": "开证费率(%)"
+          },
+          "advisingChargeBorneBy": {
+            "type": "string",
+            "description": "通知费承担方"
+          },
+          "ucpVersion": {
+            "type": "string",
+            "description": "适用规则版本"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          }
+        }
+      },
+      "PageResultLoanLcDto": {
+        "type": "object",
+        "description": "PageResult",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LoanLcDto"
+            }
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求页码"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求当页数据量"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "数据总量"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "RaxResultPageResultLoanLcDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultLoanLcDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "UpdateLoanLcMapDto": {
+        "type": "object",
+        "description": "更新贷款-信用证关联DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可金额(分)"
+          },
+          "marginLockedAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下实际冻结/占用的保证金金额(分)"
+          },
+          "allocationNote": {
+            "type": "string",
+            "description": "本贷款下的用途/分配说明"
+          },
+          "status": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UpdateLoanCdDto": {
+        "type": "object",
+        "description": "更新存单DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "cdNo": {
+            "type": "string",
+            "description": "存单编号/凭证号",
+            "minLength": 1
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开立银行id"
+          },
+          "cardId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联银行账户id"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种",
+            "minLength": 1
+          },
+          "principalAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本金(分)"
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "名义利率(%)"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息规则"
+          },
+          "interestPayFreq": {
+            "type": "string",
+            "description": "付息频率"
+          },
+          "compoundFlag": {
+            "type": "boolean",
+            "description": "是否复利"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "起息/开立日"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限(月)"
+          },
+          "autoRenewFlag": {
+            "type": "boolean",
+            "description": "是否自动续存"
+          },
+          "rolloverCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "续存次数"
+          },
+          "certificateHolder": {
+            "type": "string",
+            "description": "存单持有人/名义户"
+          },
+          "freezeFlag": {
+            "type": "boolean",
+            "description": "是否处于冻结/质押状态"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "bankId",
+          "cdNo",
+          "currency",
+          "id",
+          "issueDate",
+          "maturityDate",
+          "principalAmount"
+        ]
+      },
+      "QueryLoanCdDto": {
+        "type": "object",
+        "description": "查询存单DTO",
+        "properties": {
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "当前页码",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页记录数",
+            "minimum": 1
+          },
+          "cdNo": {
+            "type": "string",
+            "description": "存单编号/凭证号"
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开立银行id"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "开立银行名称"
+          },
+          "cardId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联银行账户id"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "issueDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "起息日开始"
+          },
+          "issueDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "起息日结束"
+          },
+          "maturityDateStart": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日开始"
+          },
+          "maturityDateEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日结束"
+          },
+          "freezeFlag": {
+            "type": "boolean",
+            "description": "是否处于冻结/质押状态"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          }
+        }
+      },
+      "LoanCdDto": {
+        "type": "object",
+        "description": "存单DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "cdNo": {
+            "type": "string",
+            "description": "存单编号/凭证号"
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "开立银行id"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "开立银行名称"
+          },
+          "cardId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "关联银行账户id"
+          },
+          "cardNumber": {
+            "type": "string",
+            "description": "关联银行账户卡号"
+          },
+          "currency": {
+            "type": "string",
+            "description": "币种"
+          },
+          "principalAmount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本金(分)"
+          },
+          "interestRate": {
+            "type": "number",
+            "description": "名义利率(%)"
+          },
+          "dayCountConvention": {
+            "type": "string",
+            "description": "计息规则"
+          },
+          "interestPayFreq": {
+            "type": "string",
+            "description": "付息频率"
+          },
+          "compoundFlag": {
+            "type": "boolean",
+            "description": "是否复利"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "起息/开立日"
+          },
+          "maturityDate": {
+            "type": "string",
+            "format": "date",
+            "description": "到期日"
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "description": "期限(月)"
+          },
+          "autoRenewFlag": {
+            "type": "boolean",
+            "description": "是否自动续存"
+          },
+          "rolloverCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "续存次数"
+          },
+          "certificateHolder": {
+            "type": "string",
+            "description": "存单持有人/名义户"
+          },
+          "freezeFlag": {
+            "type": "boolean",
+            "description": "是否处于冻结/质押状态"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "更新人"
+          }
+        }
+      },
+      "PageResultLoanCdDto": {
+        "type": "object",
+        "description": "PageResult",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LoanCdDto"
+            }
+          },
+          "pageNo": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求页码"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "请求当页数据量"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "数据总量"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "RaxResultPageResultLoanCdDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultLoanCdDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "UpdateLoanCdMapDto": {
+        "type": "object",
+        "description": "更新贷款-存单关联DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键ID"
+          },
+          "pledgeRatio": {
+            "type": "number",
+            "description": "质押比例(%)"
+          },
+          "securedValue": {
+            "type": "integer",
+            "format": "int64",
+            "description": "本贷款下的认可/计价价值(分)"
+          },
+          "registrationNo": {
+            "type": "string",
+            "description": "抵/质押登记号"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "抵/质押登记日期"
+          },
+          "releaseDate": {
+            "type": "string",
+            "format": "date",
+            "description": "解押日期"
+          },
+          "status": {
+            "type": "string",
+            "description": "关联状态"
+          },
+          "voucherNo": {
+            "type": "string",
+            "description": "记账凭证编号"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "RaxResultTrustTrancheDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TrustTrancheDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultScfVoucherItemDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ScfVoucherItemDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultListFinLoanParticipantDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanParticipantDto"
+            }
+          }
+        }
+      },
+      "RaxResultFinLoanParticipantDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinLoanParticipantDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultLeasedAssetDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LeasedAssetDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultLoanDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoanDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultFactoringArItemDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FactoringArItemDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultListFinLoanExtFieldValDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanExtFieldValDto"
+            }
+          }
+        }
+      },
+      "FinLoanExtFieldDefDto": {
+        "type": "object",
+        "description": "FinLoanExtFieldDefDto",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "configId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "productType": {
+            "type": "string"
+          },
+          "fieldKey": {
+            "type": "string"
+          },
+          "fieldLabel": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string"
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isVisible": {
+            "type": "boolean"
+          },
+          "dictCode": {
+            "type": "string"
+          },
+          "remark": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createBy": {
+            "type": "string"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateBy": {
+            "type": "string"
+          }
+        }
+      },
+      "RaxResultListFinLoanExtFieldDefDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanExtFieldDefDto"
+            }
+          }
+        }
+      },
+      "RaxResultFinLoanExtFieldDefDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinLoanExtFieldDefDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "FinLoanExtFieldConfigDto": {
+        "type": "object",
+        "description": "融资扩展字段配置DTO",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "配置ID"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "产品族"
+          },
+          "productType": {
+            "type": "string",
+            "description": "产品类型"
+          },
+          "description": {
+            "type": "string",
+            "description": "类型描述"
+          },
+          "orderNo": {
+            "type": "integer",
+            "format": "int32",
+            "description": "排序号"
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "是否启用"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "createBy": {
+            "type": "string",
+            "description": "创建人"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "修改时间"
+          },
+          "updateBy": {
+            "type": "string",
+            "description": "修改人"
+          }
+        }
+      },
+      "RaxResultListFinLoanExtFieldConfigDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/FinLoanExtFieldConfigDto"
+            }
+          }
+        }
+      },
+      "RaxResultFinLoanExtFieldConfigDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FinLoanExtFieldConfigDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultListString": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RaxResultListLoanLcWithMapDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LoanLcWithMapDto"
+            }
+          }
+        }
+      },
+      "RaxResultLoanLcDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoanLcDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultListLoanCdWithMapDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/LoanCdWithMapDto"
+            }
+          }
+        }
+      },
+      "RaxResultLoanCdDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoanCdDto",
+            "description": "请求数据"
+          }
+        }
+      },
+      "RaxResultListSysAttachmentDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "type": "array",
+            "description": "请求数据",
+            "items": {
+              "$ref": "#/components/schemas/SysAttachmentDto"
+            }
+          }
+        }
+      },
+      "RaxResultSysAttachmentDto": {
+        "type": "object",
+        "description": "RaxResult",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "请求失败信息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SysAttachmentDto",
+            "description": "请求数据"
+          }
+        }
+      }
+    }
+  }
+}

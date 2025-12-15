@@ -21,18 +21,25 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { loanApi } from '@/services/loan';
+import { loanExtFieldApi } from '@/services/loanExtField';
 import type {
   CreateLoanDto,
   UpdateLoanDto,
   LoanRelatedData,
-  UploadedAttachmentDto,
-  FinInstitutionDto
+  AttachmentOperationDto,
+  FinInstitutionDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
 import OrgSelect from '@/components/OrgSelect';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
+import {
+  ExtFieldFormItems,
+  formValuesToExtFieldValList,
+  extFieldValListToFormValues
+} from '@/components/ExtFieldRenderer';
 
 // 融资类型与子表单组件的映射
 import ParticipantForm from './components/ParticipantForm';
@@ -61,9 +68,10 @@ const ExistingForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
+  const loanId = id ? Number(id) : undefined;
   const [form] = Form.useForm();
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [selectedInstitution, setSelectedInstitution] = useState<FinInstitutionDto | null>(null);
+  const [originalFiles, setOriginalFiles] = useState<SysAttachmentDto[]>([]); // 原始附件列表，用于计算附件操作
   const [relatedData, setRelatedData] = useState<LoanRelatedData>({});
 
   // 监听融资类型变化
@@ -77,6 +85,23 @@ const ExistingForm: React.FC = () => {
     const typeCode = Array.isArray(productType) ? productType[1] : productType;
     return PRODUCT_TYPE_COMPONENT_MAP[typeCode] || null;
   }, [productType]);
+
+  // 获取扩展字段定义（根据产品类型）
+  const { data: extFieldDefsData } = useQuery({
+    queryKey: ['extFieldDefs', productType],
+    queryFn: async () => {
+      if (!productType) return [];
+      const [family, type] = Array.isArray(productType) ? productType : [productType, productType];
+      const result = await loanExtFieldApi.getDefListByProduct(family, type);
+      if (result.success) {
+        return result.data;
+      }
+      return [];
+    },
+    enabled: !!productType
+  });
+
+  const extFieldDefs = extFieldDefsData || [];
 
   // 获取融资详情（编辑模式）
   const { data: loanDetail, isLoading: detailLoading } = useQuery({
@@ -129,10 +154,19 @@ const ExistingForm: React.FC = () => {
         // 金额转换（分 -> 万元）
         contractAmount: loanDetail.contractAmount ? loanDetail.contractAmount / 1000000 : undefined,
       };
+
+      // 回填扩展字段值
+      if (loanDetail.extFieldValList && loanDetail.extFieldValList.length > 0) {
+        const extFieldValues = extFieldValListToFormValues(loanDetail.extFieldValList);
+        Object.assign(formData, extFieldValues);
+      }
+
       form.setFieldsValue(formData);
 
       // 设置附件
       if (loanDetail.fileAttachments) {
+        // 保存原始附件列表，用于编辑时计算附件操作
+        setOriginalFiles(loanDetail.fileAttachments);
         setFiles(loanDetail.fileAttachments.map((att: any) => ({
           attachmentId: att.id || att.attachmentId,
           filename: att.originalName || att.filename,
@@ -141,8 +175,10 @@ const ExistingForm: React.FC = () => {
       }
 
       // 设置关联数据
+      // 注意：编辑模式下，participantList/arItemList/leasedAssetList/voucherItemList/trancheList
+      // 由各子表单组件通过独立API加载，不在此处设置（类型也不兼容）
+      // 仅设置 cdMapList/lcMapList，因为它们需要数据转换
       setRelatedData({
-        participantList: loanDetail.participantList,
         cdMapList: loanDetail.cdList?.map((cd: any) => ({
           cdId: cd.cdId,
           pledgeRatio: cd.pledgeRatio,
@@ -161,22 +197,17 @@ const ExistingForm: React.FC = () => {
           allocationNote: lc.allocationNote,
           status: lc.mapStatus,
           remark: lc.mapRemark
-        })),
-        arItemList: loanDetail.arItemList,
-        leasedAssetList: loanDetail.leasedAssetList,
-        voucherItemList: loanDetail.voucherItemList,
-        trancheList: loanDetail.trancheList
+        }))
       });
     }
   }, [loanDetail, form]);
 
   // 处理机构选择
-  const handleInstitutionChange = (institutionId?: number, institution?: FinInstitutionDto) => {
-    setSelectedInstitution(institution || null);
+  const handleInstitutionChange = (_institutionId?: number, institution?: FinInstitutionDto) => {
     if (institution) {
       form.setFieldsValue({
         institutionId: institution.id,
-        institutionName: institution.name + (institution.branchName ? ` - ${institution.branchName}` : '')
+        institutionName: institution.branchName || institution.name
       });
     } else {
       form.setFieldsValue({
@@ -194,6 +225,48 @@ const ExistingForm: React.FC = () => {
     }));
   };
 
+  // 计算附件操作（用于编辑模式）
+  const computeAttachmentOperations = (): AttachmentOperationDto[] => {
+    const operations: AttachmentOperationDto[] = [];
+    const originalIds = new Set(originalFiles.map(f => f.id));
+    const currentIds = new Set(files.map(f => f.attachmentId));
+
+    // 新增的附件（当前有，原始没有）
+    files.forEach(f => {
+      if (!originalIds.has(f.attachmentId)) {
+        operations.push({
+          attachmentId: f.attachmentId,
+          fileSize: f.fileSize,
+          operation: 'ADD'
+        });
+      }
+    });
+
+    // 保留的附件（当前有，原始也有）
+    files.forEach(f => {
+      if (originalIds.has(f.attachmentId)) {
+        operations.push({
+          attachmentId: f.attachmentId,
+          fileSize: f.fileSize,
+          operation: 'KEEP'
+        });
+      }
+    });
+
+    // 删除的附件（原始有，当前没有）
+    originalFiles.forEach(f => {
+      if (!currentIds.has(f.id)) {
+        operations.push({
+          attachmentId: f.id,
+          fileSize: f.fileSize,
+          operation: 'DELETE'
+        });
+      }
+    });
+
+    return operations;
+  };
+
   // 提交表单
   const handleSubmit = async () => {
     try {
@@ -201,8 +274,8 @@ const ExistingForm: React.FC = () => {
       // 处理融资类型
       const [productFamily, productTypeValue] = values.productType || [];
 
-      // 构建提交数据
-      const data: any = {
+      // 公共基础数据
+      const baseData = {
         orgId: values.orgId,
         loanName: values.loanName,
         productFamily,
@@ -224,19 +297,33 @@ const ExistingForm: React.FC = () => {
         repayMethod: values.repayMethod,
         status: values.status,
         remark: values.remark,
-        // 关联数据
-        relatedData: relatedData,
-        // 附件
-        fileAttachments: files.map(f => ({
-          attachmentId: f.attachmentId,
-          fileSize: f.fileSize
-        })) as UploadedAttachmentDto[]
+        // 扩展字段值
+        extFieldValList: extFieldDefs.length > 0
+          ? formValuesToExtFieldValList(values, extFieldDefs)
+          : undefined,
       };
 
       if (isEdit) {
-        updateMutation.mutate({ id: Number(id), ...data });
+        // 编辑模式：只提交基础信息、扩展字段、附件操作
+        // 关联数据通过独立API管理，不在此处提交
+        const updateData: UpdateLoanDto = {
+          id: Number(id),
+          ...baseData,
+          attachmentOperations: computeAttachmentOperations()
+        };
+        updateMutation.mutate(updateData);
       } else {
-        createMutation.mutate(data);
+        // 创建模式：提交所有数据，包括关联数据和附件
+        const createData: CreateLoanDto = {
+          ...baseData,
+          relatedData: relatedData,
+          fileAttachments: files.map(f => ({
+            attachmentId: f.attachmentId,
+            fileSize: f.fileSize,
+            operation: 'ADD' as const
+          }))
+        };
+        createMutation.mutate(createData);
       }
     } catch (errorInfo: any) {
       // 验证失败时，提示用户
@@ -250,8 +337,10 @@ const ExistingForm: React.FC = () => {
   const renderRelatedForm = () => {
     if (!currentComponentType) return null;
 
+    // 公共属性：编辑模式传入 loanId，用于独立API调用
     const commonProps = {
       isEdit,
+      loanId,  // 编辑模式传入 loanId，用于独立CRUD
       onChange: handleRelatedDataChange
     };
 
@@ -642,8 +731,13 @@ const ExistingForm: React.FC = () => {
           </Col>
         </Row>
 
-        {/* 第二部分：通用扩展字段（暂留空） */}
-        {/* TODO: 扩展字段渲染 */}
+        {/* 第二部分：扩展字段 */}
+        {extFieldDefs.length > 0 && (
+          <>
+            <Divider orientation="left">扩展信息</Divider>
+            <ExtFieldFormItems fields={extFieldDefs} columns={3} />
+          </>
+        )}
 
         {/* 第三部分：融资类型特定字段 */}
         {currentComponentType && (

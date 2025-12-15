@@ -34,6 +34,7 @@ import ReserveDetail from '@/pages/Reserve/Detail';
 import Existing from '@/pages/Existing';
 import ExistingForm from '@/pages/Existing/Form';
 import ExistingDetail from '@/pages/Existing/Detail';
+import ExtFieldConfig from '@/pages/ExtFieldConfig';
 
 // 扩展路由对象类型以包含菜单相关信息
 export interface AppRouteObject extends Omit<RouteObject, 'children'> {
@@ -114,6 +115,12 @@ export const routes: AppRouteObject[] = [
         title: '银行卡',
         element: <BankCard />,
         icon: <CreditCardOutlined />,
+      },
+      {
+        path: '/infrastructure/ext-field-config',
+        title: '扩展字段配置',
+        element: <ExtFieldConfig />,
+        icon: <SettingOutlined />,
       },
     ],
   },

@@ -586,6 +586,13 @@ export interface UploadedAttachmentDto {
   fileSize: number;              // 文件大小. 单位：byte
 }
 
+// 附件操作DTO (用于创建/更新时的附件管理)
+export interface AttachmentOperationDto {
+  attachmentId: number;          // 附件ID (必填)
+  fileSize?: number;             // 文件大小(字节)，新上传时必填
+  operation: 'ADD' | 'KEEP' | 'DELETE';  // 操作类型: ADD-新增, KEEP-保留, DELETE-删除
+}
+
 // ===== 固定资产类型 =====
 
 // 固定资产信息
@@ -723,10 +730,10 @@ export interface CreateLoanDto {
   remark?: string;                         // 备注
   extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
   relatedData?: LoanRelatedData;                    // 关联数据包装器
-  fileAttachments?: UploadedAttachmentDto[];        // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[];       // 文件附件列表
 }
 
-// 更新融资请求
+// 更新融资请求 (仅更新基本信息、扩展字段、附件，关联数据通过独立接口管理)
 export interface UpdateLoanDto {
   id: number;                              // 融资ID (必填)
   orgId: number;                           // 融资主体ID (必填)
@@ -751,8 +758,7 @@ export interface UpdateLoanDto {
   status: string;                          // 状态 (必填) loan.status
   remark?: string;                         // 备注
   extFieldValList?: CreateFinLoanExtFieldValDto[];  // 扩展字段值列表
-  relatedData?: LoanRelatedData;                    // 关联数据包装器
-  fileAttachments?: UploadedAttachmentDto[];        // 文件附件列表
+  attachmentOperations?: AttachmentOperationDto[];  // 附件操作列表 (ADD/KEEP/DELETE)
 }
 
 // 融资分页查询请求
@@ -816,6 +822,8 @@ export interface UpdateFinLoanExtFieldConfigDto {
 export interface FinLoanExtFieldDefDto {
   id: number;                              // 字段定义ID
   configId: number;                        // 融资类型配置ID
+  productFamily?: string;                  // 产品族
+  productType?: string;                    // 产品类型
   fieldKey: string;                        // 字段唯一键
   fieldLabel: string;                      // 字段显示名
   dataType: string;                        // 字段数据类型 loan.ext.field.datatype
@@ -823,6 +831,11 @@ export interface FinLoanExtFieldDefDto {
   isVisible?: boolean;                     // 是否可见
   dictCode?: string;                       // 数据字典编码
   remark?: string;                         // 备注
+  isDeleted?: boolean;                     // 是否已删除
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
 }
 
 // 创建扩展字段定义请求
@@ -853,8 +866,15 @@ export interface UpdateFinLoanExtFieldDefDto {
 export interface FinLoanExtFieldValDto {
   id: number;                              // 字段值ID
   loanId: number;                          // 融资ID
+  defId?: number;                          // 字段定义ID
   fieldKey: string;                        // 字段键
+  fieldLabel?: string;                     // 字段显示名
   dataType: string;                        // 字段数据类型 loan.ext.field.datatype
+  isRequired?: boolean;                    // 是否必填
+  isVisible?: boolean;                     // 是否可见
+  dictCode?: string;                       // 数据字典编码
+  fieldProductFamily?: string;             // 字段所属产品族
+  fieldProductType?: string;               // 字段所属产品类型
   valueStr?: string;                       // 字段值-字符串
   valueNum?: number;                       // 字段值-数字
   valueDate?: string;                      // 字段值-日期
@@ -892,6 +912,8 @@ export interface FinLoanParticipantDto {
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
   fileAttachments?: SysAttachmentDto[];    // 文件附件列表
 }
 
@@ -903,7 +925,19 @@ export interface CreateLoanParticipantDto {
   commitAmount?: number;                   // 承诺额度(分)
   sharePct?: number;                       // 份额比例(0~1)
   remark?: string;                         // 备注
-  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新银团参与行请求
+export interface UpdateLoanParticipantDto {
+  id: number;                              // 参与行ID (必填)
+  role?: string;                           // 角色 participant.role
+  institutionId?: number;                  // 金融机构ID
+  institutionName?: string;                // 机构名称
+  commitAmount?: number;                   // 承诺额度(分)
+  sharePct?: number;                       // 份额比例(0~1)
+  remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
 }
 
 // ===== 信用证类型 =====
@@ -1278,7 +1312,36 @@ export interface CreateFactoringArItemDto {
   paidDate?: string;                       // 回款日期
   status?: string;                         // 状态 factoring.ar.status
   remark?: string;                         // 备注
-  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新保理应收明细请求
+export interface UpdateFactoringArItemDto {
+  id: number;                              // 主键ID (必填)
+  invoiceNo: string;                       // 发票号/应收编号 (必填)
+  debtorName: string;                      // 买方/债务人名称 (必填)
+  arFaceAmount: number;                    // 应收票面金额(分) (必填)
+  assignedAmount?: number;                 // 转让/已融资金额(分)
+  issueDate: string;                       // 开具/应收形成日期 (必填)
+  dueDate: string;                         // 到期日 (必填)
+  paidFlag?: boolean;                      // 是否已回款
+  paidDate?: string;                       // 回款日期
+  status?: string;                         // 状态 factoring.ar.status
+  remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
+}
+
+// 保理应收明细查询条件
+export interface QueryFactoringArItemDto {
+  loanId?: number;                         // 关联贷款ID
+  invoiceNo?: string;                      // 发票号/应收编号
+  debtorName?: string;                     // 买方/债务人名称
+  paidFlag?: boolean;                      // 是否已回款
+  status?: string;                         // 状态
+  issueDateStart?: string;                 // 开具日期开始
+  issueDateEnd?: string;                   // 开具日期结束
+  dueDateStart?: string;                   // 到期日开始
+  dueDateEnd?: string;                     // 到期日结束
 }
 
 // ===== 融资租赁资产类型 =====
@@ -1314,7 +1377,34 @@ export interface CreateLeasedAssetDto {
   appraisedValueAtLease?: number;          // 签约时评估/认可价值(分)
   serialNo?: string;                       // 序列号/车架号等
   remark?: string;                         // 备注
-  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新融资租赁租赁物请求
+export interface UpdateLeasedAssetDto {
+  id: number;                              // 主键ID (必填)
+  assetId?: number;                        // 固定资产ID
+  assetCodeSnapshot?: string;              // 资产编码快照
+  assetNameSnapshot?: string;              // 资产名称快照
+  quantity?: number;                       // 数量
+  unit?: string;                           // 计量单位
+  bookValueAtLease?: number;               // 签约时账面价值(分)
+  appraisedValueAtLease?: number;          // 签约时评估/认可价值(分)
+  serialNo?: string;                       // 序列号/车架号等
+  remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
+}
+
+// 融资租赁租赁物查询条件
+export interface QueryLeasedAssetDto {
+  loanId?: number;                         // 关联贷款ID
+  assetId?: number;                        // 固定资产ID
+  assetCodeSnapshot?: string;              // 资产编码
+  assetNameSnapshot?: string;              // 资产名称
+  serialNo?: string;                       // 序列号/车架号
+  unit?: string;                           // 计量单位
+  bookValueAtLeaseMin?: number;            // 账面价值下限(分)
+  bookValueAtLeaseMax?: number;            // 账面价值上限(分)
 }
 
 // ===== 供应链金融凭证类型 =====
@@ -1350,7 +1440,36 @@ export interface CreateScfVoucherItemDto {
   dueDate?: string;                        // 到期日/预计回款日
   status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
-  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新供应链金融凭证明细请求
+export interface UpdateScfVoucherItemDto {
+  id: number;                              // 主键ID (必填)
+  voucherNo?: string;                      // 凭证/订单/应收确认编号
+  voucherType?: string;                    // 凭证类型 scf.voucher.type
+  coreCorpName?: string;                   // 核心企业名称
+  debtorName?: string;                     // 债务人/付款方
+  underlyingAmount?: number;               // 底层金额(分)
+  issueDate?: string;                      // 凭证/订单生成日期
+  dueDate?: string;                        // 到期日/预计回款日
+  status?: string;                         // 状态 scf.voucher.status
+  remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
+}
+
+// 供应链金融凭证明细查询条件
+export interface QueryScfVoucherItemDto {
+  loanId?: number;                         // 关联贷款ID
+  voucherNo?: string;                      // 凭证/订单/应收确认编号
+  voucherType?: string;                    // 凭证类型 scf.voucher.type
+  coreCorpName?: string;                   // 核心企业名称
+  debtorName?: string;                     // 债务人/付款方
+  status?: string;                         // 状态 scf.voucher.status
+  issueDateStart?: string;                 // 凭证生成日期开始
+  issueDateEnd?: string;                   // 凭证生成日期结束
+  dueDateStart?: string;                   // 到期日开始
+  dueDateEnd?: string;                     // 到期日结束
 }
 
 // ===== 信托分层类型 =====
@@ -1384,5 +1503,26 @@ export interface CreateTrustTrancheDto {
   expectedYieldRate?: number;              // 预期收益率(%)
   distributionRule?: string;               // 收益分配规则
   remark?: string;                         // 备注
-  fileAttachments?: UploadedAttachmentDto[]; // 文件附件列表
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新信托分层明细请求
+export interface UpdateTrustTrancheDto {
+  id: number;                              // 主键ID (必填)
+  trancheName?: string;                    // 分层名称
+  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
+  paymentRank?: number;                    // 清偿顺序
+  subscribeAmount?: number;                // 认购金额(分)
+  sharePct?: number;                       // 份额占比(%)
+  expectedYieldRate?: number;              // 预期收益率(%)
+  distributionRule?: string;               // 收益分配规则
+  remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
+}
+
+// 信托分层明细查询条件
+export interface QueryTrustTrancheDto {
+  loanId?: number;                         // 关联贷款ID
+  trancheName?: string;                    // 分层名称
+  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
 }

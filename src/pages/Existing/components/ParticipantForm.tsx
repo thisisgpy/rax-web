@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -7,11 +7,19 @@ import {
   Input,
   InputNumber,
   Space,
-  App
+  App,
+  Popconfirm
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import type { CreateLoanParticipantDto, FinInstitutionDto } from '@/types/swagger-api';
+import type {
+  CreateLoanParticipantDto,
+  FinLoanParticipantDto,
+  UpdateLoanParticipantDto,
+  FinInstitutionDto,
+  AttachmentOperationDto
+} from '@/types/swagger-api';
+import { participantApi } from '@/services/participant';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
@@ -21,32 +29,61 @@ import AmountDisplay from '@/components/AmountDisplay';
 interface ParticipantItem extends CreateLoanParticipantDto {
   _key: string;
   _files?: UploadedFile[];
+  id?: number;  // 编辑模式下的数据库ID
 }
 
 interface ParticipantFormProps {
   value?: CreateLoanParticipantDto[];
   onChange?: (value: CreateLoanParticipantDto[]) => void;
   isEdit?: boolean;
+  loanId?: number;  // 编辑模式下传入loanId，用于独立CRUD
 }
 
 const ParticipantForm: React.FC<ParticipantFormProps> = ({
   value = [],
   onChange,
-  isEdit
+  isEdit,
+  loanId
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ParticipantItem | null>(null);
   const [form] = Form.useForm();
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [apiData, setApiData] = useState<FinLoanParticipantDto[]>([]);
+
+  // 编辑模式下，从API加载数据
+  useEffect(() => {
+    if (isEdit && loanId) {
+      loadData();
+    }
+  }, [isEdit, loanId]);
+
+  const loadData = async () => {
+    if (!loanId) return;
+    setLoading(true);
+    try {
+      const result = await participantApi.listByLoan(loanId);
+      if (result.success) {
+        setApiData(result.data || []);
+      }
+    } catch (error) {
+      message.error('加载银团参与行数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 转换数据为带 _key 的格式
-  const dataSource: ParticipantItem[] = value.map((item, index) => ({
+  // 编辑模式使用API数据，创建模式使用本地value
+  const dataSource: ParticipantItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => ({
     ...item,
-    _key: `participant-${index}`,
-    _files: item.fileAttachments?.map(att => ({
-      attachmentId: att.attachmentId,
-      filename: '',
+    _key: `participant-${item.id || index}`,
+    id: item.id,
+    _files: item.fileAttachments?.map((att: any) => ({
+      attachmentId: att.attachmentId || att.id,
+      filename: att.originalName || '',
       fileSize: att.fileSize
     }))
   }));
@@ -74,55 +111,134 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
   };
 
   // 删除
-  const handleDelete = (record: ParticipantItem) => {
-    const newData = value.filter((_, index) => `participant-${index}` !== record._key);
-    onChange?.(newData);
+  const handleDelete = async (record: ParticipantItem) => {
+    if (isEdit && loanId && record.id) {
+      // 编辑模式：调用API删除
+      try {
+        const result = await participantApi.remove(record.id);
+        if (result.success) {
+          message.success('删除成功');
+          loadData(); // 重新加载数据
+        } else {
+          message.error(result.message || '删除失败');
+        }
+      } catch (error) {
+        message.error('删除失败');
+      }
+    } else {
+      // 创建模式：更新本地状态
+      const newData = value.filter((_, index) => `participant-${index}` !== record._key);
+      onChange?.(newData);
+    }
   };
 
   // 处理机构选择
-  const handleInstitutionChange = (institutionId?: number, institution?: FinInstitutionDto) => {
+  const handleInstitutionChange = (_institutionId?: number, institution?: FinInstitutionDto) => {
     if (institution) {
       form.setFieldsValue({
         institutionId: institution.id,
-        institutionName: institution.name + (institution.branchName ? ` - ${institution.branchName}` : '')
+        institutionName: institution.branchName || institution.name
       });
     }
   };
 
   // 提交弹窗
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
-      const newItem: CreateLoanParticipantDto = {
-        role: values.role,
-        institutionId: values.institutionId,
-        institutionName: values.institutionName,
-        // 承诺额度从万元转分
-        commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
-        // 份额比例从百分比转小数
-        sharePct: values.sharePct ? values.sharePct / 100 : undefined,
-        remark: values.remark,
-        fileAttachments: files.map(f => ({
-          attachmentId: f.attachmentId,
-          fileSize: f.fileSize
-        }))
-      };
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
 
-      if (editingItem) {
-        // 编辑模式
-        const index = dataSource.findIndex(d => d._key === editingItem._key);
-        const newData = [...value];
-        newData[index] = newItem;
-        onChange?.(newData);
+      if (isEdit && loanId) {
+        // 编辑模式：调用API
+        if (editingItem?.id) {
+          // 更新已有记录 - 计算附件操作
+          const originalFileIds = new Set((editingItem._files || []).map(f => f.attachmentId));
+          const currentFileIds = new Set(files.map(f => f.attachmentId));
+          const attachmentOperations: AttachmentOperationDto[] = [];
+
+          // 新增和保留的附件
+          files.forEach(f => {
+            attachmentOperations.push({
+              attachmentId: f.attachmentId,
+              fileSize: f.fileSize,
+              operation: originalFileIds.has(f.attachmentId) ? 'KEEP' : 'ADD'
+            });
+          });
+          // 删除的附件
+          (editingItem._files || []).forEach(f => {
+            if (!currentFileIds.has(f.attachmentId)) {
+              attachmentOperations.push({ attachmentId: f.attachmentId, fileSize: f.fileSize, operation: 'DELETE' });
+            }
+          });
+
+          const updateData: UpdateLoanParticipantDto = {
+            id: editingItem.id,
+            role: values.role,
+            institutionId: values.institutionId,
+            institutionName: values.institutionName,
+            commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
+            sharePct: values.sharePct ? values.sharePct / 100 : undefined,
+            remark: values.remark,
+            attachmentOperations
+          };
+          const result = await participantApi.update(updateData);
+          if (result.success) {
+            message.success('更新成功');
+            loadData();
+          } else {
+            message.error(result.message || '更新失败');
+            return;
+          }
+        } else {
+          // 新增记录
+          const createData: CreateLoanParticipantDto = {
+            role: values.role,
+            institutionId: values.institutionId,
+            institutionName: values.institutionName,
+            commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
+            sharePct: values.sharePct ? values.sharePct / 100 : undefined,
+            remark: values.remark,
+            fileAttachments: files.map(f => ({ attachmentId: f.attachmentId, fileSize: f.fileSize, operation: 'ADD' as const }))
+          };
+          const result = await participantApi.createBatch(loanId, [createData]);
+          if (result.success) {
+            message.success('添加成功');
+            loadData();
+          } else {
+            message.error(result.message || '添加失败');
+            return;
+          }
+        }
       } else {
-        // 新增模式
-        onChange?.([...value, newItem]);
+        // 创建模式：更新本地状态
+        const newItem: CreateLoanParticipantDto = {
+          role: values.role,
+          institutionId: values.institutionId,
+          institutionName: values.institutionName,
+          commitAmount: values.commitAmount ? Math.round(values.commitAmount * 1000000) : undefined,
+          sharePct: values.sharePct ? values.sharePct / 100 : undefined,
+          remark: values.remark,
+          fileAttachments: files.map(f => ({ attachmentId: f.attachmentId, fileSize: f.fileSize, operation: 'ADD' as const }))
+        };
+
+        if (editingItem) {
+          const index = dataSource.findIndex(d => d._key === editingItem._key);
+          const newData = [...value];
+          newData[index] = newItem;
+          onChange?.(newData);
+        } else {
+          onChange?.([...value, newItem]);
+        }
       }
 
       setModalVisible(false);
       form.resetFields();
       setFiles([]);
       setEditingItem(null);
-    });
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
   };
 
   const columns: ColumnsType<ParticipantItem> = [
@@ -171,15 +287,21 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
           >
             编辑
           </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="确定要删除吗？"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -199,6 +321,7 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
         rowKey="_key"
         pagination={false}
         size="small"
+        loading={loading}
       />
 
       <Modal

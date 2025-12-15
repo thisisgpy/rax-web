@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -9,12 +9,18 @@ import {
   DatePicker,
   Switch,
   Space,
-  App
+  App,
+  Popconfirm
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import type { CreateFactoringArItemDto } from '@/types/swagger-api';
+import type {
+  CreateFactoringArItemDto,
+  FactoringArItemDto,
+  UpdateFactoringArItemDto
+} from '@/types/swagger-api';
+import { factoringArItemApi } from '@/services/factoringArItem';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
@@ -23,37 +29,62 @@ import AmountDisplay from '@/components/AmountDisplay';
 interface ArItem extends CreateFactoringArItemDto {
   _key: string;
   _files?: UploadedFile[];
+  id?: number;
 }
 
 interface FactoringArItemFormProps {
   value?: CreateFactoringArItemDto[];
   onChange?: (value: CreateFactoringArItemDto[]) => void;
   isEdit?: boolean;
+  loanId?: number;
 }
 
 const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
   value = [],
   onChange,
-  isEdit
+  isEdit,
+  loanId
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ArItem | null>(null);
   const [form] = Form.useForm();
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [apiData, setApiData] = useState<FactoringArItemDto[]>([]);
 
-  // 转换数据为带 _key 的格式
-  const dataSource: ArItem[] = value.map((item, index) => ({
+  useEffect(() => {
+    if (isEdit && loanId) {
+      loadData();
+    }
+  }, [isEdit, loanId]);
+
+  const loadData = async () => {
+    if (!loanId) return;
+    setLoading(true);
+    try {
+      const result = await factoringArItemApi.listByLoan(loanId);
+      if (result.success) {
+        setApiData(result.data || []);
+      }
+    } catch (error) {
+      message.error('加载应收款明细数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dataSource: ArItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => ({
     ...item,
-    _key: `ar-${index}`,
-    _files: item.fileAttachments?.map(att => ({
-      attachmentId: att.attachmentId,
-      filename: '',
+    _key: `ar-${item.id || index}`,
+    id: item.id,
+    _files: item.fileAttachments?.map((att: any) => ({
+      attachmentId: att.attachmentId || att.id,
+      filename: att.originalName || '',
       fileSize: att.fileSize
     }))
   }));
 
-  // 打开新增弹窗
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
@@ -61,7 +92,6 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
     setModalVisible(true);
   };
 
-  // 打开编辑弹窗
   const handleEdit = (record: ArItem) => {
     setEditingItem(record);
     form.setFieldsValue({
@@ -76,46 +106,115 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
     setModalVisible(true);
   };
 
-  // 删除
-  const handleDelete = (record: ArItem) => {
-    const newData = value.filter((_, index) => `ar-${index}` !== record._key);
-    onChange?.(newData);
+  const handleDelete = async (record: ArItem) => {
+    if (isEdit && loanId && record.id) {
+      try {
+        const result = await factoringArItemApi.remove(record.id);
+        if (result.success) {
+          message.success('删除成功');
+          loadData();
+        } else {
+          message.error(result.message || '删除失败');
+        }
+      } catch (error) {
+        message.error('删除失败');
+      }
+    } else {
+      const newData = value.filter((_, index) => `ar-${index}` !== record._key);
+      onChange?.(newData);
+    }
   };
 
-  // 提交弹窗
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
-      const newItem: CreateFactoringArItemDto = {
-        invoiceNo: values.invoiceNo,
-        debtorName: values.debtorName,
-        arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
-        assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
-        issueDate: values.issueDate?.format('YYYY-MM-DD'),
-        dueDate: values.dueDate?.format('YYYY-MM-DD'),
-        paidFlag: values.paidFlag,
-        paidDate: values.paidDate?.format('YYYY-MM-DD'),
-        status: values.status,
-        remark: values.remark,
-        fileAttachments: files.map(f => ({
-          attachmentId: f.attachmentId,
-          fileSize: f.fileSize
-        }))
-      };
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const fileAttachments = files.map(f => ({
+        attachmentId: f.attachmentId,
+        fileSize: f.fileSize,
+        operation: 'ADD' as const
+      }));
 
-      if (editingItem) {
-        const index = dataSource.findIndex(d => d._key === editingItem._key);
-        const newData = [...value];
-        newData[index] = newItem;
-        onChange?.(newData);
+      if (isEdit && loanId) {
+        if (editingItem?.id) {
+          // UpdateFactoringArItemDto doesn't support fileAttachments
+          const updateData: UpdateFactoringArItemDto = {
+            id: editingItem.id,
+            invoiceNo: values.invoiceNo,
+            debtorName: values.debtorName,
+            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+            assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
+            issueDate: values.issueDate?.format('YYYY-MM-DD'),
+            dueDate: values.dueDate?.format('YYYY-MM-DD'),
+            paidFlag: values.paidFlag,
+            paidDate: values.paidDate?.format('YYYY-MM-DD'),
+            status: values.status,
+            remark: values.remark
+          };
+          const result = await factoringArItemApi.update(updateData);
+          if (result.success) {
+            message.success('更新成功');
+            loadData();
+          } else {
+            message.error(result.message || '更新失败');
+            return;
+          }
+        } else {
+          const createData: CreateFactoringArItemDto = {
+            invoiceNo: values.invoiceNo,
+            debtorName: values.debtorName,
+            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+            assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
+            issueDate: values.issueDate?.format('YYYY-MM-DD'),
+            dueDate: values.dueDate?.format('YYYY-MM-DD'),
+            paidFlag: values.paidFlag,
+            paidDate: values.paidDate?.format('YYYY-MM-DD'),
+            status: values.status,
+            remark: values.remark,
+            fileAttachments
+          };
+          const result = await factoringArItemApi.createBatch(loanId, [createData]);
+          if (result.success) {
+            message.success('添加成功');
+            loadData();
+          } else {
+            message.error(result.message || '添加失败');
+            return;
+          }
+        }
       } else {
-        onChange?.([...value, newItem]);
+        const newItem: CreateFactoringArItemDto = {
+          invoiceNo: values.invoiceNo,
+          debtorName: values.debtorName,
+          arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+          assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
+          issueDate: values.issueDate?.format('YYYY-MM-DD'),
+          dueDate: values.dueDate?.format('YYYY-MM-DD'),
+          paidFlag: values.paidFlag,
+          paidDate: values.paidDate?.format('YYYY-MM-DD'),
+          status: values.status,
+          remark: values.remark,
+          fileAttachments
+        };
+
+        if (editingItem) {
+          const index = dataSource.findIndex(d => d._key === editingItem._key);
+          const newData = [...value];
+          newData[index] = newItem;
+          onChange?.(newData);
+        } else {
+          onChange?.([...value, newItem]);
+        }
       }
 
       setModalVisible(false);
       form.resetFields();
       setFiles([]);
       setEditingItem(null);
-    });
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
   };
 
   const columns: ColumnsType<ArItem> = [
@@ -176,15 +275,21 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
           >
             编辑
           </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="确定要删除吗？"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -204,6 +309,7 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
         rowKey="_key"
         pagination={false}
         size="small"
+        loading={loading}
       />
 
       <Modal

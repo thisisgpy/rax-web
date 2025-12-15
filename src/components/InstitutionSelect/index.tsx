@@ -193,9 +193,9 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
 
   const institutionListResult = institutionListData?.data as PageResult<FinInstitutionDto> | undefined;
 
-  // 显示文本
+  // 显示文本：优先显示 branchName，没有则显示 name
   const displayText = selectedInstitution
-    ? `${selectedInstitution.name}${selectedInstitution.branchName ? ` - ${selectedInstitution.branchName}` : ''}`
+    ? (selectedInstitution.branchName || selectedInstitution.name)
     : placeholder;
 
   return (

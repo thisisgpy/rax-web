@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -12,61 +12,138 @@ import {
   Row,
   Col,
   Divider,
-  App
+  App,
+  Popconfirm
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import type { CreateLoanLcMapDto, CreateLoanLcDto, FinInstitutionDto } from '@/types/swagger-api';
+import type {
+  CreateLoanLcMapDto,
+  CreateLoanLcDto,
+  LoanLcWithMapDto,
+  UpdateLoanLcMapDto
+} from '@/types/swagger-api';
+import { lcApi } from '@/services/lc';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
 
 interface LcMapItem extends CreateLoanLcMapDto {
   _key: string;
+  mapId?: number;
+  lcId?: number;
 }
 
 interface LcFormProps {
   value?: CreateLoanLcMapDto[];
   onChange?: (value: CreateLoanLcMapDto[]) => void;
   isEdit?: boolean;
+  loanId?: number;
 }
 
 const LcForm: React.FC<LcFormProps> = ({
   value = [],
   onChange,
-  isEdit
+  isEdit,
+  loanId
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<LcMapItem | null>(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [apiData, setApiData] = useState<LoanLcWithMapDto[]>([]);
 
-  // 转换数据为带 _key 的格式
-  const dataSource: LcMapItem[] = value.map((item, index) => ({
-    ...item,
-    _key: `lc-${index}`
-  }));
+  useEffect(() => {
+    if (isEdit && loanId) {
+      loadData();
+    }
+  }, [isEdit, loanId]);
 
-  // 打开新增弹窗
+  const loadData = async () => {
+    if (!loanId) return;
+    setLoading(true);
+    try {
+      const result = await lcApi.listByLoanId(loanId);
+      if (result.success) {
+        setApiData(result.data || []);
+      }
+    } catch (error) {
+      message.error('加载信用证数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Convert API data or local value to table data source
+  const dataSource: LcMapItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => {
+    if (isEdit && loanId) {
+      // API data from LoanLcWithMapDto
+      return {
+        _key: `lc-${item.mapId || index}`,
+        mapId: item.mapId,
+        lcId: item.lcId,
+        securedValue: item.securedValue,
+        marginLockedAmount: item.marginLockedAmount,
+        allocationNote: item.allocationNote,
+        status: item.mapStatus,
+        remark: item.mapRemark,
+        newLc: {
+          lcNo: item.lcNo,
+          lcType: item.lcType,
+          issuingBankId: item.issuingBankId,
+          issuingBankName: item.issuingBankName,
+          advisingBankId: item.advisingBankId,
+          confirmFlag: item.confirmFlag,
+          applicant: item.applicant,
+          beneficiary: item.beneficiary,
+          currency: item.currency,
+          lcAmount: item.lcAmount,
+          tolerancePct: item.tolerancePct,
+          issueDate: item.issueDate,
+          expiryDate: item.expiryDate,
+          placeOfExpiry: item.placeOfExpiry,
+          availableBy: item.availableBy,
+          presentationDays: item.presentationDays,
+          shipmentFrom: item.shipmentFrom,
+          shipmentTo: item.shipmentTo,
+          latestShipment: item.latestShipment,
+          partialShipmentAllowed: item.partialShipmentAllowed,
+          transshipmentAllowed: item.transshipmentAllowed,
+          marginRatio: item.marginRatio,
+          marginAmount: item.marginAmount,
+          commissionRate: item.commissionRate,
+          advisingChargeBorneBy: item.advisingChargeBorneBy,
+          ucpVersion: item.ucpVersion,
+          status: item.lcStatus,
+          remark: item.lcRemark
+        }
+      };
+    } else {
+      // Local value from CreateLoanLcMapDto
+      return {
+        ...item,
+        _key: `lc-${index}`
+      };
+    }
+  });
+
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
     setModalVisible(true);
   };
 
-  // 打开编辑弹窗
   const handleEdit = (record: LcMapItem) => {
     setEditingItem(record);
     const lcData = record.newLc;
     form.setFieldsValue({
-      // 关联字段
       securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
       marginLockedAmount: record.marginLockedAmount ? record.marginLockedAmount / 1000000 : undefined,
       allocationNote: record.allocationNote,
       status: record.status,
       mapRemark: record.remark,
-      // 信用证字段
       lcNo: lcData?.lcNo,
       lcType: lcData?.lcType,
       issuingBankId: lcData?.issuingBankId,
@@ -99,15 +176,28 @@ const LcForm: React.FC<LcFormProps> = ({
     setModalVisible(true);
   };
 
-  // 删除
-  const handleDelete = (record: LcMapItem) => {
-    const newData = value.filter((_, index) => `lc-${index}` !== record._key);
-    onChange?.(newData);
+  const handleDelete = async (record: LcMapItem) => {
+    if (isEdit && loanId && record.lcId) {
+      try {
+        const result = await lcApi.removeFromLoan(loanId, record.lcId);
+        if (result.success) {
+          message.success('删除成功');
+          loadData();
+        } else {
+          message.error(result.message || '删除失败');
+        }
+      } catch (error) {
+        message.error('删除失败');
+      }
+    } else {
+      const newData = value.filter((_, index) => `lc-${index}` !== record._key);
+      onChange?.(newData);
+    }
   };
 
-  // 提交弹窗
-  const handleModalOk = () => {
-    form.validateFields().then(values => {
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
       const newLc: CreateLoanLcDto = {
         lcNo: values.lcNo,
         lcType: values.lcType,
@@ -139,8 +229,7 @@ const LcForm: React.FC<LcFormProps> = ({
         remark: values.lcRemark
       };
 
-      const newItem: CreateLoanLcMapDto = {
-        newLc,
+      const mapData = {
         securedValue: values.securedValue ? Math.round(values.securedValue * 1000000) : undefined,
         marginLockedAmount: values.marginLockedAmount ? Math.round(values.marginLockedAmount * 1000000) : undefined,
         allocationNote: values.allocationNote,
@@ -148,19 +237,61 @@ const LcForm: React.FC<LcFormProps> = ({
         remark: values.mapRemark
       };
 
-      if (editingItem) {
-        const index = dataSource.findIndex(d => d._key === editingItem._key);
-        const newData = [...value];
-        newData[index] = newItem;
-        onChange?.(newData);
+      if (isEdit && loanId) {
+        if (editingItem?.mapId) {
+          // Update existing map
+          const updateData: UpdateLoanLcMapDto = {
+            id: editingItem.mapId,
+            ...mapData
+          };
+          const result = await lcApi.updateMap(updateData);
+          if (result.success) {
+            message.success('更新成功');
+            loadData();
+          } else {
+            message.error(result.message || '更新失败');
+            return;
+          }
+        } else {
+          // Add new LC to loan
+          const createData: CreateLoanLcMapDto = {
+            newLc,
+            ...mapData
+          };
+          const result = await lcApi.addToLoan(loanId, createData);
+          if (result.success) {
+            message.success('添加成功');
+            loadData();
+          } else {
+            message.error(result.message || '添加失败');
+            return;
+          }
+        }
       } else {
-        onChange?.([...value, newItem]);
+        // Local mode - update parent state
+        const newItem: CreateLoanLcMapDto = {
+          newLc,
+          ...mapData
+        };
+
+        if (editingItem) {
+          const index = dataSource.findIndex(d => d._key === editingItem._key);
+          const newData = [...value];
+          newData[index] = newItem;
+          onChange?.(newData);
+        } else {
+          onChange?.([...value, newItem]);
+        }
       }
 
       setModalVisible(false);
       form.resetFields();
       setEditingItem(null);
-    });
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
   };
 
   const columns: ColumnsType<LcMapItem> = [
@@ -209,15 +340,21 @@ const LcForm: React.FC<LcFormProps> = ({
           >
             编辑
           </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="确定要删除吗？"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -237,6 +374,7 @@ const LcForm: React.FC<LcFormProps> = ({
         rowKey="_key"
         pagination={false}
         size="small"
+        loading={loading}
       />
 
       <Modal
