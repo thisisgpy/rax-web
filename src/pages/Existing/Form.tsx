@@ -739,16 +739,6 @@ const ExistingForm: React.FC = () => {
           </>
         )}
 
-        {/* 第三部分：融资类型特定字段 */}
-        {currentComponentType && (
-          <>
-            <Divider orientation="left">
-              {Array.isArray(productType) ? productType[1] : productType}特定信息
-            </Divider>
-            {renderRelatedForm()}
-          </>
-        )}
-
         {/* 操作按钮 */}
         <Row style={{ marginTop: 24 }}>
           <Col span={24} style={{ textAlign: 'center' }}>
@@ -767,6 +757,16 @@ const ExistingForm: React.FC = () => {
             </Space>
           </Col>
         </Row>
+
+        {/* 第三部分：融资类型特定字段（关联数据，编辑即时生效） */}
+        {currentComponentType && (
+          <>
+            <Divider orientation="left">
+              {Array.isArray(productType) ? productType[1] : productType}特定信息
+            </Divider>
+            {renderRelatedForm()}
+          </>
+        )}
       </Form>
     </Card>
   );
