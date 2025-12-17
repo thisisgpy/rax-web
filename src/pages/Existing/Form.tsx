@@ -6,17 +6,19 @@ import {
   DatePicker,
   Switch,
   Button,
-  Card,
   Space,
   Row,
   Col,
   App,
+  Typography,
   Divider
 } from 'antd';
 import {
-  SaveOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  EditOutlined
 } from '@ant-design/icons';
+
+const { Title } = Typography;
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -406,369 +408,415 @@ const ExistingForm: React.FC = () => {
     }
   };
 
+  // 区块标题组件（参考详情页风格）
+  const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
+    <div style={{
+      fontSize: 16,
+      fontWeight: 500,
+      color: '#262626',
+      marginBottom: 24,
+      paddingLeft: 12,
+      borderLeft: '3px solid #1890ff'
+    }}>
+      {title}
+    </div>
+  );
+
   return (
-    <Card loading={detailLoading}>
-      <Button
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate('/financing/existing')}
-        style={{ marginBottom: 16 }}
-      >
-        返回列表
-      </Button>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
+      {/* 顶部操作栏 */}
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button
+          type="link"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate('/financing/existing')}
+          style={{ padding: 0, color: '#262626' }}
+        >
+          返回列表
+        </Button>
+        <Space>
+          <Button onClick={() => navigate('/financing/existing')}>
+            取消
+          </Button>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={handleSubmit}
+            loading={createMutation.isPending || updateMutation.isPending}
+          >
+            {isEdit ? '保存' : '提交'}
+          </Button>
+        </Space>
+      </div>
+
+      {/* 页面标题 */}
+      <div style={{ marginBottom: 32 }}>
+        <Title level={4} style={{ margin: 0 }}>
+          {isEdit ? '编辑存量融资' : '新增存量融资'}
+        </Title>
+      </div>
 
       <Form
         form={form}
         layout="vertical"
         requiredMark="optional"
       >
-        {/* 第一部分：基础字段 */}
-        <Divider orientation="left">基础信息</Divider>
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="orgId"
-              label="融资主体"
-              rules={[{ required: true, message: '请选择融资主体' }]}
-            >
-              <OrgSelect placeholder="请选择融资主体" />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="loanName"
-              label="融资名称"
-              rules={[{ required: true, message: '请输入融资名称' }]}
-            >
-              <Input placeholder="请输入融资名称" maxLength={100} />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="productType"
-              label="融资类型"
-              rules={[{ required: true, message: '请选择融资类型' }]}
-            >
-              <DictSelect
-                dictCode="fin.product"
-                placeholder="请选择融资类型"
-                includeAncestors
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="institutionId"
-              label="资金方"
-              rules={[{ required: true, message: '请选择资金方' }]}
-            >
-              <InstitutionSelect
-                placeholder="请选择资金方"
-                onChange={handleInstitutionChange}
-              />
-            </Form.Item>
-            {/* 隐藏字段用于提交 */}
-            <Form.Item name="institutionName" hidden>
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="contractAmount"
-              label="合同金额（万元）"
-              rules={[
-                { required: true, message: '请输入合同金额' },
-                { type: 'number', min: 0.000001, message: '合同金额必须大于0' }
-              ]}
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                placeholder="请输入合同金额"
-                min={0}
-                precision={6}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="currency"
-              label="币种"
-              initialValue="CNY"
-            >
-              <DictSelect
-                dictCode="sys.currency"
-                placeholder="请选择币种"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="termMonths"
-              label="期限（月）"
-              rules={[{ required: true, message: '请输入期限' }]}
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                placeholder="请输入期限"
-                min={1}
-                precision={0}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="maturityDate"
-              label="合同到期日"
-              rules={[{ required: true, message: '请选择合同到期日' }]}
-            >
-              <DatePicker style={{ width: '100%' }} placeholder="请选择日期" />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="isMultiDisb"
-              label="是否多次放款"
-              valuePropName="checked"
-            >
-              <Switch checkedChildren="是" unCheckedChildren="否" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="rateMode"
-              label="利率方式"
-              rules={[{ required: true, message: '请选择利率方式' }]}
-            >
-              <DictSelect
-                dictCode="rate.mode"
-                placeholder="请选择利率方式"
-              />
-            </Form.Item>
-          </Col>
-          {/* 固定利率 - 当利率方式为"固定"时显示 */}
-          {rateMode === '固定' && (
-            <Col span={8} key="fixedRate">
+        {/* 基础信息区块 */}
+        <div style={{ marginBottom: 32 }}>
+          <SectionTitle title="基础信息" />
+          <Row gutter={24}>
+            <Col span={8}>
               <Form.Item
-                name="fixedRate"
-                label="固定利率（%）"
-                rules={[{ required: true, message: '请输入固定利率' }]}
+                name="orgId"
+                label="融资主体"
+                rules={[{ required: true, message: '请选择融资主体' }]}
               >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="请输入固定利率"
-                  min={0}
-                  max={100}
-                  precision={4}
+                <OrgSelect placeholder="请选择融资主体" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="loanName"
+                label="融资名称"
+                rules={[{ required: true, message: '请输入融资名称' }]}
+              >
+                <Input placeholder="请输入融资名称" maxLength={100} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="productType"
+                label="融资类型"
+                rules={[{ required: true, message: '请选择融资类型' }]}
+              >
+                <DictSelect
+                  dictCode="fin.product"
+                  placeholder="请选择融资类型"
+                  includeAncestors
                 />
               </Form.Item>
             </Col>
-          )}
-          {/* LPR+BP - 显示基准利率和加点 */}
-          {rateMode === 'LPR+BP' && (
-            <Col span={8} key="baseRate-lpr">
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={8}>
               <Form.Item
-                name="baseRate"
-                label="基准利率（%）"
-                rules={[{ required: true, message: '请输入基准利率' }]}
+                name="institutionId"
+                label="资金方"
+                rules={[{ required: true, message: '请选择资金方' }]}
+              >
+                <InstitutionSelect
+                  placeholder="请选择资金方"
+                  onChange={handleInstitutionChange}
+                />
+              </Form.Item>
+              <Form.Item name="institutionName" hidden>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="contractAmount"
+                label="合同金额（万元）"
+                rules={[
+                  { required: true, message: '请输入合同金额' },
+                  { type: 'number', min: 0.000001, message: '合同金额必须大于0' }
+                ]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
-                  placeholder="请输入基准利率"
+                  placeholder="请输入合同金额"
                   min={0}
-                  max={100}
-                  precision={4}
+                  precision={6}
                 />
               </Form.Item>
             </Col>
-          )}
-          {rateMode === 'LPR+BP' && (
-            <Col span={8} key="spreadBp">
+            <Col span={8}>
               <Form.Item
-                name="spreadBp"
-                label="加点（BP）"
-                rules={[{ required: true, message: '请输入加点' }]}
+                name="currency"
+                label="币种"
+                initialValue="CNY"
+              >
+                <DictSelect
+                  dictCode="sys.currency"
+                  placeholder="请选择币种"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={8}>
+              <Form.Item
+                name="termMonths"
+                label="期限（月）"
+                rules={[{ required: true, message: '请输入期限' }]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
-                  placeholder="请输入加点"
+                  placeholder="请输入期限"
+                  min={1}
                   precision={0}
                 />
               </Form.Item>
             </Col>
-          )}
-          {/* 浮动利率 - 显示基准利率 */}
-          {rateMode === '浮动' && (
-            <Col span={8} key="baseRate-floating">
+            <Col span={8}>
               <Form.Item
-                name="baseRate"
-                label="基准利率（%）"
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="请输入基准利率"
-                  min={0}
-                  max={100}
-                  precision={4}
-                />
-              </Form.Item>
-            </Col>
-          )}
-          {/* 票面利率 - 显示票面利率（使用 baseRate 字段） */}
-          {rateMode === '票面' && (
-            <Col span={8} key="baseRate-coupon">
-              <Form.Item
-                name="baseRate"
-                label="票面利率（%）"
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="请输入票面利率"
-                  min={0}
-                  max={100}
-                  precision={4}
-                />
-              </Form.Item>
-            </Col>
-          )}
-        </Row>
-
-        <Row gutter={24}>
-          {/* 重定价周期和锚定日 - 仅浮动利率或LPR+BP时显示 */}
-          {(rateMode === '浮动' || rateMode === 'LPR+BP') && (
-            <Col span={8} key="rateResetCycle">
-              <Form.Item
-                name="rateResetCycle"
-                label="重定价周期"
-              >
-                <DictSelect
-                  dictCode="rate.reset.cycle"
-                  placeholder="请选择重定价周期"
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          )}
-          {(rateMode === '浮动' || rateMode === 'LPR+BP') && (
-            <Col span={8} key="rateResetAnchorDate">
-              <Form.Item
-                name="rateResetAnchorDate"
-                label="重定价锚定日"
+                name="maturityDate"
+                label="合同到期日"
+                rules={[{ required: true, message: '请选择合同到期日' }]}
               >
                 <DatePicker style={{ width: '100%' }} placeholder="请选择日期" />
               </Form.Item>
             </Col>
-          )}
-          <Col span={8}>
-            <Form.Item
-              name="dayCountConvention"
-              label="计息日规则"
-            >
-              <DictSelect
-                dictCode="day.count.convention"
-                placeholder="请选择计息日规则"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+            <Col span={8}>
+              <Form.Item
+                name="isMultiDisb"
+                label="是否多次放款"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="repayMethod"
-              label="还款方式"
-              rules={[{ required: true, message: '请选择还款方式' }]}
-            >
-              <DictSelect
-                dictCode="repay.method"
-                placeholder="请选择还款方式"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="status"
-              label="状态"
-              rules={[{ required: true, message: '请选择状态' }]}
-            >
-              <DictSelect
-                dictCode="loan.status"
-                placeholder="请选择状态"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+          <Row gutter={24}>
+            <Col span={8}>
+              <Form.Item
+                name="repayMethod"
+                label="还款方式"
+                rules={[{ required: true, message: '请选择还款方式' }]}
+              >
+                <DictSelect
+                  dictCode="repay.method"
+                  placeholder="请选择还款方式"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="status"
+                label="状态"
+                rules={[{ required: true, message: '请选择状态' }]}
+              >
+                <DictSelect
+                  dictCode="loan.status"
+                  placeholder="请选择状态"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
 
-        <Row gutter={24}>
-          <Col span={16}>
-            <Form.Item
-              name="remark"
-              label="备注"
-            >
-              <TextArea rows={3} placeholder="请输入备注" maxLength={500} />
-            </Form.Item>
-          </Col>
-        </Row>
+        <Divider style={{ margin: '0 0 32px 0' }} />
 
-        <Row gutter={24}>
-          <Col span={24}>
-            <Form.Item label="融资附件">
-              <RaxUpload
-                bizModule="FinLoan"
-                value={files}
-                onChange={setFiles}
-                maxCount={10}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {/* 利率信息区块 */}
+        <div style={{ marginBottom: 32 }}>
+          <SectionTitle title="利率信息" />
+          <Row gutter={24}>
+            <Col span={8}>
+              <Form.Item
+                name="rateMode"
+                label="利率方式"
+                rules={[{ required: true, message: '请选择利率方式' }]}
+              >
+                <DictSelect
+                  dictCode="rate.mode"
+                  placeholder="请选择利率方式"
+                />
+              </Form.Item>
+            </Col>
+            {rateMode === '固定' && (
+              <Col span={8} key="fixedRate">
+                <Form.Item
+                  name="fixedRate"
+                  label="固定利率（%）"
+                  rules={[{ required: true, message: '请输入固定利率' }]}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="请输入固定利率"
+                    min={0}
+                    max={100}
+                    precision={4}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {rateMode === 'LPR+BP' && (
+              <Col span={8} key="baseRate-lpr">
+                <Form.Item
+                  name="baseRate"
+                  label="基准利率（%）"
+                  rules={[{ required: true, message: '请输入基准利率' }]}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="请输入基准利率"
+                    min={0}
+                    max={100}
+                    precision={4}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {rateMode === 'LPR+BP' && (
+              <Col span={8} key="spreadBp">
+                <Form.Item
+                  name="spreadBp"
+                  label="加点（BP）"
+                  rules={[{ required: true, message: '请输入加点' }]}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="请输入加点"
+                    precision={0}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {rateMode === '浮动' && (
+              <Col span={8} key="baseRate-floating">
+                <Form.Item
+                  name="baseRate"
+                  label="基准利率（%）"
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="请输入基准利率"
+                    min={0}
+                    max={100}
+                    precision={4}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {rateMode === '票面' && (
+              <Col span={8} key="baseRate-coupon">
+                <Form.Item
+                  name="baseRate"
+                  label="票面利率（%）"
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="请输入票面利率"
+                    min={0}
+                    max={100}
+                    precision={4}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
 
-        {/* 第二部分：扩展字段 */}
+          <Row gutter={24}>
+            {(rateMode === '浮动' || rateMode === 'LPR+BP') && (
+              <Col span={8} key="rateResetCycle">
+                <Form.Item
+                  name="rateResetCycle"
+                  label="重定价周期"
+                >
+                  <DictSelect
+                    dictCode="rate.reset.cycle"
+                    placeholder="请选择重定价周期"
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+            )}
+            {(rateMode === '浮动' || rateMode === 'LPR+BP') && (
+              <Col span={8} key="rateResetAnchorDate">
+                <Form.Item
+                  name="rateResetAnchorDate"
+                  label="重定价锚定日"
+                >
+                  <DatePicker style={{ width: '100%' }} placeholder="请选择日期" />
+                </Form.Item>
+              </Col>
+            )}
+            <Col span={8}>
+              <Form.Item
+                name="dayCountConvention"
+                label="计息日规则"
+              >
+                <DictSelect
+                  dictCode="day.count.convention"
+                  placeholder="请选择计息日规则"
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
+
+        <Divider style={{ margin: '0 0 32px 0' }} />
+
+        {/* 备注与附件区块 */}
+        <div style={{ marginBottom: 32 }}>
+          <SectionTitle title="备注与附件" />
+          <Row gutter={24}>
+            <Col span={16}>
+              <Form.Item
+                name="remark"
+                label="备注"
+              >
+                <TextArea rows={3} placeholder="请输入备注" maxLength={500} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item label="融资附件">
+                <RaxUpload
+                  bizModule="FinLoan"
+                  value={files}
+                  onChange={setFiles}
+                  maxCount={10}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
+
+        {/* 扩展字段区块 */}
         {extFieldDefs.length > 0 && (
           <>
-            <Divider orientation="left">扩展信息</Divider>
-            <ExtFieldFormItems fields={extFieldDefs} columns={3} />
+            <Divider style={{ margin: '0 0 32px 0' }} />
+            <div style={{ marginBottom: 32 }}>
+              <SectionTitle title="扩展信息" />
+              <ExtFieldFormItems fields={extFieldDefs} columns={3} />
+            </div>
           </>
         )}
 
-        {/* 操作按钮 */}
-        <Row style={{ marginTop: 24 }}>
-          <Col span={24} style={{ textAlign: 'center' }}>
-            <Space size="large">
-              <Button
-                type="primary"
-                icon={<SaveOutlined />}
-                onClick={handleSubmit}
-                loading={createMutation.isPending || updateMutation.isPending}
-              >
-                {isEdit ? '保存' : '提交'}
-              </Button>
-              <Button onClick={() => navigate('/financing/existing')}>
-                取消
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-
-        {/* 第三部分：融资类型特定字段（关联数据，编辑即时生效） */}
+        {/* 融资类型特定信息区块 */}
         {currentComponentType && (
           <>
-            <Divider orientation="left">
-              {Array.isArray(productType) ? productType[1] : productType}特定信息
-            </Divider>
-            {renderRelatedForm()}
+            <Divider style={{ margin: '0 0 32px 0' }} />
+            <div style={{ marginBottom: 32 }}>
+              <SectionTitle title={`${Array.isArray(productType) ? productType[1] : productType}特定信息`} />
+              {renderRelatedForm()}
+            </div>
           </>
         )}
+
+        {/* 底部操作栏 */}
+        <Divider style={{ margin: '0 0 24px 0' }} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingBottom: 24 }}>
+          <Button onClick={() => navigate('/financing/existing')}>
+            取消
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            loading={createMutation.isPending || updateMutation.isPending}
+          >
+            {isEdit ? '保存' : '提交'}
+          </Button>
+        </div>
       </Form>
-    </Card>
+    </div>
   );
 };
 

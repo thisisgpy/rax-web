@@ -13,7 +13,9 @@ import {
   Col,
   Divider,
   App,
-  Popconfirm
+  Popconfirm,
+  Descriptions,
+  Tag
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -378,7 +380,7 @@ const LcForm: React.FC<LcFormProps> = ({
       />
 
       <Modal
-        title={editingItem ? '编辑信用证' : '添加信用证'}
+        title={editingItem?.mapId ? '编辑信用证关联' : (editingItem ? '编辑信用证' : '添加信用证')}
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => {
@@ -389,7 +391,7 @@ const LcForm: React.FC<LcFormProps> = ({
         width={900}
       >
         <Form form={form} layout="vertical">
-          {/* 关联信息 */}
+          {/* 关联信息 - 始终可编辑 */}
           <Divider orientation="left" style={{ fontSize: 14 }}>关联信息</Divider>
           <Row gutter={16}>
             <Col span={8}>
@@ -409,184 +411,278 @@ const LcForm: React.FC<LcFormProps> = ({
             </Col>
           </Row>
 
-          {/* 信用证基础信息 */}
+          {/* 信用证基础信息 - 编辑已有记录时只读展示 */}
           <Divider orientation="left" style={{ fontSize: 14 }}>信用证信息</Divider>
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="lcNo"
-                label="信用证编号"
-                rules={[{ required: true, message: '请输入信用证编号' }]}
-              >
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="lcType" label="信用证类型">
-                <DictSelect dictCode="lc.type" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="issuingBankId"
-                label="开证行"
-                rules={[{ required: true, message: '请选择开证行' }]}
-              >
-                <InstitutionSelect placeholder="请选择" />
-              </Form.Item>
-            </Col>
-          </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="advisingBankId" label="通知/保兑行">
-                <InstitutionSelect placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="confirmFlag" label="是否保兑" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="currency"
-                label="币种"
-                initialValue="CNY"
-                rules={[{ required: true, message: '请选择币种' }]}
-              >
-                <DictSelect dictCode="sys.currency" placeholder="请选择" />
-              </Form.Item>
-            </Col>
-          </Row>
+          {editingItem?.mapId ? (
+            // 编辑模式：信用证信息以详情形式展示
+            <Descriptions
+              bordered
+              size="small"
+              column={3}
+              style={{ marginBottom: 16 }}
+              labelStyle={{ background: '#fafafa', width: 120 }}
+            >
+              <Descriptions.Item label="信用证编号">
+                {editingItem.newLc?.lcNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="信用证类型">
+                {editingItem.newLc?.lcType || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="开证行">
+                {editingItem.newLc?.issuingBankName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="币种">
+                {editingItem.newLc?.currency || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="信用证金额">
+                {editingItem.newLc?.lcAmount ? (
+                  <AmountDisplay value={editingItem.newLc.lcAmount} />
+                ) : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="金额容差">
+                {editingItem.newLc?.tolerancePct != null ? `${editingItem.newLc.tolerancePct}%` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="开证日期">
+                {editingItem.newLc?.issueDate || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="到期日">
+                {editingItem.newLc?.expiryDate || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="到期地点">
+                {editingItem.newLc?.placeOfExpiry || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="是否保兑">
+                {editingItem.newLc?.confirmFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="可用方式">
+                {editingItem.newLc?.availableBy || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="交单期限">
+                {editingItem.newLc?.presentationDays != null ? `${editingItem.newLc.presentationDays}天` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="申请人">
+                {editingItem.newLc?.applicant || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="受益人">
+                {editingItem.newLc?.beneficiary || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="装运港">
+                {editingItem.newLc?.shipmentFrom || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="卸货港">
+                {editingItem.newLc?.shipmentTo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="最迟装运期">
+                {editingItem.newLc?.latestShipment || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="保证金比例">
+                {editingItem.newLc?.marginRatio != null ? `${editingItem.newLc.marginRatio}%` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="保证金金额">
+                {editingItem.newLc?.marginAmount ? (
+                  <AmountDisplay value={editingItem.newLc.marginAmount} />
+                ) : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="开证费率">
+                {editingItem.newLc?.commissionRate != null ? `${editingItem.newLc.commissionRate}%` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="允许分批装运">
+                {editingItem.newLc?.partialShipmentAllowed ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="允许转运">
+                {editingItem.newLc?.transshipmentAllowed ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="状态">
+                {editingItem.newLc?.status || '-'}
+              </Descriptions.Item>
+              {editingItem.newLc?.remark && (
+                <Descriptions.Item label="信用证备注" span={3}>
+                  {editingItem.newLc.remark}
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          ) : (
+            // 新增模式：信用证信息可编辑
+            <>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="lcNo"
+                    label="信用证编号"
+                    rules={[{ required: true, message: '请输入信用证编号' }]}
+                  >
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="lcType" label="信用证类型">
+                    <DictSelect dictCode="lc.type" placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="issuingBankId"
+                    label="开证行"
+                    rules={[{ required: true, message: '请选择开证行' }]}
+                  >
+                    <InstitutionSelect placeholder="请选择" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="lcAmount"
-                label="信用证金额（万元）"
-                rules={[{ required: true, message: '请输入金额' }]}
-              >
-                <InputNumber style={{ width: '100%' }} min={0} precision={6} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="tolerancePct" label="金额容差(%)">
-                <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="issueDate"
-                label="开证日期"
-                rules={[{ required: true, message: '请选择日期' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="advisingBankId" label="通知/保兑行">
+                    <InstitutionSelect placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="confirmFlag" label="是否保兑" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="currency"
+                    label="币种"
+                    initialValue="CNY"
+                    rules={[{ required: true, message: '请选择币种' }]}
+                  >
+                    <DictSelect dictCode="sys.currency" placeholder="请选择" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="expiryDate"
-                label="到期日"
-                rules={[{ required: true, message: '请选择日期' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="placeOfExpiry" label="到期地点">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="availableBy" label="可用方式">
-                <DictSelect dictCode="lc.available.by" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="lcAmount"
+                    label="信用证金额（万元）"
+                    rules={[{ required: true, message: '请输入金额' }]}
+                  >
+                    <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="tolerancePct" label="金额容差(%)">
+                    <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="issueDate"
+                    label="开证日期"
+                    rules={[{ required: true, message: '请选择日期' }]}
+                  >
+                    <DatePicker style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="applicant" label="申请人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="beneficiary" label="受益人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="presentationDays" label="交单期限(天)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="expiryDate"
+                    label="到期日"
+                    rules={[{ required: true, message: '请选择日期' }]}
+                  >
+                    <DatePicker style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="placeOfExpiry" label="到期地点">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="availableBy" label="可用方式">
+                    <DictSelect dictCode="lc.available.by" placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="shipmentFrom" label="装运港">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="shipmentTo" label="卸货港">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="latestShipment" label="最迟装运期">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="applicant" label="申请人">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="beneficiary" label="受益人">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="presentationDays" label="交单期限(天)">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="marginRatio" label="保证金比例(%)">
-                <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="marginAmount" label="保证金金额（万元）">
-                <InputNumber style={{ width: '100%' }} min={0} precision={6} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="commissionRate" label="开证费率(%)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={4} />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="shipmentFrom" label="装运港">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="shipmentTo" label="卸货港">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="latestShipment" label="最迟装运期">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="partialShipmentAllowed" label="允许分批装运" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="transshipmentAllowed" label="允许转运" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="lcStatus" label="状态">
-                <DictSelect dictCode="lc.status" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="marginRatio" label="保证金比例(%)">
+                    <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="marginAmount" label="保证金金额（万元）">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="commissionRate" label="开证费率(%)">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={4} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item name="lcRemark" label="信用证备注">
-                <Input.TextArea rows={2} placeholder="请输入" />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="partialShipmentAllowed" label="允许分批装运" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="transshipmentAllowed" label="允许转运" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="lcStatus" label="状态">
+                    <DictSelect dictCode="lc.status" placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item name="lcRemark" label="信用证备注">
+                    <Input.TextArea rows={2} placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </>
+          )}
         </Form>
       </Modal>
     </>

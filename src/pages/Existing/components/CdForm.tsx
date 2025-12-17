@@ -13,7 +13,9 @@ import {
   Col,
   Divider,
   App,
-  Popconfirm
+  Popconfirm,
+  Descriptions,
+  Tag
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -364,7 +366,7 @@ const CdForm: React.FC<CdFormProps> = ({
       />
 
       <Modal
-        title={editingItem ? '编辑存单' : '添加存单'}
+        title={editingItem?.mapId ? '编辑存单关联' : (editingItem ? '编辑存单' : '添加存单')}
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => {
@@ -375,7 +377,7 @@ const CdForm: React.FC<CdFormProps> = ({
         width={900}
       >
         <Form form={form} layout="vertical">
-          {/* 关联信息 */}
+          {/* 关联信息 - 始终可编辑 */}
           <Divider orientation="left" style={{ fontSize: 14 }}>质押关联信息</Divider>
           <Row gutter={16}>
             <Col span={8}>
@@ -412,130 +414,198 @@ const CdForm: React.FC<CdFormProps> = ({
             </Col>
           </Row>
 
-          {/* 存单基础信息 */}
+          {/* 存单基础信息 - 编辑已有记录时只读展示 */}
           <Divider orientation="left" style={{ fontSize: 14 }}>存单信息</Divider>
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="cdNo"
-                label="存单编号"
-                rules={[{ required: true, message: '请输入存单编号' }]}
-              >
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="bankId"
-                label="开立银行"
-                rules={[{ required: true, message: '请选择开立银行' }]}
-              >
-                <InstitutionSelect placeholder="请选择" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="currency"
-                label="币种"
-                initialValue="CNY"
-                rules={[{ required: true, message: '请选择币种' }]}
-              >
-                <DictSelect dictCode="sys.currency" placeholder="请选择" />
-              </Form.Item>
-            </Col>
-          </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="principalAmount"
-                label="本金（万元）"
-                rules={[{ required: true, message: '请输入本金' }]}
-              >
-                <InputNumber style={{ width: '100%' }} min={0} precision={6} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="interestRate" label="名义利率(%)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={4} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="dayCountConvention" label="计息规则">
-                <DictSelect dictCode="day.count.convention" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-          </Row>
+          {editingItem?.mapId ? (
+            // 编辑模式：存单信息以详情形式展示
+            <Descriptions
+              bordered
+              size="small"
+              column={3}
+              style={{ marginBottom: 16 }}
+              labelStyle={{ background: '#fafafa', width: 120 }}
+            >
+              <Descriptions.Item label="存单编号">
+                {editingItem.newCd?.cdNo || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="开立银行">
+                {editingItem.newCd?.bankName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="币种">
+                {editingItem.newCd?.currency || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="本金">
+                {editingItem.newCd?.principalAmount ? (
+                  <AmountDisplay value={editingItem.newCd.principalAmount} />
+                ) : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="名义利率">
+                {editingItem.newCd?.interestRate != null ? `${editingItem.newCd.interestRate}%` : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="计息规则">
+                {editingItem.newCd?.dayCountConvention || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="付息频率">
+                {editingItem.newCd?.interestPayFreq || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="是否复利">
+                {editingItem.newCd?.compoundFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="期限(月)">
+                {editingItem.newCd?.termMonths ?? '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="起息日">
+                {editingItem.newCd?.issueDate || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="到期日">
+                {editingItem.newCd?.maturityDate || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="存单持有人">
+                {editingItem.newCd?.certificateHolder || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="自动续存">
+                {editingItem.newCd?.autoRenewFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="续存次数">
+                {editingItem.newCd?.rolloverCount ?? '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="冻结/质押">
+                {editingItem.newCd?.freezeFlag ? <Tag color="orange">是</Tag> : <Tag>否</Tag>}
+              </Descriptions.Item>
+              {editingItem.newCd?.remark && (
+                <Descriptions.Item label="存单备注" span={3}>
+                  {editingItem.newCd.remark}
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          ) : (
+            // 新增模式：存单信息可编辑
+            <>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="cdNo"
+                    label="存单编号"
+                    rules={[{ required: true, message: '请输入存单编号' }]}
+                  >
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="bankId"
+                    label="开立银行"
+                    rules={[{ required: true, message: '请选择开立银行' }]}
+                  >
+                    <InstitutionSelect placeholder="请选择" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="currency"
+                    label="币种"
+                    initialValue="CNY"
+                    rules={[{ required: true, message: '请选择币种' }]}
+                  >
+                    <DictSelect dictCode="sys.currency" placeholder="请选择" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="interestPayFreq" label="付息频率">
-                <DictSelect dictCode="cd.interest.pay.freq" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="termMonths" label="期限(月)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="principalAmount"
+                    label="本金（万元）"
+                    rules={[{ required: true, message: '请输入本金' }]}
+                  >
+                    <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="interestRate" label="名义利率(%)">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={4} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="dayCountConvention" label="计息规则">
+                    <DictSelect dictCode="day.count.convention" placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="issueDate"
-                label="起息日"
-                rules={[{ required: true, message: '请选择日期' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="maturityDate"
-                label="到期日"
-                rules={[{ required: true, message: '请选择日期' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="certificateHolder" label="存单持有人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="interestPayFreq" label="付息频率">
+                    <DictSelect dictCode="cd.interest.pay.freq" placeholder="请选择" allowClear />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="termMonths" label="期限(月)">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="rolloverCount" label="续存次数">
-                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="issueDate"
+                    label="起息日"
+                    rules={[{ required: true, message: '请选择日期' }]}
+                  >
+                    <DatePicker style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="maturityDate"
+                    label="到期日"
+                    rules={[{ required: true, message: '请选择日期' }]}
+                  >
+                    <DatePicker style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="certificateHolder" label="存单持有人">
+                    <Input placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item name="cdRemark" label="存单备注">
-                <Input.TextArea rows={2} placeholder="请输入" />
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="rolloverCount" label="续存次数">
+                    <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
+                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item name="cdRemark" label="存单备注">
+                    <Input.TextArea rows={2} placeholder="请输入" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </>
+          )}
         </Form>
       </Modal>
     </>
