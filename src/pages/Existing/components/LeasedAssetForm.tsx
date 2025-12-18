@@ -8,7 +8,9 @@ import {
   InputNumber,
   Space,
   App,
-  Popconfirm
+  Popconfirm,
+  Row,
+  Col
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -312,40 +314,60 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
           setFiles([]);
           setEditingItem(null);
         }}
-        width={600}
+        width={720}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="assetCodeSnapshot" label="资产编码">
-            <Input placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="assetCodeSnapshot" label="资产编码">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="assetNameSnapshot" label="资产名称">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="assetNameSnapshot" label="资产名称">
-            <Input placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="quantity" label="数量">
+                <InputNumber style={{ width: '100%' }} min={0} precision={0} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="unit" label="计量单位">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="quantity" label="数量">
-            <InputNumber style={{ width: '100%' }} min={0} precision={0} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="bookValueAtLease" label="签约时账面价值（万元）">
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="appraisedValueAtLease" label="签约时评估价值（万元）">
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="unit" label="计量单位">
-            <Input placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="bookValueAtLease" label="签约时账面价值（万元）">
-            <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="appraisedValueAtLease" label="签约时评估价值（万元）">
-            <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="serialNo" label="序列号/车架号">
-            <Input placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="serialNo" label="序列号/车架号">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="remark" label="备注">
+                <Input.TextArea rows={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item label="附件">
             <RaxUpload

@@ -56,4 +56,9 @@ export const lcApi = {
   listByLoanId: async (loanId: number): Promise<RaxResult<LoanLcWithMapDto[]>> => {
     return apiService.get<LoanLcWithMapDto[]>(`/v1/fin/bill/lc/loan/${loanId}/list`);
   },
+
+  // 分页查询未被融资关联的信用证
+  pageUnlinked: async (data: QueryLoanLcDto): Promise<RaxResult<PageResult<LoanLcDto>>> => {
+    return apiService.post<PageResult<LoanLcDto>>('/v1/fin/bill/lc/page/unlinked', data);
+  },
 };

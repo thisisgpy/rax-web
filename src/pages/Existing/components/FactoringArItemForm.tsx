@@ -10,7 +10,9 @@ import {
   Switch,
   Space,
   App,
-  Popconfirm
+  Popconfirm,
+  Row,
+  Col
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -322,68 +324,93 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
           setFiles([]);
           setEditingItem(null);
         }}
-        width={600}
+        width={720}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="invoiceNo"
-            label="发票号/应收编号"
-            rules={[{ required: true, message: '请输入' }]}
-          >
-            <Input placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="invoiceNo"
+                label="发票号/应收编号"
+                rules={[{ required: true, message: '请输入' }]}
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="debtorName"
+                label="买方/债务人"
+                rules={[{ required: true, message: '请输入' }]}
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item
-            name="debtorName"
-            label="买方/债务人"
-            rules={[{ required: true, message: '请输入' }]}
-          >
-            <Input placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="arFaceAmount"
+                label="应收票面金额（万元）"
+                rules={[{ required: true, message: '请输入' }]}
+              >
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="assignedAmount" label="转让/已融资金额（万元）">
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item
-            name="arFaceAmount"
-            label="应收票面金额（万元）"
-            rules={[{ required: true, message: '请输入' }]}
-          >
-            <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="issueDate"
+                label="开具/形成日期"
+                rules={[{ required: true, message: '请选择' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="dueDate"
+                label="到期日"
+                rules={[{ required: true, message: '请选择' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="assignedAmount" label="转让/已融资金额（万元）">
-            <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="paidFlag" label="是否已回款" valuePropName="checked">
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="paidDate" label="回款日期">
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item
-            name="issueDate"
-            label="开具/形成日期"
-            rules={[{ required: true, message: '请选择' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            name="dueDate"
-            label="到期日"
-            rules={[{ required: true, message: '请选择' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item name="paidFlag" label="是否已回款" valuePropName="checked">
-            <Switch checkedChildren="是" unCheckedChildren="否" />
-          </Form.Item>
-
-          <Form.Item name="paidDate" label="回款日期">
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item name="status" label="状态">
-            <DictSelect dictCode="factoring.ar.status" placeholder="请选择" allowClear />
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="status" label="状态">
+                <DictSelect dictCode="factoring.ar.status" placeholder="请选择" allowClear />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="remark" label="备注">
+                <Input.TextArea rows={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item label="附件">
             <RaxUpload

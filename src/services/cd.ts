@@ -56,4 +56,9 @@ export const cdApi = {
   listByLoanId: async (loanId: number): Promise<RaxResult<LoanCdWithMapDto[]>> => {
     return apiService.get<LoanCdWithMapDto[]>(`/v1/fin/bill/cd/loan/${loanId}/list`);
   },
+
+  // 分页查询未被融资关联的存单
+  pageUnlinked: async (data: QueryLoanCdDto): Promise<RaxResult<PageResult<LoanCdDto>>> => {
+    return apiService.post<PageResult<LoanCdDto>>('/v1/fin/bill/cd/page/unlinked', data);
+  },
 };

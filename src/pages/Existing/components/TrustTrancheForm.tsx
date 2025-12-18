@@ -8,7 +8,9 @@ import {
   InputNumber,
   Space,
   App,
-  Popconfirm
+  Popconfirm,
+  Row,
+  Col
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -304,40 +306,60 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
           setFiles([]);
           setEditingItem(null);
         }}
-        width={600}
+        width={720}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="trancheName" label="分层名称">
-            <Input placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="trancheName" label="分层名称">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="trancheLevel" label="分层级别">
+                <DictSelect dictCode="trust.tranche.level" placeholder="请选择" allowClear />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="trancheLevel" label="分层级别">
-            <DictSelect dictCode="trust.tranche.level" placeholder="请选择" allowClear />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="paymentRank" label="清偿顺序">
+                <InputNumber style={{ width: '100%' }} min={1} precision={0} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="subscribeAmount" label="认购金额（万元）">
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="paymentRank" label="清偿顺序">
-            <InputNumber style={{ width: '100%' }} min={1} precision={0} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="sharePct" label="份额占比(%)">
+                <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="expectedYieldRate" label="预期收益率(%)">
+                <InputNumber style={{ width: '100%' }} min={0} precision={4} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item name="subscribeAmount" label="认购金额（万元）">
-            <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="sharePct" label="份额占比(%)">
-            <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="expectedYieldRate" label="预期收益率(%)">
-            <InputNumber style={{ width: '100%' }} min={0} precision={4} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="distributionRule" label="收益分配规则">
-            <Input.TextArea rows={2} placeholder="请输入" />
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="请输入" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="distributionRule" label="收益分配规则">
+                <Input.TextArea rows={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="remark" label="备注">
+                <Input.TextArea rows={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item label="附件">
             <RaxUpload

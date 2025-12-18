@@ -15,16 +15,18 @@ import {
   App,
   Popconfirm,
   Descriptions,
-  Tag
+  Tag,
+  Tabs
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import type {
   CreateLoanCdMapDto,
   CreateLoanCdDto,
   LoanCdWithMapDto,
-  UpdateLoanCdMapDto
+  UpdateLoanCdMapDto,
+  LoanCdDto
 } from '@/types/swagger-api';
 import { cdApi } from '@/services/cd';
 import InstitutionSelect from '@/components/InstitutionSelect';
@@ -54,8 +56,16 @@ const CdForm: React.FC<CdFormProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<CdMapItem | null>(null);
   const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<LoanCdWithMapDto[]>([]);
+
+  // Tab 切换相关状态
+  const [activeTab, setActiveTab] = useState<string>('select');
+  const [unlinkedCds, setUnlinkedCds] = useState<LoanCdDto[]>([]);
+  const [unlinkedLoading, setUnlinkedLoading] = useState(false);
+  const [selectedCdIds, setSelectedCdIds] = useState<number[]>([]);
+  const [unlinkedPagination, setUnlinkedPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
   useEffect(() => {
     if (isEdit && loanId) {
@@ -75,6 +85,30 @@ const CdForm: React.FC<CdFormProps> = ({
       message.error('加载存单数据失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 加载未关联的存单列表
+  const loadUnlinkedCds = async (page = 1, pageSize = 10, searchValues?: any) => {
+    setUnlinkedLoading(true);
+    try {
+      const result = await cdApi.pageUnlinked({
+        pageNo: page,
+        pageSize,
+        ...searchValues
+      });
+      if (result.success && result.data) {
+        setUnlinkedCds(result.data.rows || []);
+        setUnlinkedPagination({
+          current: result.data.pageNo || page,
+          pageSize: result.data.pageSize || pageSize,
+          total: result.data.totalCount || 0
+        });
+      }
+    } catch (error) {
+      message.error('加载可用存单失败');
+    } finally {
+      setUnlinkedLoading(false);
     }
   };
 
@@ -128,11 +162,17 @@ const CdForm: React.FC<CdFormProps> = ({
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
+    searchForm.resetFields();
+    setSelectedCdIds([]);
+    setActiveTab('select');
     setModalVisible(true);
+    // 打开弹窗时加载未关联的存单
+    loadUnlinkedCds(1, 10);
   };
 
   const handleEdit = (record: CdMapItem) => {
     setEditingItem(record);
+    setActiveTab('create'); // 编辑时直接进入创建/编辑 Tab
     const cdData = record.newCd;
     form.setFieldsValue({
       pledgeRatio: record.pledgeRatio,
@@ -184,7 +224,81 @@ const CdForm: React.FC<CdFormProps> = ({
     }
   };
 
-  const handleModalOk = async () => {
+  // 搜索未关联存单
+  const handleSearch = () => {
+    const searchValues = searchForm.getFieldsValue();
+    loadUnlinkedCds(1, unlinkedPagination.pageSize, searchValues);
+  };
+
+  // 重置搜索
+  const handleResetSearch = () => {
+    searchForm.resetFields();
+    loadUnlinkedCds(1, unlinkedPagination.pageSize);
+  };
+
+  // 处理选择已有存单的确认
+  const handleSelectExistingOk = async () => {
+    if (selectedCdIds.length === 0) {
+      message.warning('请至少选择一个存单');
+      return;
+    }
+
+    try {
+      const mapValues = await form.validateFields(['pledgeRatio', 'securedValue', 'registrationNo', 'registrationDate', 'releaseDate', 'voucherNo', 'mapRemark']);
+
+      const mapData = {
+        pledgeRatio: mapValues.pledgeRatio,
+        securedValue: mapValues.securedValue ? Math.round(mapValues.securedValue * 1000000) : undefined,
+        registrationNo: mapValues.registrationNo,
+        registrationDate: mapValues.registrationDate?.format('YYYY-MM-DD'),
+        releaseDate: mapValues.releaseDate?.format('YYYY-MM-DD'),
+        voucherNo: mapValues.voucherNo,
+        remark: mapValues.mapRemark
+      };
+
+      if (isEdit && loanId) {
+        // 编辑模式：逐个调用 API 添加
+        let successCount = 0;
+        for (const cdId of selectedCdIds) {
+          const createData: CreateLoanCdMapDto = {
+            cdId,
+            ...mapData
+          };
+          const result = await cdApi.addToLoan(loanId, createData);
+          if (result.success) {
+            successCount++;
+          }
+        }
+        if (successCount > 0) {
+          message.success(`成功添加 ${successCount} 个存单`);
+          loadData();
+        }
+        if (successCount < selectedCdIds.length) {
+          message.warning(`${selectedCdIds.length - successCount} 个存单添加失败`);
+        }
+      } else {
+        // 新增模式：添加到本地状态
+        const selectedCds = unlinkedCds.filter(cd => selectedCdIds.includes(cd.id!));
+        const newItems: CreateLoanCdMapDto[] = selectedCds.map(cd => ({
+          cdId: cd.id,
+          existingCd: cd, // 保存选中的存单信息用于显示
+          ...mapData
+        }));
+        onChange?.([...value, ...newItems]);
+      }
+
+      setModalVisible(false);
+      form.resetFields();
+      setSelectedCdIds([]);
+    } catch (error: any) {
+      if (!error?.errorFields) {
+        message.error('操作失败');
+      }
+    }
+  };
+
+  // 处理创建新存单的确认
+  const handleCreateNewOk = async () => {
     try {
       const values = await form.validateFields();
       const newCd: CreateLoanCdDto = {
@@ -276,17 +390,61 @@ const CdForm: React.FC<CdFormProps> = ({
     }
   };
 
+  const handleModalOk = () => {
+    if (activeTab === 'select' && !editingItem) {
+      handleSelectExistingOk();
+    } else {
+      handleCreateNewOk();
+    }
+  };
+
+  // 未关联存单表格列
+  const unlinkedColumns: ColumnsType<LoanCdDto> = [
+    { title: '存单编号', dataIndex: 'cdNo', key: 'cdNo', width: 140 },
+    { title: '开立银行', dataIndex: 'bankName', key: 'bankName', ellipsis: true },
+    {
+      title: '本金',
+      dataIndex: 'principalAmount',
+      key: 'principalAmount',
+      width: 120,
+      render: (val) => val ? <AmountDisplay value={val} /> : '-'
+    },
+    {
+      title: '利率',
+      dataIndex: 'interestRate',
+      key: 'interestRate',
+      width: 80,
+      render: (val) => val ? `${val}%` : '-'
+    },
+    {
+      title: '到期日',
+      dataIndex: 'maturityDate',
+      key: 'maturityDate',
+      width: 110,
+      render: (val) => val || '-'
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80
+    }
+  ];
+
   const columns: ColumnsType<CdMapItem> = [
     {
       title: '存单编号',
       key: 'cdNo',
-      render: (_, record) => record.newCd?.cdNo || '-'
+      render: (_, record) => record.newCd?.cdNo || (record as any).existingCd?.cdNo || '-'
     },
     {
       title: '本金',
       key: 'principalAmount',
       width: 140,
-      render: (_, record) => record.newCd?.principalAmount ? <AmountDisplay value={record.newCd.principalAmount} /> : '-'
+      render: (_, record) => {
+        const amount = record.newCd?.principalAmount || (record as any).existingCd?.principalAmount;
+        return amount ? <AmountDisplay value={amount} /> : '-';
+      }
     },
     {
       title: '质押比例',
@@ -312,7 +470,7 @@ const CdForm: React.FC<CdFormProps> = ({
       title: '到期日',
       key: 'maturityDate',
       width: 120,
-      render: (_, record) => record.newCd?.maturityDate || '-'
+      render: (_, record) => record.newCd?.maturityDate || (record as any).existingCd?.maturityDate || '-'
     },
     {
       title: '操作',
@@ -348,37 +506,57 @@ const CdForm: React.FC<CdFormProps> = ({
     }
   ];
 
-  return (
+  // 渲染选择已有存单的 Tab 内容
+  const renderSelectExistingTab = () => (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加存单
-        </Button>
-      </div>
+      {/* 搜索表单 */}
+      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }}>
+        <Form.Item name="cdNo" label="存单编号">
+          <Input placeholder="请输入" style={{ width: 140 }} allowClear />
+        </Form.Item>
+        <Form.Item name="bankId" label="开立银行">
+          <InstitutionSelect placeholder="请选择" style={{ width: 180 }} allowClear />
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+              搜索
+            </Button>
+            <Button onClick={handleResetSearch}>重置</Button>
+          </Space>
+        </Form.Item>
+      </Form>
 
+      {/* 存单列表 */}
       <Table
-        columns={columns}
-        dataSource={dataSource}
-        rowKey="_key"
-        pagination={false}
+        rowSelection={{
+          type: 'checkbox',
+          selectedRowKeys: selectedCdIds,
+          onChange: (selectedRowKeys) => setSelectedCdIds(selectedRowKeys as number[])
+        }}
+        columns={unlinkedColumns}
+        dataSource={unlinkedCds}
+        rowKey="id"
         size="small"
-        loading={loading}
+        loading={unlinkedLoading}
+        pagination={{
+          ...unlinkedPagination,
+          showSizeChanger: true,
+          showTotal: (total) => `共 ${total} 条`,
+          onChange: (page, pageSize) => {
+            const searchValues = searchForm.getFieldsValue();
+            loadUnlinkedCds(page, pageSize, searchValues);
+          }
+        }}
+        scroll={{ y: 300 }}
       />
 
-      <Modal
-        title={editingItem?.mapId ? '编辑存单关联' : (editingItem ? '编辑存单' : '添加存单')}
-        open={modalVisible}
-        onOk={handleModalOk}
-        onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
-          setEditingItem(null);
-        }}
-        width={900}
-      >
-        <Form form={form} layout="vertical">
-          {/* 关联信息 - 始终可编辑 */}
-          <Divider orientation="left" style={{ fontSize: 14 }}>质押关联信息</Divider>
+      {/* 选中后显示质押关联信息表单 */}
+      {selectedCdIds.length > 0 && (
+        <>
+          <Divider orientation="left" style={{ fontSize: 14 }}>
+            质押关联信息（已选 {selectedCdIds.length} 个存单）
+          </Divider>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="pledgeRatio" label="质押比例(%)">
@@ -413,198 +591,300 @@ const CdForm: React.FC<CdFormProps> = ({
               </Form.Item>
             </Col>
           </Row>
+        </>
+      )}
+    </>
+  );
 
-          {/* 存单基础信息 - 编辑已有记录时只读展示 */}
-          <Divider orientation="left" style={{ fontSize: 14 }}>存单信息</Divider>
+  // 渲染创建新存单的 Tab 内容
+  const renderCreateNewTab = () => (
+    <>
+      {/* 关联信息 - 始终可编辑 */}
+      <Divider orientation="left" style={{ fontSize: 14 }}>质押关联信息</Divider>
+      <Row gutter={16}>
+        <Col span={8}>
+          <Form.Item name="pledgeRatio" label="质押比例(%)">
+            <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="securedValue" label="认可价值（万元）">
+            <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="registrationNo" label="质押登记号">
+            <Input placeholder="请输入" />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col span={8}>
+          <Form.Item name="registrationDate" label="质押登记日期">
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="releaseDate" label="解押日期">
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="voucherNo" label="记账凭证编号">
+            <Input placeholder="请输入" />
+          </Form.Item>
+        </Col>
+      </Row>
 
-          {editingItem?.mapId ? (
-            // 编辑模式：存单信息以详情形式展示
-            <Descriptions
-              bordered
-              size="small"
-              column={3}
-              style={{ marginBottom: 16 }}
-              labelStyle={{ background: '#fafafa', width: 120 }}
-            >
-              <Descriptions.Item label="存单编号">
-                {editingItem.newCd?.cdNo || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="开立银行">
-                {editingItem.newCd?.bankName || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="币种">
-                {editingItem.newCd?.currency || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="本金">
-                {editingItem.newCd?.principalAmount ? (
-                  <AmountDisplay value={editingItem.newCd.principalAmount} />
-                ) : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="名义利率">
-                {editingItem.newCd?.interestRate != null ? `${editingItem.newCd.interestRate}%` : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="计息规则">
-                {editingItem.newCd?.dayCountConvention || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="付息频率">
-                {editingItem.newCd?.interestPayFreq || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="是否复利">
-                {editingItem.newCd?.compoundFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-              </Descriptions.Item>
-              <Descriptions.Item label="期限(月)">
-                {editingItem.newCd?.termMonths ?? '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="起息日">
-                {editingItem.newCd?.issueDate || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="到期日">
-                {editingItem.newCd?.maturityDate || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="存单持有人">
-                {editingItem.newCd?.certificateHolder || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="自动续存">
-                {editingItem.newCd?.autoRenewFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-              </Descriptions.Item>
-              <Descriptions.Item label="续存次数">
-                {editingItem.newCd?.rolloverCount ?? '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="冻结/质押">
-                {editingItem.newCd?.freezeFlag ? <Tag color="orange">是</Tag> : <Tag>否</Tag>}
-              </Descriptions.Item>
-              {editingItem.newCd?.remark && (
-                <Descriptions.Item label="存单备注" span={3}>
-                  {editingItem.newCd.remark}
-                </Descriptions.Item>
-              )}
-            </Descriptions>
+      {/* 存单基础信息 - 编辑已有记录时只读展示 */}
+      <Divider orientation="left" style={{ fontSize: 14 }}>存单信息</Divider>
+
+      {editingItem?.mapId ? (
+        // 编辑模式：存单信息以详情形式展示
+        <Descriptions
+          bordered
+          size="small"
+          column={3}
+          style={{ marginBottom: 16 }}
+          styles={{ label: { background: '#fafafa', width: 120 } }}
+        >
+          <Descriptions.Item label="存单编号">
+            {editingItem.newCd?.cdNo || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="开立银行">
+            {editingItem.newCd?.bankName || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="币种">
+            {editingItem.newCd?.currency || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="本金">
+            {editingItem.newCd?.principalAmount ? (
+              <AmountDisplay value={editingItem.newCd.principalAmount} />
+            ) : '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="名义利率">
+            {editingItem.newCd?.interestRate != null ? `${editingItem.newCd.interestRate}%` : '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="计息规则">
+            {editingItem.newCd?.dayCountConvention || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="付息频率">
+            {editingItem.newCd?.interestPayFreq || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="是否复利">
+            {editingItem.newCd?.compoundFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+          </Descriptions.Item>
+          <Descriptions.Item label="期限(月)">
+            {editingItem.newCd?.termMonths ?? '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="起息日">
+            {editingItem.newCd?.issueDate || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="到期日">
+            {editingItem.newCd?.maturityDate || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="存单持有人">
+            {editingItem.newCd?.certificateHolder || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="自动续存">
+            {editingItem.newCd?.autoRenewFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
+          </Descriptions.Item>
+          <Descriptions.Item label="续存次数">
+            {editingItem.newCd?.rolloverCount ?? '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="冻结/质押">
+            {editingItem.newCd?.freezeFlag ? <Tag color="orange">是</Tag> : <Tag>否</Tag>}
+          </Descriptions.Item>
+          {editingItem.newCd?.remark && (
+            <Descriptions.Item label="存单备注" span={3}>
+              {editingItem.newCd.remark}
+            </Descriptions.Item>
+          )}
+        </Descriptions>
+      ) : (
+        // 新增模式：存单信息可编辑
+        <>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="cdNo"
+                label="存单编号"
+                rules={[{ required: true, message: '请输入存单编号' }]}
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="bankId"
+                label="开立银行"
+                rules={[{ required: true, message: '请选择开立银行' }]}
+              >
+                <InstitutionSelect placeholder="请选择" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="currency"
+                label="币种"
+                initialValue="CNY"
+                rules={[{ required: true, message: '请选择币种' }]}
+              >
+                <DictSelect dictCode="sys.currency" placeholder="请选择" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="principalAmount"
+                label="本金（万元）"
+                rules={[{ required: true, message: '请输入本金' }]}
+              >
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="interestRate" label="名义利率(%)">
+                <InputNumber style={{ width: '100%' }} min={0} precision={4} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="dayCountConvention" label="计息规则">
+                <DictSelect dictCode="day.count.convention" placeholder="请选择" allowClear />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="interestPayFreq" label="付息频率">
+                <DictSelect dictCode="cd.interest.pay.freq" placeholder="请选择" allowClear />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="termMonths" label="期限(月)">
+                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="issueDate"
+                label="起息日"
+                rules={[{ required: true, message: '请选择日期' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="maturityDate"
+                label="到期日"
+                rules={[{ required: true, message: '请选择日期' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="certificateHolder" label="存单持有人">
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="rolloverCount" label="续存次数">
+                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item name="cdRemark" label="存单备注">
+                <Input.TextArea rows={2} placeholder="请输入" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <div style={{ marginBottom: 16 }}>
+        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+          添加存单
+        </Button>
+      </div>
+
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        rowKey="_key"
+        pagination={false}
+        size="small"
+        loading={loading}
+      />
+
+      <Modal
+        title={editingItem?.mapId ? '编辑存单关联' : (editingItem ? '编辑存单' : '添加存单')}
+        open={modalVisible}
+        onOk={handleModalOk}
+        okText={activeTab === 'select' && !editingItem ? `确定添加${selectedCdIds.length > 0 ? `(${selectedCdIds.length})` : ''}` : '确定'}
+        onCancel={() => {
+          setModalVisible(false);
+          form.resetFields();
+          searchForm.resetFields();
+          setEditingItem(null);
+          setSelectedCdIds([]);
+        }}
+        width={960}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical">
+          {editingItem ? (
+            // 编辑模式：直接显示创建/编辑表单
+            renderCreateNewTab()
           ) : (
-            // 新增模式：存单信息可编辑
-            <>
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    name="cdNo"
-                    label="存单编号"
-                    rules={[{ required: true, message: '请输入存单编号' }]}
-                  >
-                    <Input placeholder="请输入" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="bankId"
-                    label="开立银行"
-                    rules={[{ required: true, message: '请选择开立银行' }]}
-                  >
-                    <InstitutionSelect placeholder="请选择" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="currency"
-                    label="币种"
-                    initialValue="CNY"
-                    rules={[{ required: true, message: '请选择币种' }]}
-                  >
-                    <DictSelect dictCode="sys.currency" placeholder="请选择" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    name="principalAmount"
-                    label="本金（万元）"
-                    rules={[{ required: true, message: '请输入本金' }]}
-                  >
-                    <InputNumber style={{ width: '100%' }} min={0} precision={6} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="interestRate" label="名义利率(%)">
-                    <InputNumber style={{ width: '100%' }} min={0} precision={4} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="dayCountConvention" label="计息规则">
-                    <DictSelect dictCode="day.count.convention" placeholder="请选择" allowClear />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item name="interestPayFreq" label="付息频率">
-                    <DictSelect dictCode="cd.interest.pay.freq" placeholder="请选择" allowClear />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
-                    <Switch checkedChildren="是" unCheckedChildren="否" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="termMonths" label="期限(月)">
-                    <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    name="issueDate"
-                    label="起息日"
-                    rules={[{ required: true, message: '请选择日期' }]}
-                  >
-                    <DatePicker style={{ width: '100%' }} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="maturityDate"
-                    label="到期日"
-                    rules={[{ required: true, message: '请选择日期' }]}
-                  >
-                    <DatePicker style={{ width: '100%' }} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="certificateHolder" label="存单持有人">
-                    <Input placeholder="请输入" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
-                    <Switch checkedChildren="是" unCheckedChildren="否" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="rolloverCount" label="续存次数">
-                    <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
-                    <Switch checkedChildren="是" unCheckedChildren="否" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={24}>
-                  <Form.Item name="cdRemark" label="存单备注">
-                    <Input.TextArea rows={2} placeholder="请输入" />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </>
+            // 新增模式：显示 Tab 切换
+            <Tabs
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={[
+                {
+                  key: 'select',
+                  label: '选择已有',
+                  children: renderSelectExistingTab()
+                },
+                {
+                  key: 'create',
+                  label: '创建新的',
+                  children: renderCreateNewTab()
+                }
+              ]}
+            />
           )}
         </Form>
       </Modal>

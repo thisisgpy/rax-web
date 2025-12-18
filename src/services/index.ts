@@ -15,6 +15,7 @@ export { bankApi } from './bank';
 export { attachmentApi } from './attachment';
 export { assetApi } from './asset';
 export { areaApi } from './area';
+export { fixedAssetMapApi } from './fixedAssetMap';
 
 // 导出所有类型
 export * from '@/types/swagger-api';

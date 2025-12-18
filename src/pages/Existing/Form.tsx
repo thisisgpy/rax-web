@@ -51,6 +51,7 @@ import TrustTrancheForm from './components/TrustTrancheForm';
 import FactoringArItemForm from './components/FactoringArItemForm';
 import ScfVoucherItemForm from './components/ScfVoucherItemForm';
 import LeasedAssetForm from './components/LeasedAssetForm';
+import FixedAssetMapForm from './components/FixedAssetMapForm';
 
 const { TextArea } = Input;
 
@@ -63,6 +64,7 @@ const PRODUCT_TYPE_COMPONENT_MAP: Record<string, string> = {
   '保理公司融资': 'factoring',
   '供应链金融平台融资': 'scf',
   '融资租赁公司融资': 'leasing',
+  '固定资产融资': 'fixedAsset',
 };
 
 const ExistingForm: React.FC = () => {
@@ -401,6 +403,14 @@ const ExistingForm: React.FC = () => {
             {...commonProps}
             value={relatedData.leasedAssetList}
             onChange={(data) => handleRelatedDataChange('leasedAssetList', data)}
+          />
+        );
+      case 'fixedAsset':
+        return (
+          <FixedAssetMapForm
+            {...commonProps}
+            value={relatedData.fixedAssetMapList}
+            onChange={(data) => handleRelatedDataChange('fixedAssetMapList', data)}
           />
         );
       default:

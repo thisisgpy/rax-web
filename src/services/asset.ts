@@ -25,6 +25,11 @@ export const assetApi = {
     return apiService.post<PageResult<FixedAssetDto>>('/v1/asset/fixed/page', data);
   },
 
+  // 分页查询未被融资关联的固定资产
+  pageUnlinked: async (data: QueryFixedAssetDto): Promise<RaxResult<PageResult<FixedAssetDto>>> => {
+    return apiService.post<PageResult<FixedAssetDto>>('/v1/asset/fixed/page/unlinked', data);
+  },
+
   // 获取固定资产详情
   get: async (id: number): Promise<RaxResult<FixedAssetDto>> => {
     return apiService.get<FixedAssetDto>(`/v1/asset/fixed/get/${id}`);

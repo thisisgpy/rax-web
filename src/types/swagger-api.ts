@@ -702,6 +702,7 @@ export interface LoanDto {
   leasedAssetList?: LeasedAssetDto[];               // 融资租赁资产列表
   voucherItemList?: ScfVoucherItemDto[];            // 供应链金融凭证列表
   trancheList?: TrustTrancheDto[];                  // 信托分层信息列表
+  fixedAssetMapList?: FixedAssetMapDto[];           // 固定资产关联列表
   fileAttachments?: SysAttachmentDto[];             // 文件附件列表
 }
 
@@ -787,6 +788,7 @@ export interface LoanRelatedData {
   leasedAssetList?: CreateLeasedAssetDto[];         // 租赁资产列表（融资租赁）
   voucherItemList?: CreateScfVoucherItemDto[];      // 凭证明细列表（供应链金融）
   trancheList?: CreateTrustTrancheDto[];            // 分层信息列表（信托/ABS）
+  fixedAssetMapList?: CreateFixedAssetMapDto[];     // 固定资产关联列表（固定资产融资）
 }
 
 // ===== 融资扩展字段类型 =====
@@ -1525,4 +1527,63 @@ export interface QueryTrustTrancheDto {
   loanId?: number;                         // 关联贷款ID
   trancheName?: string;                    // 分层名称
   trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
+}
+
+// ===== 固定资产融资关联类型 =====
+
+// 融资-固定资产关联DTO
+export interface FixedAssetMapDto {
+  id: number;                              // 关联映射ID
+  loanId: number;                          // 融资ID
+  fixedAssetId: number;                    // 固定资产ID
+  assetCodeSnapshot?: string;              // 资产编码快照
+  assetNameSnapshot?: string;              // 资产名称快照
+  bookValueAtPledge?: number;              // 质押时账面价值(分)
+  appraisedValue?: number;                 // 评估/认可价值(分)
+  pledgeRate?: number;                     // 质押率(%)
+  pledgeRegNo?: string;                    // 质押登记号
+  pledgeRegDate?: string;                  // 质押登记日期
+  pledgee?: string;                        // 质权人
+  remark?: string;                         // 关联备注
+  createTime?: string;                     // 创建时间
+  createBy?: string;                       // 创建人
+  updateTime?: string;                     // 更新时间
+  updateBy?: string;                       // 更新人
+  fileAttachments?: SysAttachmentDto[];    // 文件附件列表
+  // 当前资产信息
+  assetName?: string;                      // 当前资产名称
+  assetCode?: string;                      // 当前资产编码
+  assetCategoryCode?: string;              // 当前资产分类编码
+  assetCategoryName?: string;              // 当前资产分类名称
+  assetAddress?: string;                   // 当前资产地址
+  assetBookValue?: number;                 // 当前资产账面价值(分)
+  assetOrgId?: number;                     // 当前资产所属组织ID
+  assetOrgName?: string;                   // 当前资产所属组织名称
+  assetOrgNameAbbr?: string;               // 当前资产所属组织简称
+}
+
+// 创建融资-固定资产关联请求
+export interface CreateFixedAssetMapDto {
+  fixedAssetId: number;                    // 固定资产ID (必填)
+  bookValueAtPledge?: number;              // 质押时账面价值(分)
+  appraisedValue?: number;                 // 评估/认可价值(分)
+  pledgeRate?: number;                     // 质押率(%)
+  pledgeRegNo?: string;                    // 质押登记号
+  pledgeRegDate?: string;                  // 质押登记日期
+  pledgee?: string;                        // 质权人
+  remark?: string;                         // 关联备注
+  fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
+}
+
+// 更新融资-固定资产关联请求
+export interface UpdateFixedAssetMapDto {
+  id: number;                              // 主键ID (必填)
+  bookValueAtPledge?: number;              // 质押时账面价值(分)
+  appraisedValue?: number;                 // 评估/认可价值(分)
+  pledgeRate?: number;                     // 质押率(%)
+  pledgeRegNo?: string;                    // 质押登记号
+  pledgeRegDate?: string;                  // 质押登记日期
+  pledgee?: string;                        // 质权人
+  remark?: string;                         // 关联备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
 }

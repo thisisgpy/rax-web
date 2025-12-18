@@ -32,14 +32,18 @@ import dayjs from 'dayjs';
 import { loanApi } from '@/services/loan';
 import { dictApi } from '@/services/dict';
 import { participantApi } from '@/services/participant';
+import { fixedAssetMapApi } from '@/services/fixedAssetMap';
 import type {
   LoanDto,
   FinLoanParticipantDto,
   UpdateLoanParticipantDto,
   CreateLoanParticipantDto,
   AttachmentOperationDto,
-  FinInstitutionDto
+  FinInstitutionDto,
+  FixedAssetMapDto
 } from '@/types/swagger-api';
+import FixedAssetMapEditModal from './components/FixedAssetMapEditModal';
+import FixedAssetMapList from './components/FixedAssetMapList';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
@@ -47,6 +51,18 @@ import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
 import AttachmentDisplay from '@/components/AttachmentDisplay';
 import { attachmentApi } from '@/services/attachment';
+
+// 融资类型与特定组件的映射（productType -> 组件类型）
+const PRODUCT_TYPE_COMPONENT_MAP: Record<string, string> = {
+  '银团融资': 'participant',
+  '信用证': 'lc',
+  '存单质押': 'cd',
+  '信托公司融资': 'tranche',
+  '保理公司融资': 'factoring',
+  '供应链金融平台融资': 'scf',
+  '融资租赁公司融资': 'leasing',
+  '固定资产融资': 'fixedAsset',
+};
 
 // 紧凑型附件渲染函数
 const renderCompactAttachments = (attachments: any[]) => {
@@ -94,6 +110,10 @@ const ExistingDetail: React.FC = () => {
   // 附件查看弹窗状态
   const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
   const [viewingAttachments, setViewingAttachments] = useState<any[]>([]);
+
+  // 固定资产关联编辑相关状态
+  const [fixedAssetMapModalVisible, setFixedAssetMapModalVisible] = useState(false);
+  const [editingFixedAssetMap, setEditingFixedAssetMap] = useState<FixedAssetMapDto | null>(null);
 
   // 获取融资详情
   const { data: loanDetail, isLoading } = useQuery({
@@ -339,6 +359,28 @@ const ExistingDetail: React.FC = () => {
       if (!error?.errorFields) {
         message.error('操作失败');
       }
+    }
+  };
+
+  // 打开编辑固定资产关联弹窗
+  const handleEditFixedAssetMap = (record: FixedAssetMapDto) => {
+    setEditingFixedAssetMap(record);
+    setFixedAssetMapModalVisible(true);
+  };
+
+  // 删除固定资产关联
+  const handleDeleteFixedAssetMap = async (record: FixedAssetMapDto) => {
+    if (!record.id) return;
+    try {
+      const result = await fixedAssetMapApi.remove(record.id);
+      if (result.success) {
+        message.success('删除成功');
+        refreshDetail();
+      } else {
+        message.error(result.message || '删除失败');
+      }
+    } catch (error) {
+      message.error('删除失败');
     }
   };
 
@@ -595,6 +637,8 @@ const ExistingDetail: React.FC = () => {
     }
   ];
 
+  // 固定资产关联表格列
+
   // 信息项组件
   const InfoItem: React.FC<{ label: string; children: React.ReactNode; span?: number }> = ({ label, children, span = 8 }) => (
     <Col span={span} style={{ marginBottom: 24 }}>
@@ -790,8 +834,8 @@ const ExistingDetail: React.FC = () => {
             </div>
           )}
 
-          {/* 银团参与行 */}
-          {loanDetail.participantList && loanDetail.participantList.length > 0 && (
+          {/* 银团参与行 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'participant' && (
             <div style={{ marginBottom: 32 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <SectionTitle title="银团参与行" />
@@ -799,97 +843,161 @@ const ExistingDetail: React.FC = () => {
                   添加
                 </Button>
               </div>
-              <Table
-                columns={participantColumns}
-                dataSource={loanDetail.participantList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              {loanDetail.participantList && loanDetail.participantList.length > 0 ? (
+                <Table
+                  columns={participantColumns}
+                  dataSource={loanDetail.participantList}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无银团参与行数据
+                </div>
+              )}
             </div>
           )}
 
-          {/* 存单质押 */}
-          {loanDetail.cdList && loanDetail.cdList.length > 0 && (
+          {/* 存单质押 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'cd' && (
             <div style={{ marginBottom: 32 }}>
-              <SectionTitle title="存单质押" />
-              <Table
-                columns={cdColumns}
-                dataSource={loanDetail.cdList}
-                rowKey="mapId"
-                pagination={false}
-                size="small"
-              />
+              <SectionTitle title="关联存单" />
+              {loanDetail.cdList && loanDetail.cdList.length > 0 ? (
+                <Table
+                  columns={cdColumns}
+                  dataSource={loanDetail.cdList}
+                  rowKey="mapId"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无关联存单
+                </div>
+              )}
             </div>
           )}
 
-          {/* 信用证 */}
-          {loanDetail.lcList && loanDetail.lcList.length > 0 && (
+          {/* 信用证 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'lc' && (
             <div style={{ marginBottom: 32 }}>
-              <SectionTitle title="信用证" />
-              <Table
-                columns={lcColumns}
-                dataSource={loanDetail.lcList}
-                rowKey="mapId"
-                pagination={false}
-                size="small"
-              />
+              <SectionTitle title="关联信用证" />
+              {loanDetail.lcList && loanDetail.lcList.length > 0 ? (
+                <Table
+                  columns={lcColumns}
+                  dataSource={loanDetail.lcList}
+                  rowKey="mapId"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无关联信用证
+                </div>
+              )}
             </div>
           )}
 
-          {/* 保理应收款 */}
-          {loanDetail.arItemList && loanDetail.arItemList.length > 0 && (
+          {/* 保理应收款 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'factoring' && (
             <div style={{ marginBottom: 32 }}>
               <SectionTitle title="保理应收款" />
-              <Table
-                columns={arColumns}
-                dataSource={loanDetail.arItemList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              {loanDetail.arItemList && loanDetail.arItemList.length > 0 ? (
+                <Table
+                  columns={arColumns}
+                  dataSource={loanDetail.arItemList}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无保理应收款数据
+                </div>
+              )}
             </div>
           )}
 
-          {/* 融资租赁资产 */}
-          {loanDetail.leasedAssetList && loanDetail.leasedAssetList.length > 0 && (
+          {/* 融资租赁资产 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'leasing' && (
             <div style={{ marginBottom: 32 }}>
               <SectionTitle title="融资租赁资产" />
-              <Table
-                columns={leasedAssetColumns}
-                dataSource={loanDetail.leasedAssetList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              {loanDetail.leasedAssetList && loanDetail.leasedAssetList.length > 0 ? (
+                <Table
+                  columns={leasedAssetColumns}
+                  dataSource={loanDetail.leasedAssetList}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无融资租赁资产数据
+                </div>
+              )}
             </div>
           )}
 
-          {/* 供应链金融凭证 */}
-          {loanDetail.voucherItemList && loanDetail.voucherItemList.length > 0 && (
+          {/* 供应链金融凭证 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'scf' && (
             <div style={{ marginBottom: 32 }}>
               <SectionTitle title="供应链金融凭证" />
-              <Table
-                columns={scfColumns}
-                dataSource={loanDetail.voucherItemList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              {loanDetail.voucherItemList && loanDetail.voucherItemList.length > 0 ? (
+                <Table
+                  columns={scfColumns}
+                  dataSource={loanDetail.voucherItemList}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无供应链金融凭证数据
+                </div>
+              )}
             </div>
           )}
 
-          {/* 信托分层 */}
-          {loanDetail.trancheList && loanDetail.trancheList.length > 0 && (
+          {/* 信托分层 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'tranche' && (
             <div style={{ marginBottom: 32 }}>
               <SectionTitle title="信托分层" />
-              <Table
-                columns={trancheColumns}
-                dataSource={loanDetail.trancheList}
-                rowKey="id"
-                pagination={false}
-                size="small"
-              />
+              {loanDetail.trancheList && loanDetail.trancheList.length > 0 ? (
+                <Table
+                  columns={trancheColumns}
+                  dataSource={loanDetail.trancheList}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无信托分层数据
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 固定资产关联 - 根据融资类型显示 */}
+          {PRODUCT_TYPE_COMPONENT_MAP[loanDetail.productType] === 'fixedAsset' && (
+            <div style={{ marginBottom: 32 }}>
+              <SectionTitle title="关联固定资产" />
+              {loanDetail.fixedAssetMapList && loanDetail.fixedAssetMapList.length > 0 ? (
+                <FixedAssetMapList
+                  dataSource={loanDetail.fixedAssetMapList}
+                  onEdit={handleEditFixedAssetMap}
+                  onDelete={handleDeleteFixedAssetMap}
+                  onViewAttachments={(attachments) => {
+                    setViewingAttachments(attachments);
+                    setAttachmentModalVisible(true);
+                  }}
+                />
+              ) : (
+                <div style={{ color: '#999', padding: '24px 0', textAlign: 'center', background: '#fafafa', borderRadius: 4 }}>
+                  暂无关联固定资产数据
+                </div>
+              )}
             </div>
           )}
 
@@ -986,6 +1094,17 @@ const ExistingDetail: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* 固定资产关联编辑弹窗 */}
+      <FixedAssetMapEditModal
+        visible={fixedAssetMapModalVisible}
+        record={editingFixedAssetMap}
+        onClose={() => {
+          setFixedAssetMapModalVisible(false);
+          setEditingFixedAssetMap(null);
+        }}
+        onSuccess={refreshDetail}
+      />
 
       {/* 附件查看弹窗 */}
       <Modal

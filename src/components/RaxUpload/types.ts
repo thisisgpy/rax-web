@@ -18,7 +18,8 @@ export type BizModule =
   | 'FinLoanFactoringArItem'
   | 'FinLoanLeasedAsset'
   | 'FinLoanScfVoucherItem'
-  | 'FinLoanTrustTranche';
+  | 'FinLoanTrustTranche'
+  | 'FinLoanFixedAssetMap';
 
 /**
  * 上传状态
