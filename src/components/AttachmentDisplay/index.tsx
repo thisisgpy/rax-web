@@ -131,7 +131,7 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
             {originalName}
           </Text>
           {record.extension && (
-            <Tag color={getFileTypeColor(record.extension)} size="small">
+            <Tag color={getFileTypeColor(record.extension)} style={{ fontSize: 10 }}>
               {record.extension.toUpperCase()}
             </Tag>
           )}
@@ -213,4 +213,3 @@ const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
 };
 
 export default AttachmentDisplay;
-export type { AttachmentDisplayProps };

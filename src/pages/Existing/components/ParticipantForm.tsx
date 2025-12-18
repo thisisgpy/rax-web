@@ -6,18 +6,19 @@ import {
   Form,
   Input,
   InputNumber,
-  Space,
   App,
-  Popconfirm
+  Dropdown
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type {
   CreateLoanParticipantDto,
   FinLoanParticipantDto,
   UpdateLoanParticipantDto,
   FinInstitutionDto,
-  AttachmentOperationDto
+  AttachmentOperationDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
 import { participantApi } from '@/services/participant';
 import InstitutionSelect from '@/components/InstitutionSelect';
@@ -25,10 +26,12 @@ import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 
 interface ParticipantItem extends CreateLoanParticipantDto {
   _key: string;
   _files?: UploadedFile[];
+  _attachments?: SysAttachmentDto[];
   id?: number;  // 编辑模式下的数据库ID
 }
 
@@ -37,13 +40,15 @@ interface ParticipantFormProps {
   onChange?: (value: CreateLoanParticipantDto[]) => void;
   isEdit?: boolean;
   loanId?: number;  // 编辑模式下传入loanId，用于独立CRUD
+  readOnly?: boolean;
 }
 
 const ParticipantForm: React.FC<ParticipantFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -52,6 +57,8 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<FinLoanParticipantDto[]>([]);
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   // 编辑模式下，从API加载数据
   useEffect(() => {
@@ -85,8 +92,14 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
       attachmentId: att.attachmentId || att.id,
       filename: att.originalName || '',
       fileSize: att.fileSize
-    }))
+    })),
+    _attachments: item.fileAttachments || []
   }));
+
+  const handleViewAttachments = (record: ParticipantItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
 
   // 打开新增弹窗
   const handleAdd = () => {
@@ -99,15 +112,18 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
   // 打开编辑弹窗
   const handleEdit = (record: ParticipantItem) => {
     setEditingItem(record);
-    form.setFieldsValue({
-      ...record,
-      // 承诺额度从分转万元
-      commitAmount: record.commitAmount ? record.commitAmount / 1000000 : undefined,
-      // 份额比例从小数转百分比
-      sharePct: record.sharePct ? record.sharePct * 100 : undefined
-    });
     setFiles(record._files || []);
     setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
+      form.setFieldsValue({
+        ...record,
+        // 承诺额度从分转万元
+        commitAmount: record.commitAmount ? record.commitAmount / 1000000 : undefined,
+        // 份额比例从小数转百分比
+        sharePct: record.sharePct ? record.sharePct * 100 : undefined
+      });
+    }, 0);
   };
 
   // 删除
@@ -276,44 +292,69 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
     {
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除吗？"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      )
+      width: 80,
+      align: 'center',
+      render: (_, record) => {
+        const menuItems: MenuProps['items'] = [];
+
+        // 附件查看
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        // 编辑和删除（非只读模式）
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          });
+          menuItems.push({
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          });
+        }
+
+        if (menuItems.length === 0) return null;
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
     }
   ];
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加银团参与行
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加银团参与行
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}
@@ -322,85 +363,98 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
         pagination={false}
         size="small"
         loading={loading}
+        locale={{ emptyText: '暂无银团参与行数据' }}
       />
 
-      <Modal
-        title={editingItem ? '编辑银团参与行' : '添加银团参与行'}
-        open={modalVisible}
-        onOk={handleModalOk}
-        onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
-          setFiles([]);
-          setEditingItem(null);
+      {!readOnly && (
+        <Modal
+          title={editingItem ? '编辑银团参与行' : '添加银团参与行'}
+          open={modalVisible}
+          onOk={handleModalOk}
+          onCancel={() => {
+            setModalVisible(false);
+            form.resetFields();
+            setFiles([]);
+            setEditingItem(null);
+          }}
+          width={600}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              name="role"
+              label="角色"
+              rules={[{ required: true, message: '请选择角色' }]}
+            >
+              <DictSelect
+                dictCode="participant.role"
+                placeholder="请选择角色"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="institutionId"
+              label="金融机构"
+              rules={[{ required: true, message: '请选择金融机构' }]}
+            >
+              <InstitutionSelect
+                placeholder="请选择金融机构"
+                onChange={handleInstitutionChange}
+              />
+            </Form.Item>
+            <Form.Item name="institutionName" hidden>
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="commitAmount"
+              label="承诺额度（万元）"
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="请输入承诺额度"
+                min={0}
+                precision={6}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="sharePct"
+              label="份额比例（%）"
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="请输入份额比例"
+                min={0}
+                max={100}
+                precision={2}
+              />
+            </Form.Item>
+
+            <Form.Item name="remark" label="备注">
+              <Input.TextArea rows={2} placeholder="请输入备注" />
+            </Form.Item>
+
+            <Form.Item label="附件">
+              <RaxUpload
+                bizModule="FinLoanParticipant"
+                value={files}
+                onChange={setFiles}
+                maxCount={5}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
+
+      <AttachmentViewModal
+        open={attachmentModalVisible}
+        onClose={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
         }}
-        width={600}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="role"
-            label="角色"
-            rules={[{ required: true, message: '请选择角色' }]}
-          >
-            <DictSelect
-              dictCode="participant.role"
-              placeholder="请选择角色"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="institutionId"
-            label="金融机构"
-            rules={[{ required: true, message: '请选择金融机构' }]}
-          >
-            <InstitutionSelect
-              placeholder="请选择金融机构"
-              onChange={handleInstitutionChange}
-            />
-          </Form.Item>
-          <Form.Item name="institutionName" hidden>
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="commitAmount"
-            label="承诺额度（万元）"
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              placeholder="请输入承诺额度"
-              min={0}
-              precision={6}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="sharePct"
-            label="份额比例（%）"
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              placeholder="请输入份额比例"
-              min={0}
-              max={100}
-              precision={2}
-            />
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="请输入备注" />
-          </Form.Item>
-
-          <Form.Item label="附件">
-            <RaxUpload
-              bizModule="FinLoanParticipant"
-              value={files}
-              onChange={setFiles}
-              maxCount={5}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+        attachments={viewingAttachments}
+        title="附件列表"
+      />
     </>
   );
 };

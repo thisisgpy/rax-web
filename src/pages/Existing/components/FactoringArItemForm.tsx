@@ -8,29 +8,32 @@ import {
   InputNumber,
   DatePicker,
   Switch,
-  Space,
   App,
-  Popconfirm,
+  Dropdown,
   Row,
   Col
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import type {
   CreateFactoringArItemDto,
   FactoringArItemDto,
-  UpdateFactoringArItemDto
+  UpdateFactoringArItemDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
 import { factoringArItemApi } from '@/services/factoringArItem';
 import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 
 interface ArItem extends CreateFactoringArItemDto {
   _key: string;
   _files?: UploadedFile[];
+  _attachments?: SysAttachmentDto[];
   id?: number;
 }
 
@@ -39,13 +42,15 @@ interface FactoringArItemFormProps {
   onChange?: (value: CreateFactoringArItemDto[]) => void;
   isEdit?: boolean;
   loanId?: number;
+  readOnly?: boolean;
 }
 
 const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -54,6 +59,8 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<FactoringArItemDto[]>([]);
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   useEffect(() => {
     if (isEdit && loanId) {
@@ -84,8 +91,14 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
       attachmentId: att.attachmentId || att.id,
       filename: att.originalName || '',
       fileSize: att.fileSize
-    }))
+    })),
+    _attachments: item.fileAttachments || []
   }));
+
+  const handleViewAttachments = (record: ArItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
 
   const handleAdd = () => {
     setEditingItem(null);
@@ -96,16 +109,19 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
 
   const handleEdit = (record: ArItem) => {
     setEditingItem(record);
-    form.setFieldsValue({
-      ...record,
-      arFaceAmount: record.arFaceAmount ? record.arFaceAmount / 1000000 : undefined,
-      assignedAmount: record.assignedAmount ? record.assignedAmount / 1000000 : undefined,
-      issueDate: record.issueDate ? dayjs(record.issueDate) : undefined,
-      dueDate: record.dueDate ? dayjs(record.dueDate) : undefined,
-      paidDate: record.paidDate ? dayjs(record.paidDate) : undefined
-    });
     setFiles(record._files || []);
     setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
+      form.setFieldsValue({
+        ...record,
+        arFaceAmount: record.arFaceAmount ? record.arFaceAmount / 1000000 : undefined,
+        assignedAmount: record.assignedAmount ? record.assignedAmount / 1000000 : undefined,
+        issueDate: record.issueDate ? dayjs(record.issueDate) : undefined,
+        dueDate: record.dueDate ? dayjs(record.dueDate) : undefined,
+        paidDate: record.paidDate ? dayjs(record.paidDate) : undefined
+      });
+    }, 0);
   };
 
   const handleDelete = async (record: ArItem) => {
@@ -266,44 +282,67 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
     {
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除吗？"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      )
+      width: 80,
+      align: 'center',
+      render: (_, record) => {
+        const menuItems: MenuProps['items'] = [];
+
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          });
+          menuItems.push({
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          });
+        }
+
+        if (menuItems.length === 0) return null;
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
     }
   ];
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加应收款明细
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加应收款明细
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}
@@ -312,9 +351,10 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
         pagination={false}
         size="small"
         loading={loading}
+        locale={{ emptyText: '暂无应收款数据' }}
       />
 
-      <Modal
+      {!readOnly && <Modal
         title={editingItem ? '编辑应收款明细' : '添加应收款明细'}
         open={modalVisible}
         onOk={handleModalOk}
@@ -421,7 +461,17 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
             />
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal>}
+
+      <AttachmentViewModal
+        open={attachmentModalVisible}
+        onClose={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
+        }}
+        attachments={viewingAttachments}
+        title="附件列表"
+      />
     </>
   );
 };

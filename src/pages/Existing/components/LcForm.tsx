@@ -13,12 +13,13 @@ import {
   Col,
   Divider,
   App,
-  Popconfirm,
+  Dropdown,
   Descriptions,
   Tag,
   Tabs
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import type {
@@ -33,10 +34,16 @@ import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
 
-interface LcMapItem extends CreateLoanLcMapDto {
+// 扩展 CreateLoanLcDto 添加从 API 返回的额外字段
+interface LcInfo extends CreateLoanLcDto {
+  issuingBankName?: string;  // 开证行名称（从API返回时有值）
+}
+
+interface LcMapItem extends Omit<CreateLoanLcMapDto, 'newLc'> {
   _key: string;
   mapId?: number;
   lcId?: number;
+  newLc?: LcInfo;
 }
 
 interface LcFormProps {
@@ -44,13 +51,15 @@ interface LcFormProps {
   onChange?: (value: CreateLoanLcMapDto[]) => void;
   isEdit?: boolean;
   loanId?: number;
+  readOnly?: boolean;
 }
 
 const LcForm: React.FC<LcFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -179,43 +188,46 @@ const LcForm: React.FC<LcFormProps> = ({
   const handleEdit = (record: LcMapItem) => {
     setEditingItem(record);
     setActiveTab('create'); // 编辑时直接进入创建/编辑 Tab
-    const lcData = record.newLc;
-    form.setFieldsValue({
-      securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
-      marginLockedAmount: record.marginLockedAmount ? record.marginLockedAmount / 1000000 : undefined,
-      allocationNote: record.allocationNote,
-      status: record.status,
-      mapRemark: record.remark,
-      lcNo: lcData?.lcNo,
-      lcType: lcData?.lcType,
-      issuingBankId: lcData?.issuingBankId,
-      advisingBankId: lcData?.advisingBankId,
-      confirmFlag: lcData?.confirmFlag,
-      applicant: lcData?.applicant,
-      beneficiary: lcData?.beneficiary,
-      currency: lcData?.currency || 'CNY',
-      lcAmount: lcData?.lcAmount ? lcData.lcAmount / 1000000 : undefined,
-      tolerancePct: lcData?.tolerancePct,
-      issueDate: lcData?.issueDate ? dayjs(lcData.issueDate) : undefined,
-      expiryDate: lcData?.expiryDate ? dayjs(lcData.expiryDate) : undefined,
-      placeOfExpiry: lcData?.placeOfExpiry,
-      availableBy: lcData?.availableBy,
-      shipmentFrom: lcData?.shipmentFrom,
-      shipmentTo: lcData?.shipmentTo,
-      latestShipment: lcData?.latestShipment,
-      incoterm: lcData?.incoterm,
-      presentationDays: lcData?.presentationDays,
-      partialShipmentAllowed: lcData?.partialShipmentAllowed,
-      transshipmentAllowed: lcData?.transshipmentAllowed,
-      marginRatio: lcData?.marginRatio,
-      marginAmount: lcData?.marginAmount ? lcData.marginAmount / 1000000 : undefined,
-      commissionRate: lcData?.commissionRate,
-      advisingChargeBorneBy: lcData?.advisingChargeBorneBy,
-      ucpVersion: lcData?.ucpVersion,
-      lcStatus: lcData?.status,
-      lcRemark: lcData?.remark
-    });
     setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
+      const lcData = record.newLc;
+      form.setFieldsValue({
+        securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
+        marginLockedAmount: record.marginLockedAmount ? record.marginLockedAmount / 1000000 : undefined,
+        allocationNote: record.allocationNote,
+        status: record.status,
+        mapRemark: record.remark,
+        lcNo: lcData?.lcNo,
+        lcType: lcData?.lcType,
+        issuingBankId: lcData?.issuingBankId,
+        advisingBankId: lcData?.advisingBankId,
+        confirmFlag: lcData?.confirmFlag,
+        applicant: lcData?.applicant,
+        beneficiary: lcData?.beneficiary,
+        currency: lcData?.currency || 'CNY',
+        lcAmount: lcData?.lcAmount ? lcData.lcAmount / 1000000 : undefined,
+        tolerancePct: lcData?.tolerancePct,
+        issueDate: lcData?.issueDate ? dayjs(lcData.issueDate) : undefined,
+        expiryDate: lcData?.expiryDate ? dayjs(lcData.expiryDate) : undefined,
+        placeOfExpiry: lcData?.placeOfExpiry,
+        availableBy: lcData?.availableBy,
+        shipmentFrom: lcData?.shipmentFrom,
+        shipmentTo: lcData?.shipmentTo,
+        latestShipment: lcData?.latestShipment,
+        incoterm: lcData?.incoterm,
+        presentationDays: lcData?.presentationDays,
+        partialShipmentAllowed: lcData?.partialShipmentAllowed,
+        transshipmentAllowed: lcData?.transshipmentAllowed,
+        marginRatio: lcData?.marginRatio,
+        marginAmount: lcData?.marginAmount ? lcData.marginAmount / 1000000 : undefined,
+        commissionRate: lcData?.commissionRate,
+        advisingChargeBorneBy: lcData?.advisingChargeBorneBy,
+        ucpVersion: lcData?.ucpVersion,
+        lcStatus: lcData?.status,
+        lcRemark: lcData?.remark
+      });
+    }, 0);
   };
 
   const handleDelete = async (record: LcMapItem) => {
@@ -483,38 +495,44 @@ const LcForm: React.FC<LcFormProps> = ({
       width: 120,
       render: (_, record) => record.newLc?.expiryDate || (record as any).existingLc?.expiryDate || '-'
     },
-    {
+    // 只在非只读模式下显示操作列
+    ...(!readOnly ? [{
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除吗？"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      )
-    }
+      width: 80,
+      align: 'center' as const,
+      render: (_: any, record: LcMapItem) => {
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          },
+          {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
+    }] : [])
   ];
 
   // 渲染选择已有信用证的 Tab 内容
@@ -890,11 +908,13 @@ const LcForm: React.FC<LcFormProps> = ({
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加信用证
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加信用证
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}
@@ -903,22 +923,21 @@ const LcForm: React.FC<LcFormProps> = ({
         pagination={false}
         size="small"
         loading={loading}
+        locale={{ emptyText: '暂无信用证数据' }}
       />
 
-      <Modal
+      {!readOnly && <Modal
         title={editingItem?.mapId ? '编辑信用证关联' : (editingItem ? '编辑信用证' : '添加信用证')}
         open={modalVisible}
         onOk={handleModalOk}
         okText={activeTab === 'select' && !editingItem ? `确定添加${selectedLcIds.length > 0 ? `(${selectedLcIds.length})` : ''}` : '确定'}
         onCancel={() => {
           setModalVisible(false);
-          form.resetFields();
-          searchForm.resetFields();
           setEditingItem(null);
           setSelectedLcIds([]);
         }}
         width={960}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical">
           {editingItem ? (
@@ -944,7 +963,7 @@ const LcForm: React.FC<LcFormProps> = ({
             />
           )}
         </Form>
-      </Modal>
+      </Modal>}
     </>
   );
 };

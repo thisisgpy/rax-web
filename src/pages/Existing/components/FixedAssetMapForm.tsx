@@ -12,16 +12,20 @@ import {
   Col,
   Divider,
   App,
+  Dropdown,
   Descriptions
 } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, SettingOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import type {
   CreateFixedAssetMapDto,
   FixedAssetMapDto,
   UpdateFixedAssetMapDto,
-  FixedAssetDto
+  FixedAssetDto,
+  SysAttachmentDto,
+  AttachmentOperationDto
 } from '@/types/swagger-api';
 import { fixedAssetMapApi } from '@/services/fixedAssetMap';
 import { assetApi } from '@/services/asset';
@@ -29,8 +33,7 @@ import OrgSelect from '@/components/OrgSelect';
 import AmountDisplay from '@/components/AmountDisplay';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
-import FixedAssetMapEditModal from './FixedAssetMapEditModal';
-import FixedAssetMapList from './FixedAssetMapList';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 
 interface FixedAssetMapItem extends CreateFixedAssetMapDto {
   _key: string;
@@ -48,6 +51,7 @@ interface FixedAssetMapItem extends CreateFixedAssetMapDto {
   assetOrgNameAbbr?: string;
   // 附件
   _files?: UploadedFile[];
+  _attachments?: SysAttachmentDto[];
 }
 
 interface FixedAssetMapFormProps {
@@ -55,13 +59,15 @@ interface FixedAssetMapFormProps {
   onChange?: (value: CreateFixedAssetMapDto[]) => void;
   isEdit?: boolean;
   loanId?: number;
+  readOnly?: boolean;
 }
 
 const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -71,15 +77,17 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<FixedAssetMapDto[]>([]);
-  // API 编辑弹窗状态（用于 isEdit && loanId 模式）
-  const [apiEditModalVisible, setApiEditModalVisible] = useState(false);
-  const [apiEditingRecord, setApiEditingRecord] = useState<FixedAssetMapDto | null>(null);
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   // 未关联资产相关状态
   const [unlinkedAssets, setUnlinkedAssets] = useState<FixedAssetDto[]>([]);
   const [unlinkedLoading, setUnlinkedLoading] = useState(false);
   const [selectedAssetId, setSelectedAssetId] = useState<number | undefined>(undefined);
   const [unlinkedPagination, setUnlinkedPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+
+  // 原始附件（用于编辑时计算差异）
+  const [originalFiles, setOriginalFiles] = useState<UploadedFile[]>([]);
 
   useEffect(() => {
     if (isEdit && loanId) {
@@ -154,22 +162,30 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
           attachmentId: att.id || att.attachmentId,
           filename: att.originalName || att.filename,
           fileSize: att.fileSize
-        }))
+        })),
+        _attachments: item.fileAttachments || []
       };
     } else {
       // 本地数据
       return {
         ...item,
-        _key: `asset-${index}`
+        _key: `asset-${index}`,
+        _attachments: item.fileAttachments || []
       };
     }
   });
+
+  const handleViewAttachments = (record: FixedAssetMapItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
 
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
     searchForm.resetFields();
     setFiles([]);
+    setOriginalFiles([]);
     setSelectedAssetId(undefined);
     setModalVisible(true);
     // 打开弹窗时加载未关联的固定资产
@@ -177,16 +193,13 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
   };
 
   const handleEdit = (record: FixedAssetMapItem) => {
-    if (isEdit && loanId && record.id) {
-      // API 模式：使用独立的编辑弹窗组件
-      const apiRecord = apiData.find(item => item.id === record.id);
-      if (apiRecord) {
-        setApiEditingRecord(apiRecord);
-        setApiEditModalVisible(true);
-      }
-    } else {
-      // 本地模式：使用内置弹窗
-      setEditingItem(record);
+    setEditingItem(record);
+    const recordFiles = record._files || [];
+    setFiles(recordFiles);
+    setOriginalFiles(recordFiles);
+    setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
       form.setFieldsValue({
         bookValueAtPledge: record.bookValueAtPledge ? record.bookValueAtPledge / 1000000 : undefined,
         appraisedValue: record.appraisedValue ? record.appraisedValue / 1000000 : undefined,
@@ -196,9 +209,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
         pledgee: record.pledgee,
         remark: record.remark
       });
-      setFiles(record._files || []);
-      setModalVisible(true);
-    }
+    }, 0);
   };
 
   const handleDelete = async (record: FixedAssetMapItem) => {
@@ -293,6 +304,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
       setModalVisible(false);
       form.resetFields();
       setFiles([]);
+      setOriginalFiles([]);
       setSelectedAssetId(undefined);
     } catch (error: any) {
       if (!error?.errorFields) {
@@ -317,10 +329,34 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
       };
 
       if (isEdit && loanId && editingItem?.id) {
-        // 编辑模式：更新关联
+        // 编辑模式：更新关联（包含附件操作）
+        const originalFileIds = new Set(originalFiles.map(f => f.attachmentId));
+        const currentFileIds = new Set(files.map(f => f.attachmentId));
+        const attachmentOperations: AttachmentOperationDto[] = [];
+
+        // 新增和保留的附件
+        files.forEach(f => {
+          attachmentOperations.push({
+            attachmentId: f.attachmentId,
+            fileSize: f.fileSize,
+            operation: originalFileIds.has(f.attachmentId) ? 'KEEP' : 'ADD'
+          });
+        });
+        // 删除的附件
+        originalFiles.forEach(f => {
+          if (!currentFileIds.has(f.attachmentId)) {
+            attachmentOperations.push({
+              attachmentId: f.attachmentId,
+              fileSize: f.fileSize,
+              operation: 'DELETE'
+            });
+          }
+        });
+
         const updateData: UpdateFixedAssetMapDto = {
           id: editingItem.id,
-          ...mapData
+          ...mapData,
+          attachmentOperations
         };
         const result = await fixedAssetMapApi.update(updateData);
         if (result.success) {
@@ -351,6 +387,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
       setModalVisible(false);
       form.resetFields();
       setFiles([]);
+      setOriginalFiles([]);
       setEditingItem(null);
     } catch (error: any) {
       if (!error?.errorFields) {
@@ -383,6 +420,116 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
     { title: '地址', dataIndex: 'address', key: 'address', ellipsis: true }
   ];
 
+  // 主表格列定义
+  const columns: ColumnsType<FixedAssetMapItem> = [
+    {
+      title: '资产编码',
+      key: 'assetCode',
+      width: 120,
+      render: (_, record) => record.assetCodeSnapshot || record.assetCode || (record as any)._selectedAsset?.code || '-'
+    },
+    {
+      title: '资产名称',
+      key: 'assetName',
+      ellipsis: true,
+      render: (_, record) => record.assetNameSnapshot || record.assetName || (record as any)._selectedAsset?.name || '-'
+    },
+    {
+      title: '所属组织',
+      key: 'assetOrgNameAbbr',
+      width: 100,
+      render: (_, record) => record.assetOrgNameAbbr || (record as any)._selectedAsset?.orgNameAbbr || '-'
+    },
+    {
+      title: '质押时账面价值',
+      dataIndex: 'bookValueAtPledge',
+      key: 'bookValueAtPledge',
+      width: 140,
+      render: (value: number) => value ? <AmountDisplay value={value} /> : '-'
+    },
+    {
+      title: '评估价值',
+      dataIndex: 'appraisedValue',
+      key: 'appraisedValue',
+      width: 120,
+      render: (value: number) => value ? <AmountDisplay value={value} /> : '-'
+    },
+    {
+      title: '质押率',
+      dataIndex: 'pledgeRate',
+      key: 'pledgeRate',
+      width: 80,
+      render: (value: number) => value ? `${value}%` : '-'
+    },
+    {
+      title: '质押登记号',
+      dataIndex: 'pledgeRegNo',
+      key: 'pledgeRegNo',
+      width: 120,
+      render: (value) => value || '-'
+    },
+    {
+      title: '质权人',
+      dataIndex: 'pledgee',
+      key: 'pledgee',
+      width: 100,
+      render: (value) => value || '-'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 80,
+      fixed: 'right',
+      align: 'center',
+      render: (_, record) => {
+        const menuItems: MenuProps['items'] = [];
+
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          });
+          menuItems.push({
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          });
+        }
+
+        if (menuItems.length === 0) return null;
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
+    }
+  ];
 
   // 渲染选择资产的内容
   const renderSelectAssetContent = () => (
@@ -512,7 +659,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
   const renderEditContent = () => (
     <>
       {/* 资产信息只读展示 */}
-      <Divider orientation="left" style={{ fontSize: 14 }}>资产信息</Divider>
+      <Divider orientation="left" style={{ fontSize: 14, marginTop: 0 }}>资产信息</Divider>
       <Descriptions
         bordered
         size="small"
@@ -585,7 +732,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
       </Row>
       <Row gutter={16}>
         <Col span={24}>
-          <Form.Item label="附件">
+          <Form.Item label="附件" style={{ marginBottom: 0 }}>
             <RaxUpload
               bizModule="FinLoanFixedAssetMap"
               value={files}
@@ -600,50 +747,55 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加固定资产
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加固定资产
+          </Button>
+        </div>
+      )}
 
-      <FixedAssetMapList
+      <Table
+        columns={columns}
         dataSource={dataSource}
         rowKey="_key"
+        pagination={false}
+        size="small"
         loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        scroll={{ x: 1200 }}
+        locale={{ emptyText: '暂无固定资产关联数据' }}
       />
 
-      <Modal
-        title={editingItem ? '编辑固定资产关联' : '添加固定资产'}
-        open={modalVisible}
-        onOk={handleModalOk}
-        okText="确定"
-        onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
-          searchForm.resetFields();
-          setFiles([]);
-          setEditingItem(null);
-          setSelectedAssetId(undefined);
-        }}
-        width={960}
-        destroyOnClose
-      >
-        <Form form={form} layout="vertical">
-          {editingItem ? renderEditContent() : renderSelectAssetContent()}
-        </Form>
-      </Modal>
+      {!readOnly && (
+        <Modal
+          title={editingItem ? '编辑固定资产关联' : '添加固定资产'}
+          open={modalVisible}
+          onOk={handleModalOk}
+          okText="确定"
+          onCancel={() => {
+            setModalVisible(false);
+            setFiles([]);
+            setOriginalFiles([]);
+            setEditingItem(null);
+            setSelectedAssetId(undefined);
+          }}
+          width={960}
+          destroyOnHidden
+        >
+          <Form form={form} layout="vertical">
+            {editingItem ? renderEditContent() : renderSelectAssetContent()}
+          </Form>
+        </Modal>
+      )}
 
-      {/* API 模式下的编辑弹窗 */}
-      <FixedAssetMapEditModal
-        visible={apiEditModalVisible}
-        record={apiEditingRecord}
+      <AttachmentViewModal
+        open={attachmentModalVisible}
         onClose={() => {
-          setApiEditModalVisible(false);
-          setApiEditingRecord(null);
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
         }}
-        onSuccess={loadData}
+        attachments={viewingAttachments}
+        title="附件列表"
       />
     </>
   );

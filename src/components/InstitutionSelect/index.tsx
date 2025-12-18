@@ -29,6 +29,7 @@ export interface InstitutionSelectProps {
   placeholder?: string;              // 占位符
   disabled?: boolean;                // 是否禁用
   allowClear?: boolean;              // 是否可清除
+  style?: React.CSSProperties;       // 自定义样式
 }
 
 export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
@@ -37,6 +38,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
   placeholder = '请选择金融机构',
   disabled = false,
   allowClear = false,
+  style,
 }) => {
   const [searchForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -200,7 +202,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, ...style }}>
         <Input
           value={selectedInstitution ? displayText : ''}
           placeholder={placeholder}

@@ -13,12 +13,13 @@ import {
   Col,
   Divider,
   App,
-  Popconfirm,
+  Dropdown,
   Descriptions,
   Tag,
   Tabs
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import type {
@@ -33,10 +34,16 @@ import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
 
-interface CdMapItem extends CreateLoanCdMapDto {
+// 扩展 CreateLoanCdDto 添加从 API 返回的额外字段
+interface CdInfo extends CreateLoanCdDto {
+  bankName?: string;  // 银行名称（从API返回时有值）
+}
+
+interface CdMapItem extends Omit<CreateLoanCdMapDto, 'newCd'> {
   _key: string;
   mapId?: number;
   cdId?: number;
+  newCd?: CdInfo;
 }
 
 interface CdFormProps {
@@ -44,13 +51,15 @@ interface CdFormProps {
   onChange?: (value: CreateLoanCdMapDto[]) => void;
   isEdit?: boolean;
   loanId?: number;
+  readOnly?: boolean;
 }
 
 const CdForm: React.FC<CdFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -173,36 +182,39 @@ const CdForm: React.FC<CdFormProps> = ({
   const handleEdit = (record: CdMapItem) => {
     setEditingItem(record);
     setActiveTab('create'); // 编辑时直接进入创建/编辑 Tab
-    const cdData = record.newCd;
-    form.setFieldsValue({
-      pledgeRatio: record.pledgeRatio,
-      securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
-      registrationNo: record.registrationNo,
-      registrationDate: record.registrationDate ? dayjs(record.registrationDate) : undefined,
-      releaseDate: record.releaseDate ? dayjs(record.releaseDate) : undefined,
-      status: record.status,
-      voucherNo: record.voucherNo,
-      mapRemark: record.remark,
-      cdNo: cdData?.cdNo,
-      bankId: cdData?.bankId,
-      cardId: cdData?.cardId,
-      currency: cdData?.currency || 'CNY',
-      principalAmount: cdData?.principalAmount ? cdData.principalAmount / 1000000 : undefined,
-      interestRate: cdData?.interestRate,
-      dayCountConvention: cdData?.dayCountConvention,
-      interestPayFreq: cdData?.interestPayFreq,
-      compoundFlag: cdData?.compoundFlag,
-      issueDate: cdData?.issueDate ? dayjs(cdData.issueDate) : undefined,
-      maturityDate: cdData?.maturityDate ? dayjs(cdData.maturityDate) : undefined,
-      termMonths: cdData?.termMonths,
-      autoRenewFlag: cdData?.autoRenewFlag,
-      rolloverCount: cdData?.rolloverCount,
-      certificateHolder: cdData?.certificateHolder,
-      freezeFlag: cdData?.freezeFlag,
-      cdStatus: cdData?.status,
-      cdRemark: cdData?.remark
-    });
     setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
+      const cdData = record.newCd;
+      form.setFieldsValue({
+        pledgeRatio: record.pledgeRatio,
+        securedValue: record.securedValue ? record.securedValue / 1000000 : undefined,
+        registrationNo: record.registrationNo,
+        registrationDate: record.registrationDate ? dayjs(record.registrationDate) : undefined,
+        releaseDate: record.releaseDate ? dayjs(record.releaseDate) : undefined,
+        status: record.status,
+        voucherNo: record.voucherNo,
+        mapRemark: record.remark,
+        cdNo: cdData?.cdNo,
+        bankId: cdData?.bankId,
+        cardId: cdData?.cardId,
+        currency: cdData?.currency || 'CNY',
+        principalAmount: cdData?.principalAmount ? cdData.principalAmount / 1000000 : undefined,
+        interestRate: cdData?.interestRate,
+        dayCountConvention: cdData?.dayCountConvention,
+        interestPayFreq: cdData?.interestPayFreq,
+        compoundFlag: cdData?.compoundFlag,
+        issueDate: cdData?.issueDate ? dayjs(cdData.issueDate) : undefined,
+        maturityDate: cdData?.maturityDate ? dayjs(cdData.maturityDate) : undefined,
+        termMonths: cdData?.termMonths,
+        autoRenewFlag: cdData?.autoRenewFlag,
+        rolloverCount: cdData?.rolloverCount,
+        certificateHolder: cdData?.certificateHolder,
+        freezeFlag: cdData?.freezeFlag,
+        cdStatus: cdData?.status,
+        cdRemark: cdData?.remark
+      });
+    }, 0);
   };
 
   const handleDelete = async (record: CdMapItem) => {
@@ -472,38 +484,44 @@ const CdForm: React.FC<CdFormProps> = ({
       width: 120,
       render: (_, record) => record.newCd?.maturityDate || (record as any).existingCd?.maturityDate || '-'
     },
-    {
+    // 只在非只读模式下显示操作列
+    ...(!readOnly ? [{
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除吗？"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      )
-    }
+      width: 80,
+      align: 'center' as const,
+      render: (_: any, record: CdMapItem) => {
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          },
+          {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
+    }] : [])
   ];
 
   // 渲染选择已有存单的 Tab 内容
@@ -833,11 +851,13 @@ const CdForm: React.FC<CdFormProps> = ({
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加存单
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加存单
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}
@@ -846,22 +866,21 @@ const CdForm: React.FC<CdFormProps> = ({
         pagination={false}
         size="small"
         loading={loading}
+        locale={{ emptyText: '暂无存单数据' }}
       />
 
-      <Modal
+      {!readOnly && <Modal
         title={editingItem?.mapId ? '编辑存单关联' : (editingItem ? '编辑存单' : '添加存单')}
         open={modalVisible}
         onOk={handleModalOk}
         okText={activeTab === 'select' && !editingItem ? `确定添加${selectedCdIds.length > 0 ? `(${selectedCdIds.length})` : ''}` : '确定'}
         onCancel={() => {
           setModalVisible(false);
-          form.resetFields();
-          searchForm.resetFields();
           setEditingItem(null);
           setSelectedCdIds([]);
         }}
         width={960}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical">
           {editingItem ? (
@@ -887,7 +906,7 @@ const CdForm: React.FC<CdFormProps> = ({
             />
           )}
         </Form>
-      </Modal>
+      </Modal>}
     </>
   );
 };

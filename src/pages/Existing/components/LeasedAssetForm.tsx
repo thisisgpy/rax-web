@@ -6,27 +6,30 @@ import {
   Form,
   Input,
   InputNumber,
-  Space,
   App,
-  Popconfirm,
+  Dropdown,
   Row,
   Col
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type {
   CreateLeasedAssetDto,
   LeasedAssetDto,
-  UpdateLeasedAssetDto
+  UpdateLeasedAssetDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
 import { leasedAssetApi } from '@/services/leasedAsset';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 
 interface AssetItem extends CreateLeasedAssetDto {
   _key: string;
   _files?: UploadedFile[];
+  _attachments?: SysAttachmentDto[];
   id?: number;
 }
 
@@ -35,13 +38,15 @@ interface LeasedAssetFormProps {
   onChange?: (value: CreateLeasedAssetDto[]) => void;
   isEdit?: boolean;
   loanId?: number;
+  readOnly?: boolean;
 }
 
 const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
   value = [],
   onChange,
   isEdit,
-  loanId
+  loanId,
+  readOnly = false
 }) => {
   const { message } = App.useApp();
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,6 +55,8 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<LeasedAssetDto[]>([]);
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   useEffect(() => {
     if (isEdit && loanId) {
@@ -80,8 +87,14 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
       attachmentId: att.attachmentId || att.id,
       filename: att.originalName || '',
       fileSize: att.fileSize
-    }))
+    })),
+    _attachments: item.fileAttachments || []
   }));
+
+  const handleViewAttachments = (record: AssetItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
 
   const handleAdd = () => {
     setEditingItem(null);
@@ -92,13 +105,16 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
 
   const handleEdit = (record: AssetItem) => {
     setEditingItem(record);
-    form.setFieldsValue({
-      ...record,
-      bookValueAtLease: record.bookValueAtLease ? record.bookValueAtLease / 1000000 : undefined,
-      appraisedValueAtLease: record.appraisedValueAtLease ? record.appraisedValueAtLease / 1000000 : undefined
-    });
     setFiles(record._files || []);
     setModalVisible(true);
+    // 延迟设置表单值，等待 Modal 渲染完成
+    setTimeout(() => {
+      form.setFieldsValue({
+        ...record,
+        bookValueAtLease: record.bookValueAtLease ? record.bookValueAtLease / 1000000 : undefined,
+        appraisedValueAtLease: record.appraisedValueAtLease ? record.appraisedValueAtLease / 1000000 : undefined
+      });
+    }, 0);
   };
 
   const handleDelete = async (record: AssetItem) => {
@@ -256,44 +272,67 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
     {
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除吗？"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      )
+      width: 80,
+      align: 'center',
+      render: (_, record) => {
+        const menuItems: MenuProps['items'] = [];
+
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: '编辑',
+            onClick: () => handleEdit(record)
+          });
+          menuItems.push({
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: '删除',
+            danger: true,
+            onClick: () => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这条记录吗？',
+                okText: '确定',
+                cancelText: '取消',
+                onOk: () => handleDelete(record)
+              });
+            }
+          });
+        }
+
+        if (menuItems.length === 0) return null;
+
+        return (
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<SettingOutlined />} />
+          </Dropdown>
+        );
+      }
     }
   ];
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
-          添加租赁资产
-        </Button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginBottom: 16 }}>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={handleAdd}>
+            添加租赁资产
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}
@@ -302,9 +341,10 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
         pagination={false}
         size="small"
         loading={loading}
+        locale={{ emptyText: '暂无租赁资产数据' }}
       />
 
-      <Modal
+      {!readOnly && <Modal
         title={editingItem ? '编辑租赁资产' : '添加租赁资产'}
         open={modalVisible}
         onOk={handleModalOk}
@@ -378,7 +418,17 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
             />
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal>}
+
+      <AttachmentViewModal
+        open={attachmentModalVisible}
+        onClose={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
+        }}
+        attachments={viewingAttachments}
+        title="附件列表"
+      />
     </>
   );
 };
