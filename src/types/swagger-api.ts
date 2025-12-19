@@ -951,30 +951,13 @@ export interface LoanLcDto {
   lcType?: string;                         // 信用证类型 lc.type
   issuingBank?: string;                    // 开证行名称
   issuingBankId: number;                   // 开证行ID
-  advisingBank?: string;                   // 通知行/保兑行名称
-  advisingBankId?: number;                 // 通知/保兑行ID
-  confirmFlag?: boolean;                   // 是否保兑LC
-  applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
   currency: string;                        // 币种 sys.currency
   lcAmount: number;                        // 信用证金额(分)
-  tolerancePct?: number;                   // 金额容差(%)
   issueDate: string;                       // 开证日期
   expiryDate: string;                      // 到期日/有效期止
-  placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式 lc.available.by
-  shipmentFrom?: string;                   // 装运港/起运地
-  shipmentTo?: string;                     // 卸货港/目的地
-  latestShipment?: string;                 // 最迟装运期
-  incoterm?: string;                       // 贸易术语
-  presentationDays?: number;               // 交单期限(天)
-  partialShipmentAllowed?: boolean;        // 是否允许分批装运
-  transshipmentAllowed?: boolean;          // 是否允许转运
   marginRatio?: number;                    // 保证金比例(%)
   marginAmount?: number;                   // 保证金金额(分)
-  commissionRate?: number;                 // 开证费率(%)
-  advisingChargeBorneBy?: string;          // 通知费承担方
-  ucpVersion?: string;                     // 适用规则版本
   status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
@@ -989,29 +972,13 @@ export interface CreateLoanLcDto {
   lcNo: string;                            // 信用证编号 (必填)
   lcType?: string;                         // 信用证类型 lc.type
   issuingBankId: number;                   // 开证行ID (必填)
-  advisingBankId?: number;                 // 通知/保兑行ID
-  confirmFlag?: boolean;                   // 是否保兑LC
-  applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
   currency: string;                        // 币种 (必填) sys.currency
   lcAmount: number;                        // 信用证金额(分) (必填)
-  tolerancePct?: number;                   // 金额容差(%)
   issueDate: string;                       // 开证日期 (必填)
   expiryDate: string;                      // 到期日/有效期止 (必填)
-  placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式 lc.available.by
-  shipmentFrom?: string;                   // 装运港/起运地
-  shipmentTo?: string;                     // 卸货港/目的地
-  latestShipment?: string;                 // 最迟装运期
-  incoterm?: string;                       // 贸易术语
-  presentationDays?: number;               // 交单期限(天)
-  partialShipmentAllowed?: boolean;        // 是否允许分批装运
-  transshipmentAllowed?: boolean;          // 是否允许转运
   marginRatio?: number;                    // 保证金比例(%)
   marginAmount?: number;                   // 保证金金额(分)
-  commissionRate?: number;                 // 开证费率(%)
-  advisingChargeBorneBy?: string;          // 通知费承担方
-  ucpVersion?: string;                     // 适用规则版本
   status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
   uploadedAttachments?: AttachmentOperationDto[]; // 上传的附件
@@ -1023,29 +990,13 @@ export interface UpdateLoanLcDto {
   lcNo?: string;                           // 信用证编号
   lcType?: string;                         // 信用证类型 lc.type
   issuingBankId?: number;                  // 开证行ID
-  advisingBankId?: number;                 // 通知/保兑行ID
-  confirmFlag?: boolean;                   // 是否保兑LC
-  applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
   currency?: string;                       // 币种 sys.currency
   lcAmount?: number;                       // 信用证金额(分)
-  tolerancePct?: number;                   // 金额容差(%)
   issueDate?: string;                      // 开证日期
   expiryDate?: string;                     // 到期日/有效期止
-  placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式 lc.available.by
-  shipmentFrom?: string;                   // 装运港/起运地
-  shipmentTo?: string;                     // 卸货港/目的地
-  latestShipment?: string;                 // 最迟装运期
-  incoterm?: string;                       // 贸易术语
-  presentationDays?: number;               // 交单期限(天)
-  partialShipmentAllowed?: boolean;        // 是否允许分批装运
-  transshipmentAllowed?: boolean;          // 是否允许转运
   marginRatio?: number;                    // 保证金比例(%)
   marginAmount?: number;                   // 保证金金额(分)
-  commissionRate?: number;                 // 开证费率(%)
-  advisingChargeBorneBy?: string;          // 通知费承担方
-  ucpVersion?: string;                     // 适用规则版本
   status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
   attachmentOperations?: AttachmentOperationDto[]; // 附件操作
@@ -1057,8 +1008,6 @@ export interface QueryLoanLcDto extends PageRequest {
   lcType?: string;                         // 信用证类型 lc.type
   issuingBankId?: number;                  // 开证行ID
   issuingBank?: string;                    // 开证行名称
-  advisingBankId?: number;                 // 通知/保兑行ID
-  applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
   currency?: string;                       // 币种 sys.currency
   issueDateStart?: string;                 // 开证日期开始
@@ -1081,30 +1030,13 @@ export interface LoanLcWithMapDto {
   lcType?: string;                         // 信用证类型 lc.type
   issuingBank?: string;                    // 开证行名称
   issuingBankId?: number;                  // 开证行ID
-  advisingBank?: string;                   // 通知行/保兑行名称
-  advisingBankId?: number;                 // 通知/保兑行ID
-  confirmFlag?: boolean;                   // 是否保兑LC
-  applicant?: string;                      // 申请人
   beneficiary?: string;                    // 受益人
   currency?: string;                       // 币种 sys.currency
   lcAmount?: number;                       // 信用证金额(分)
-  tolerancePct?: number;                   // 金额容差(%)
   issueDate?: string;                      // 开证日期
   expiryDate?: string;                     // 到期日/有效期止
-  placeOfExpiry?: string;                  // 到期地点
-  availableBy?: string;                    // 可用方式 lc.available.by
-  shipmentFrom?: string;                   // 装运港/起运地
-  shipmentTo?: string;                     // 卸货港/目的地
-  latestShipment?: string;                 // 最迟装运期
-  incoterm?: string;                       // 贸易术语
-  presentationDays?: number;               // 交单期限(天)
-  partialShipmentAllowed?: boolean;        // 是否允许分批装运
-  transshipmentAllowed?: boolean;          // 是否允许转运
   marginRatio?: number;                    // 保证金比例(%)
   marginAmount?: number;                   // 保证金金额(分)
-  commissionRate?: number;                 // 开证费率(%)
-  advisingChargeBorneBy?: string;          // 通知费承担方
-  ucpVersion?: string;                     // 适用规则版本
   lcStatus?: string;                       // 信用证状态 lc.status
   lcRemark?: string;                       // 信用证备注
   attachments?: SysAttachmentDto[];        // 信用证附件列表
