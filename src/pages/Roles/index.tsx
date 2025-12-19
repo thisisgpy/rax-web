@@ -607,6 +607,7 @@ export const Roles: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={roleForm}
@@ -697,6 +698,7 @@ export const Roles: React.FC = () => {
         ]}
         width={900}
         style={{ top: 50 }}
+        maskClosable={false}
       >
         <div style={{ minHeight: 400, maxHeight: 700 }}>
           {getAllResourcesMutation.isPending || getRoleResourcesMutation.isPending ? (
@@ -797,6 +799,7 @@ export const Roles: React.FC = () => {
         style={{ top: 50 }}
         okText="确认分配"
         cancelText="取消"
+        maskClosable={false}
       >
         <div style={{ minHeight: 400, maxHeight: 600 }}>
           {getAllResourcesMutation.isPending || getRoleResourcesMutation.isPending ? (

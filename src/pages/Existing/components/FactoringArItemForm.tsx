@@ -365,6 +365,7 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
           setEditingItem(null);
         }}
         width={720}
+        maskClosable={false}
       >
         <Form form={form} layout="vertical">
           <Row gutter={16}>

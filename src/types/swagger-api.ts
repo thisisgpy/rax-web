@@ -981,6 +981,7 @@ export interface LoanLcDto {
   createBy?: string;                       // 创建人
   updateTime?: string;                     // 更新时间
   updateBy?: string;                       // 更新人
+  attachments?: SysAttachmentDto[];        // 附件列表
 }
 
 // 创建信用证请求
@@ -1013,6 +1014,7 @@ export interface CreateLoanLcDto {
   ucpVersion?: string;                     // 适用规则版本
   status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
+  uploadedAttachments?: AttachmentOperationDto[]; // 上传的附件
 }
 
 // 更新信用证请求
@@ -1046,6 +1048,7 @@ export interface UpdateLoanLcDto {
   ucpVersion?: string;                     // 适用规则版本
   status?: string;                         // 状态 lc.status
   remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作
 }
 
 // 信用证查询请求
@@ -1104,6 +1107,7 @@ export interface LoanLcWithMapDto {
   ucpVersion?: string;                     // 适用规则版本
   lcStatus?: string;                       // 信用证状态 lc.status
   lcRemark?: string;                       // 信用证备注
+  attachments?: SysAttachmentDto[];        // 信用证附件列表
 }
 
 // 创建贷款-信用证关联请求
@@ -1156,6 +1160,7 @@ export interface LoanCdDto {
   createBy?: string;                       // 创建人
   updateTime?: string;                     // 更新时间
   updateBy?: string;                       // 更新人
+  attachments?: SysAttachmentDto[];        // 附件列表
 }
 
 // 创建存单请求
@@ -1178,6 +1183,7 @@ export interface CreateLoanCdDto {
   freezeFlag?: boolean;                    // 是否处于冻结/质押状态
   status?: string;                         // 状态
   remark?: string;                         // 备注
+  uploadedAttachments?: AttachmentOperationDto[]; // 上传的附件
 }
 
 // 更新存单请求
@@ -1201,6 +1207,7 @@ export interface UpdateLoanCdDto {
   freezeFlag?: boolean;                    // 是否处于冻结/质押状态
   status?: string;                         // 状态
   remark?: string;                         // 备注
+  attachmentOperations?: AttachmentOperationDto[]; // 附件操作
 }
 
 // 存单查询请求
@@ -1250,6 +1257,7 @@ export interface LoanCdWithMapDto {
   freezeFlag?: boolean;                    // 是否处于冻结/质押状态
   cdStatus?: string;                       // 存单状态
   cdRemark?: string;                       // 存单备注
+  attachments?: SysAttachmentDto[];        // 存单附件列表
 }
 
 // 创建贷款-存单关联请求

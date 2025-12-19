@@ -30,6 +30,7 @@ export interface InstitutionSelectProps {
   disabled?: boolean;                // 是否禁用
   allowClear?: boolean;              // 是否可清除
   style?: React.CSSProperties;       // 自定义样式
+  initialLabel?: string;             // 初始显示标签（用于编辑模式避免额外API调用）
 }
 
 export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
@@ -39,6 +40,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
   disabled = false,
   allowClear = false,
   style,
+  initialLabel,
 }) => {
   const [searchForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -62,11 +64,11 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
     staleTime: 5 * 60 * 1000, // 5分钟缓存
   });
 
-  // 根据ID查询已选择的金融机构信息
+  // 根据ID查询已选择的金融机构信息（当有 initialLabel 时跳过查询）
   const { data: currentInstitutionData } = useQuery({
     queryKey: ['institution-detail', value],
     queryFn: () => institutionApi.get(value!),
-    enabled: !!value && !selectedInstitution,
+    enabled: !!value && !selectedInstitution && !initialLabel,
   });
 
   // 更新当前选中的机构信息
@@ -195,16 +197,16 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
 
   const institutionListResult = institutionListData?.data as PageResult<FinInstitutionDto> | undefined;
 
-  // 显示文本：优先显示 branchName，没有则显示 name
+  // 显示文本：优先使用 selectedInstitution，其次使用 initialLabel
   const displayText = selectedInstitution
     ? (selectedInstitution.branchName || selectedInstitution.name)
-    : placeholder;
+    : (initialLabel || placeholder);
 
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, ...style }}>
         <Input
-          value={selectedInstitution ? displayText : ''}
+          value={(selectedInstitution || initialLabel) ? displayText : ''}
           placeholder={placeholder}
           readOnly
           disabled={disabled}
@@ -212,7 +214,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
           style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
           suffix={<BankOutlined style={{ color: '#bfbfbf' }} />}
         />
-        {allowClear && selectedInstitution && !disabled && (
+        {allowClear && (selectedInstitution || (value && initialLabel)) && !disabled && (
           <Button size="small" onClick={handleClear}>
             清除
           </Button>
@@ -235,6 +237,7 @@ export const InstitutionSelect: React.FC<InstitutionSelectProps> = ({
         }}
         footer={null}
         width={1000}
+        maskClosable={false}
         destroyOnHidden
       >
         {/* 搜索区域 */}

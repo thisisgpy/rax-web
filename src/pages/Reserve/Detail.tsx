@@ -532,6 +532,7 @@ const ReserveDetail: React.FC = () => {
           setReportAttachments([]);
         }}
         confirmLoading={createReportMutation.isPending}
+        maskClosable={false}
       >
         <Form form={reportForm} layout="vertical">
           <Form.Item
@@ -562,6 +563,7 @@ const ReserveDetail: React.FC = () => {
           setCancelAttachments([]);
         }}
         confirmLoading={cancelMutation.isPending}
+        maskClosable={false}
       >
         <Alert
           message="取消操作不可恢复，请谨慎操作"

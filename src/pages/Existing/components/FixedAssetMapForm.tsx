@@ -600,7 +600,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="bookValueAtPledge" label="质押时账面价值（万元）">
-                <InputNumber style={{ width: '100%' }} min={0} precision={6} />
+                <InputNumber style={{ width: '100%' }} min={0} precision={6} disabled />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -780,6 +780,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
             setSelectedAssetId(undefined);
           }}
           width={960}
+          maskClosable={false}
           destroyOnHidden
         >
           <Form form={form} layout="vertical">

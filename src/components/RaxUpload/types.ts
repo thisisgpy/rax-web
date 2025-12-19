@@ -19,7 +19,9 @@ export type BizModule =
   | 'FinLoanLeasedAsset'
   | 'FinLoanScfVoucherItem'
   | 'FinLoanTrustTranche'
-  | 'FinLoanFixedAssetMap';
+  | 'FinLoanFixedAssetMap'
+  | 'FinLoanCd'              // 存单附件
+  | 'FinLoanLc';             // 信用证附件
 
 /**
  * 上传状态

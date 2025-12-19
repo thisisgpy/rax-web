@@ -18,7 +18,7 @@ import {
   Tag,
   Tabs
 } from 'antd';
-import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined, PaperClipOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -27,12 +27,16 @@ import type {
   CreateLoanCdDto,
   LoanCdWithMapDto,
   UpdateLoanCdMapDto,
-  LoanCdDto
+  LoanCdDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 import { cdApi } from '@/services/cd';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
+import RaxUpload from '@/components/RaxUpload';
+import type { UploadedFile } from '@/components/RaxUpload';
 
 // 扩展 CreateLoanCdDto 添加从 API 返回的额外字段
 interface CdInfo extends CreateLoanCdDto {
@@ -44,6 +48,7 @@ interface CdMapItem extends Omit<CreateLoanCdMapDto, 'newCd'> {
   mapId?: number;
   cdId?: number;
   newCd?: CdInfo;
+  _attachments?: SysAttachmentDto[];
 }
 
 interface CdFormProps {
@@ -68,6 +73,11 @@ const CdForm: React.FC<CdFormProps> = ({
   const [searchForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState<LoanCdWithMapDto[]>([]);
+  const [cdAttachments, setCdAttachments] = useState<UploadedFile[]>([]);
+
+  // 附件查看相关状态
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   // Tab 切换相关状态
   const [activeTab, setActiveTab] = useState<string>('select');
@@ -121,10 +131,19 @@ const CdForm: React.FC<CdFormProps> = ({
     }
   };
 
+  // 查看附件
+  const handleViewAttachments = (record: CdMapItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
+
   // Convert API data or local value to table data source
   const dataSource: CdMapItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => {
-    if (isEdit && loanId) {
-      // API data from LoanCdWithMapDto
+    // 判断是否是 API 返回的 LoanCdWithMapDto 格式（cdNo 在顶层）
+    const isApiFormat = 'cdNo' in item && !('newCd' in item);
+
+    if (isEdit && loanId || isApiFormat) {
+      // API data from LoanCdWithMapDto (编辑模式或 readOnly 模式下传入的详情数据)
       return {
         _key: `cd-${item.mapId || index}`,
         mapId: item.mapId,
@@ -137,6 +156,7 @@ const CdForm: React.FC<CdFormProps> = ({
         status: item.mapStatus,
         voucherNo: item.voucherNo,
         remark: item.mapRemark,
+        _attachments: item.attachments || [],
         newCd: {
           cdNo: item.cdNo,
           bankId: item.bankId,
@@ -160,7 +180,7 @@ const CdForm: React.FC<CdFormProps> = ({
         }
       };
     } else {
-      // Local value from CreateLoanCdMapDto
+      // Local value from CreateLoanCdMapDto (创建模式)
       return {
         ...item,
         _key: `cd-${index}`
@@ -331,7 +351,13 @@ const CdForm: React.FC<CdFormProps> = ({
         certificateHolder: values.certificateHolder,
         freezeFlag: values.freezeFlag,
         status: values.cdStatus,
-        remark: values.cdRemark
+        remark: values.cdRemark,
+        // 附件
+        uploadedAttachments: cdAttachments.map(f => ({
+          attachmentId: f.attachmentId,
+          fileSize: f.fileSize,
+          operation: 'ADD' as const
+        }))
       };
 
       const mapData = {
@@ -395,6 +421,7 @@ const CdForm: React.FC<CdFormProps> = ({
       setModalVisible(false);
       form.resetFields();
       setEditingItem(null);
+      setCdAttachments([]);
     } catch (error: any) {
       if (!error?.errorFields) {
         message.error('操作失败');
@@ -484,21 +511,36 @@ const CdForm: React.FC<CdFormProps> = ({
       width: 120,
       render: (_, record) => record.newCd?.maturityDate || (record as any).existingCd?.maturityDate || '-'
     },
-    // 只在非只读模式下显示操作列
-    ...(!readOnly ? [{
+    {
       title: '操作',
       key: 'action',
       width: 80,
       align: 'center' as const,
       render: (_: any, record: CdMapItem) => {
-        const menuItems: MenuProps['items'] = [
-          {
+        const menuItems: MenuProps['items'] = [];
+
+        // 查看附件（有附件时显示）
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        // 编辑和删除（非只读模式）
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
             key: 'edit',
             icon: <EditOutlined />,
             label: '编辑',
             onClick: () => handleEdit(record)
-          },
-          {
+          });
+          menuItems.push({
             key: 'delete',
             icon: <DeleteOutlined />,
             label: '删除',
@@ -512,8 +554,10 @@ const CdForm: React.FC<CdFormProps> = ({
                 onOk: () => handleDelete(record)
               });
             }
-          }
-        ];
+          });
+        }
+
+        if (menuItems.length === 0) return null;
 
         return (
           <Dropdown menu={{ items: menuItems }} trigger={['click']}>
@@ -521,7 +565,7 @@ const CdForm: React.FC<CdFormProps> = ({
           </Dropdown>
         );
       }
-    }] : [])
+    }
   ];
 
   // 渲染选择已有存单的 Tab 内容
@@ -844,6 +888,19 @@ const CdForm: React.FC<CdFormProps> = ({
               </Form.Item>
             </Col>
           </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="存单附件">
+                <RaxUpload
+                  bizModule="FinLoanCd"
+                  value={cdAttachments}
+                  onChange={setCdAttachments}
+                  maxCount={10}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </>
       )}
     </>
@@ -878,8 +935,10 @@ const CdForm: React.FC<CdFormProps> = ({
           setModalVisible(false);
           setEditingItem(null);
           setSelectedCdIds([]);
+          setCdAttachments([]);
         }}
         width={960}
+        maskClosable={false}
         destroyOnHidden
       >
         <Form form={form} layout="vertical">
@@ -907,6 +966,16 @@ const CdForm: React.FC<CdFormProps> = ({
           )}
         </Form>
       </Modal>}
+
+      <AttachmentViewModal
+        open={attachmentModalVisible}
+        onClose={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
+        }}
+        attachments={viewingAttachments}
+        title="存单附件"
+      />
     </>
   );
 };

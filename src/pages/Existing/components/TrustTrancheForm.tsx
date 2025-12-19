@@ -348,6 +348,7 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
             setEditingItem(null);
           }}
           width={720}
+          maskClosable={false}
         >
           <Form form={form} layout="vertical">
             <Row gutter={16}>

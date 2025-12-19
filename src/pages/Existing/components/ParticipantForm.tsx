@@ -378,6 +378,7 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
             setEditingItem(null);
           }}
           width={600}
+          maskClosable={false}
         >
           <Form form={form} layout="vertical">
             <Form.Item

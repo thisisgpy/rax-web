@@ -340,6 +340,7 @@ export const Institution: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={institutionForm}

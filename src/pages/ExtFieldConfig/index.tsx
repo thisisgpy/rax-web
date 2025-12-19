@@ -580,6 +580,7 @@ const ExtFieldConfig: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={configForm}
@@ -678,6 +679,7 @@ const ExtFieldConfig: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={defForm}

@@ -11,7 +11,8 @@ import {
   Col,
   App,
   Typography,
-  Divider
+  Divider,
+  Spin
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -432,32 +433,36 @@ const ExistingForm: React.FC = () => {
     </div>
   );
 
+  // 编辑模式下，数据加载中显示遮罩
+  const pageLoading = isEdit && detailLoading;
+
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
-      {/* 顶部操作栏 */}
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button
-          type="link"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/financing/existing')}
-          style={{ padding: 0, color: '#262626' }}
-        >
-          返回列表
-        </Button>
-        <Space>
-          <Button onClick={() => navigate('/financing/existing')}>
-            取消
-          </Button>
+    <Spin spinning={pageLoading} tip="加载中...">
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
+        {/* 顶部操作栏 */}
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={handleSubmit}
-            loading={createMutation.isPending || updateMutation.isPending}
+            type="link"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate('/financing/existing')}
+            style={{ padding: 0, color: '#262626' }}
           >
-            {isEdit ? '保存' : '提交'}
+            返回列表
           </Button>
-        </Space>
-      </div>
+          <Space>
+            <Button onClick={() => navigate('/financing/existing')}>
+              取消
+            </Button>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={handleSubmit}
+              loading={createMutation.isPending || updateMutation.isPending}
+            >
+              {isEdit ? '保存' : '提交'}
+            </Button>
+          </Space>
+        </div>
 
       {/* 页面标题 */}
       <div style={{ marginBottom: 32 }}>
@@ -518,6 +523,7 @@ const ExistingForm: React.FC = () => {
                 <InstitutionSelect
                   placeholder="请选择资金方"
                   onChange={handleInstitutionChange}
+                  initialLabel={loanDetail?.institutionName}
                 />
               </Form.Item>
               <Form.Item name="institutionName" hidden>
@@ -826,7 +832,8 @@ const ExistingForm: React.FC = () => {
           </Button>
         </div>
       </Form>
-    </div>
+      </div>
+    </Spin>
   );
 };
 

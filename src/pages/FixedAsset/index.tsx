@@ -372,6 +372,7 @@ export const FixedAsset: React.FC = () => {
           assetForm.resetFields();
         }}
         footer={null}
+        maskClosable={false}
         width={600}
       >
         <Form

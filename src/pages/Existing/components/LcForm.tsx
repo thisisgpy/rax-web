@@ -18,7 +18,7 @@ import {
   Tag,
   Tabs
 } from 'antd';
-import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined, PaperClipOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -27,12 +27,16 @@ import type {
   CreateLoanLcDto,
   LoanLcWithMapDto,
   UpdateLoanLcMapDto,
-  LoanLcDto
+  LoanLcDto,
+  SysAttachmentDto
 } from '@/types/swagger-api';
+import AttachmentViewModal from '@/components/AttachmentViewModal';
 import { lcApi } from '@/services/lc';
 import InstitutionSelect from '@/components/InstitutionSelect';
 import DictSelect from '@/components/DictSelect';
 import AmountDisplay from '@/components/AmountDisplay';
+import RaxUpload from '@/components/RaxUpload';
+import type { UploadedFile } from '@/components/RaxUpload';
 
 // 扩展 CreateLoanLcDto 添加从 API 返回的额外字段
 interface LcInfo extends CreateLoanLcDto {
@@ -44,6 +48,7 @@ interface LcMapItem extends Omit<CreateLoanLcMapDto, 'newLc'> {
   mapId?: number;
   lcId?: number;
   newLc?: LcInfo;
+  _attachments?: SysAttachmentDto[];
 }
 
 interface LcFormProps {
@@ -75,6 +80,13 @@ const LcForm: React.FC<LcFormProps> = ({
   const [unlinkedLoading, setUnlinkedLoading] = useState(false);
   const [selectedLcIds, setSelectedLcIds] = useState<number[]>([]);
   const [unlinkedPagination, setUnlinkedPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+
+  // 附件状态（用于创建新信用证时）
+  const [lcAttachments, setLcAttachments] = useState<UploadedFile[]>([]);
+
+  // 附件查看相关状态
+  const [attachmentModalVisible, setAttachmentModalVisible] = useState(false);
+  const [viewingAttachments, setViewingAttachments] = useState<SysAttachmentDto[]>([]);
 
   useEffect(() => {
     if (isEdit && loanId) {
@@ -121,10 +133,19 @@ const LcForm: React.FC<LcFormProps> = ({
     }
   };
 
+  // 查看附件
+  const handleViewAttachments = (record: LcMapItem) => {
+    setViewingAttachments(record._attachments || []);
+    setAttachmentModalVisible(true);
+  };
+
   // Convert API data or local value to table data source
   const dataSource: LcMapItem[] = (isEdit && loanId ? apiData : value).map((item: any, index) => {
-    if (isEdit && loanId) {
-      // API data from LoanLcWithMapDto
+    // 判断是否是 API 返回的 LoanLcWithMapDto 格式（lcNo 在顶层）
+    const isApiFormat = 'lcNo' in item && !('newLc' in item);
+
+    if (isEdit && loanId || isApiFormat) {
+      // API data from LoanLcWithMapDto (编辑模式或 readOnly 模式下传入的详情数据)
       return {
         _key: `lc-${item.mapId || index}`,
         mapId: item.mapId,
@@ -134,6 +155,7 @@ const LcForm: React.FC<LcFormProps> = ({
         allocationNote: item.allocationNote,
         status: item.mapStatus,
         remark: item.mapRemark,
+        _attachments: item.attachments || [],
         newLc: {
           lcNo: item.lcNo,
           lcType: item.lcType,
@@ -166,7 +188,7 @@ const LcForm: React.FC<LcFormProps> = ({
         }
       };
     } else {
-      // Local value from CreateLoanLcMapDto
+      // Local value from CreateLoanLcMapDto (创建模式)
       return {
         ...item,
         _key: `lc-${index}`
@@ -351,7 +373,12 @@ const LcForm: React.FC<LcFormProps> = ({
         advisingChargeBorneBy: values.advisingChargeBorneBy,
         ucpVersion: values.ucpVersion,
         status: values.lcStatus,
-        remark: values.lcRemark
+        remark: values.lcRemark,
+        uploadedAttachments: lcAttachments.map(f => ({
+          attachmentId: f.attachmentId,
+          fileSize: f.fileSize,
+          operation: 'ADD' as const
+        }))
       };
 
       const mapData = {
@@ -412,6 +439,7 @@ const LcForm: React.FC<LcFormProps> = ({
       setModalVisible(false);
       form.resetFields();
       setEditingItem(null);
+      setLcAttachments([]);
     } catch (error: any) {
       if (!error?.errorFields) {
         message.error('操作失败');
@@ -495,21 +523,36 @@ const LcForm: React.FC<LcFormProps> = ({
       width: 120,
       render: (_, record) => record.newLc?.expiryDate || (record as any).existingLc?.expiryDate || '-'
     },
-    // 只在非只读模式下显示操作列
-    ...(!readOnly ? [{
+    {
       title: '操作',
       key: 'action',
       width: 80,
       align: 'center' as const,
       render: (_: any, record: LcMapItem) => {
-        const menuItems: MenuProps['items'] = [
-          {
+        const menuItems: MenuProps['items'] = [];
+
+        // 查看附件（有附件时显示）
+        if (record._attachments && record._attachments.length > 0) {
+          menuItems.push({
+            key: 'attachment',
+            icon: <PaperClipOutlined />,
+            label: '查看附件',
+            onClick: () => handleViewAttachments(record)
+          });
+        }
+
+        // 编辑和删除（非只读模式）
+        if (!readOnly) {
+          if (menuItems.length > 0) {
+            menuItems.push({ type: 'divider' });
+          }
+          menuItems.push({
             key: 'edit',
             icon: <EditOutlined />,
             label: '编辑',
             onClick: () => handleEdit(record)
-          },
-          {
+          });
+          menuItems.push({
             key: 'delete',
             icon: <DeleteOutlined />,
             label: '删除',
@@ -523,8 +566,10 @@ const LcForm: React.FC<LcFormProps> = ({
                 onOk: () => handleDelete(record)
               });
             }
-          }
-        ];
+          });
+        }
+
+        if (menuItems.length === 0) return null;
 
         return (
           <Dropdown menu={{ items: menuItems }} trigger={['click']}>
@@ -532,7 +577,7 @@ const LcForm: React.FC<LcFormProps> = ({
           </Dropdown>
         );
       }
-    }] : [])
+    }
   ];
 
   // 渲染选择已有信用证的 Tab 内容
@@ -901,6 +946,19 @@ const LcForm: React.FC<LcFormProps> = ({
               </Form.Item>
             </Col>
           </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="信用证附件">
+                <RaxUpload
+                  bizModule="FinLoanLc"
+                  value={lcAttachments}
+                  onChange={setLcAttachments}
+                  maxCount={10}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </>
       )}
     </>
@@ -935,8 +993,10 @@ const LcForm: React.FC<LcFormProps> = ({
           setModalVisible(false);
           setEditingItem(null);
           setSelectedLcIds([]);
+          setLcAttachments([]);
         }}
         width={960}
+        maskClosable={false}
         destroyOnHidden
       >
         <Form form={form} layout="vertical">
@@ -964,6 +1024,16 @@ const LcForm: React.FC<LcFormProps> = ({
           )}
         </Form>
       </Modal>}
+
+      <AttachmentViewModal
+        open={attachmentModalVisible}
+        onClose={() => {
+          setAttachmentModalVisible(false);
+          setViewingAttachments([]);
+        }}
+        attachments={viewingAttachments}
+        title="信用证附件"
+      />
     </>
   );
 };

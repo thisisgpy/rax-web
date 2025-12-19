@@ -422,7 +422,10 @@ const ReserveForm: React.FC = () => {
                   label="金融机构"
                   rules={[{ required: true, message: '请选择金融机构' }]}
                 >
-                  <InstitutionSelect placeholder="请选择金融机构" />
+                  <InstitutionSelect
+                    placeholder="请选择金融机构"
+                    initialLabel={reserveDetail?.financialInstitutionBranchName || reserveDetail?.financialInstitutionName}
+                  />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -724,6 +727,7 @@ const ReserveForm: React.FC = () => {
           setEditingCost(null);
           setCostType('');
         }}
+        maskClosable={false}
       >
         <Form
           form={costForm}

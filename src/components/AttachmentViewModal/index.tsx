@@ -29,6 +29,7 @@ const AttachmentViewModal: React.FC<AttachmentViewModalProps> = ({
         <Button onClick={onClose}>关闭</Button>
       }
       width={800}
+      maskClosable={false}
       destroyOnHidden
     >
       <AttachmentDisplay

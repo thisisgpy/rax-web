@@ -335,6 +335,7 @@ export const BankCard: React.FC = () => {
           bankCardForm.resetFields();
         }}
         footer={null}
+        maskClosable={false}
         width={600}
       >
         <Form

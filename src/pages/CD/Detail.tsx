@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { cdApi } from '@/services/cd';
 import { dictApi } from '@/services/dict';
 import AmountDisplay from '@/components/AmountDisplay';
+import AttachmentDisplay from '@/components/AttachmentDisplay';
 
 const CDDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -229,6 +230,18 @@ const CDDetail: React.FC = () => {
               <div style={{ color: '#262626', fontSize: 14, backgroundColor: '#fafafa', padding: 16, borderRadius: 4 }}>
                 {cdDetail.remark}
               </div>
+            </div>
+          )}
+
+          {/* 附件 */}
+          {cdDetail.attachments && cdDetail.attachments.length > 0 && (
+            <div style={{ marginBottom: 32 }}>
+              <SectionTitle title="附件" />
+              <AttachmentDisplay
+                attachments={cdDetail.attachments}
+                disableDelete
+                showDownload
+              />
             </div>
           )}
         </>

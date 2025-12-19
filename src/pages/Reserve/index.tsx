@@ -566,6 +566,7 @@ const Reserve: React.FC = () => {
         }}
         footer={null}
         width="70%"
+        maskClosable={false}
       >
         <Form form={progressForm}>
           <Table

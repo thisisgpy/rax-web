@@ -636,6 +636,7 @@ export const Dictionary: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={dictForm}
@@ -713,6 +714,7 @@ export const Dictionary: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={itemForm}

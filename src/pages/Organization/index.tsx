@@ -352,6 +352,7 @@ export const Organization: React.FC = () => {
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnHidden
         width={600}
+        maskClosable={false}
       >
         <Form
           form={form}

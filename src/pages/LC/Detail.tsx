@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { lcApi } from '@/services/lc';
 import { dictApi } from '@/services/dict';
 import AmountDisplay from '@/components/AmountDisplay';
+import AttachmentDisplay from '@/components/AttachmentDisplay';
 
 const LCDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -298,6 +299,18 @@ const LCDetail: React.FC = () => {
               <div style={{ color: '#262626', fontSize: 14, backgroundColor: '#fafafa', padding: 16, borderRadius: 4 }}>
                 {lcDetail.remark}
               </div>
+            </div>
+          )}
+
+          {/* 附件 */}
+          {lcDetail.attachments && lcDetail.attachments.length > 0 && (
+            <div style={{ marginBottom: 32 }}>
+              <SectionTitle title="附件" />
+              <AttachmentDisplay
+                attachments={lcDetail.attachments}
+                disableDelete
+                showDownload
+              />
             </div>
           )}
         </>

@@ -466,6 +466,7 @@ export const Users: React.FC = () => {
         }}
         footer={null}
         width={600}
+        maskClosable={false}
       >
         <Form
           form={userForm}
@@ -595,6 +596,7 @@ export const Users: React.FC = () => {
         ]}
         width={700}
         style={{ top: 50 }}
+        maskClosable={false}
       >
         <div style={{ minHeight: 200, maxHeight: 500 }}>
           {getUserRolesMutation.isPending ? (
@@ -697,6 +699,7 @@ export const Users: React.FC = () => {
           setUserRoles([]);
         }}
         confirmLoading={assignUserRoleMutation.isPending}
+        maskClosable={false}
         width={800}
         style={{ top: 50 }}
         okText="确认分配"

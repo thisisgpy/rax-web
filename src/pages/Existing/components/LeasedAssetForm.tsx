@@ -355,6 +355,7 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
           setEditingItem(null);
         }}
         width={720}
+        maskClosable={false}
       >
         <Form form={form} layout="vertical">
           <Row gutter={16}>

@@ -403,6 +403,7 @@ export const Resources: React.FC = () => {
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnHidden
         width={600}
+        maskClosable={false}
       >
         <Form
           form={form}
