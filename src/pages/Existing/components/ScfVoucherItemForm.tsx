@@ -115,7 +115,6 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
       form.setFieldsValue({
         ...record,
         underlyingAmount: record.underlyingAmount ? record.underlyingAmount / 1000000 : undefined,
-        issueDate: record.issueDate ? dayjs(record.issueDate) : undefined,
         dueDate: record.dueDate ? dayjs(record.dueDate) : undefined
       });
     }, 0);
@@ -159,9 +158,7 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
             coreCorpName: values.coreCorpName,
             debtorName: values.debtorName,
             underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
-            issueDate: values.issueDate?.format('YYYY-MM-DD'),
             dueDate: values.dueDate?.format('YYYY-MM-DD'),
-            status: values.status,
             remark: values.remark
           };
           const result = await scfVoucherItemApi.update(updateData);
@@ -179,9 +176,7 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
             coreCorpName: values.coreCorpName,
             debtorName: values.debtorName,
             underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
-            issueDate: values.issueDate?.format('YYYY-MM-DD'),
             dueDate: values.dueDate?.format('YYYY-MM-DD'),
-            status: values.status,
             remark: values.remark,
             fileAttachments
           };
@@ -201,9 +196,7 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
           coreCorpName: values.coreCorpName,
           debtorName: values.debtorName,
           underlyingAmount: values.underlyingAmount ? Math.round(values.underlyingAmount * 1000000) : undefined,
-          issueDate: values.issueDate?.format('YYYY-MM-DD'),
           dueDate: values.dueDate?.format('YYYY-MM-DD'),
-          status: values.status,
           remark: values.remark,
           fileAttachments
         };
@@ -352,7 +345,7 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
         width={720}
         maskClosable={false}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" component={false}>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="voucherNo" label="凭证编号">
@@ -386,21 +379,8 @@ const ScfVoucherItemForm: React.FC<ScfVoucherItemFormProps> = ({
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="issueDate" label="凭证生成日期">
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
               <Form.Item name="dueDate" label="到期日">
                 <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="status" label="状态">
-                <DictSelect dictCode="scf.voucher.status" placeholder="请选择" allowClear />
               </Form.Item>
             </Col>
           </Row>

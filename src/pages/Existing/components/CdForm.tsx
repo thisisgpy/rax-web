@@ -7,7 +7,6 @@ import {
   Input,
   InputNumber,
   DatePicker,
-  Switch,
   Space,
   Row,
   Col,
@@ -15,7 +14,6 @@ import {
   App,
   Dropdown,
   Descriptions,
-  Tag,
   Tabs
 } from 'antd';
 import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined, PaperClipOutlined } from '@ant-design/icons';
@@ -165,18 +163,10 @@ const CdForm: React.FC<CdFormProps> = ({
           currency: item.currency,
           principalAmount: item.principalAmount,
           interestRate: item.interestRate,
-          dayCountConvention: item.dayCountConvention,
-          interestPayFreq: item.interestPayFreq,
-          compoundFlag: item.compoundFlag,
           issueDate: item.issueDate,
           maturityDate: item.maturityDate,
           termMonths: item.termMonths,
-          autoRenewFlag: item.autoRenewFlag,
-          rolloverCount: item.rolloverCount,
-          certificateHolder: item.certificateHolder,
-          freezeFlag: item.freezeFlag,
-          status: item.cdStatus,
-          remark: item.cdRemark
+          remark: item.remark
         }
       };
     } else {
@@ -218,20 +208,12 @@ const CdForm: React.FC<CdFormProps> = ({
         cdNo: cdData?.cdNo,
         bankId: cdData?.bankId,
         cardId: cdData?.cardId,
-        currency: cdData?.currency || 'CNY',
+        currency: cdData?.currency || '人民币',
         principalAmount: cdData?.principalAmount ? cdData.principalAmount / 1000000 : undefined,
         interestRate: cdData?.interestRate,
-        dayCountConvention: cdData?.dayCountConvention,
-        interestPayFreq: cdData?.interestPayFreq,
-        compoundFlag: cdData?.compoundFlag,
         issueDate: cdData?.issueDate ? dayjs(cdData.issueDate) : undefined,
         maturityDate: cdData?.maturityDate ? dayjs(cdData.maturityDate) : undefined,
         termMonths: cdData?.termMonths,
-        autoRenewFlag: cdData?.autoRenewFlag,
-        rolloverCount: cdData?.rolloverCount,
-        certificateHolder: cdData?.certificateHolder,
-        freezeFlag: cdData?.freezeFlag,
-        cdStatus: cdData?.status,
         cdRemark: cdData?.remark
       });
     }, 0);
@@ -337,20 +319,12 @@ const CdForm: React.FC<CdFormProps> = ({
         cdNo: values.cdNo,
         bankId: values.bankId,
         cardId: values.cardId,
-        currency: values.currency || 'CNY',
+        currency: values.currency || '人民币',
         principalAmount: values.principalAmount ? Math.round(values.principalAmount * 1000000) : 0,
         interestRate: values.interestRate,
-        dayCountConvention: values.dayCountConvention,
-        interestPayFreq: values.interestPayFreq,
-        compoundFlag: values.compoundFlag,
         issueDate: values.issueDate?.format('YYYY-MM-DD'),
         maturityDate: values.maturityDate?.format('YYYY-MM-DD'),
         termMonths: values.termMonths,
-        autoRenewFlag: values.autoRenewFlag,
-        rolloverCount: values.rolloverCount,
-        certificateHolder: values.certificateHolder,
-        freezeFlag: values.freezeFlag,
-        status: values.cdStatus,
         remark: values.cdRemark,
         // 附件
         uploadedAttachments: cdAttachments.map(f => ({
@@ -572,7 +546,7 @@ const CdForm: React.FC<CdFormProps> = ({
   const renderSelectExistingTab = () => (
     <>
       {/* 搜索表单 */}
-      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }}>
+      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }} component={false}>
         <Form.Item name="cdNo" label="存单编号">
           <Input placeholder="请输入" style={{ width: 140 }} allowClear />
         </Form.Item>
@@ -727,15 +701,6 @@ const CdForm: React.FC<CdFormProps> = ({
           <Descriptions.Item label="名义利率">
             {editingItem.newCd?.interestRate != null ? `${editingItem.newCd.interestRate}%` : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="计息规则">
-            {editingItem.newCd?.dayCountConvention || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="付息频率">
-            {editingItem.newCd?.interestPayFreq || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="是否复利">
-            {editingItem.newCd?.compoundFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-          </Descriptions.Item>
           <Descriptions.Item label="期限(月)">
             {editingItem.newCd?.termMonths ?? '-'}
           </Descriptions.Item>
@@ -744,18 +709,6 @@ const CdForm: React.FC<CdFormProps> = ({
           </Descriptions.Item>
           <Descriptions.Item label="到期日">
             {editingItem.newCd?.maturityDate || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="存单持有人">
-            {editingItem.newCd?.certificateHolder || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="自动续存">
-            {editingItem.newCd?.autoRenewFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-          </Descriptions.Item>
-          <Descriptions.Item label="续存次数">
-            {editingItem.newCd?.rolloverCount ?? '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="冻结/质押">
-            {editingItem.newCd?.freezeFlag ? <Tag color="orange">是</Tag> : <Tag>否</Tag>}
           </Descriptions.Item>
           {editingItem.newCd?.remark && (
             <Descriptions.Item label="存单备注" span={3}>
@@ -789,7 +742,7 @@ const CdForm: React.FC<CdFormProps> = ({
               <Form.Item
                 name="currency"
                 label="币种"
-                initialValue="CNY"
+                initialValue="人民币"
                 rules={[{ required: true, message: '请选择币种' }]}
               >
                 <DictSelect dictCode="sys.currency" placeholder="请选择" />
@@ -810,24 +763,6 @@ const CdForm: React.FC<CdFormProps> = ({
             <Col span={8}>
               <Form.Item name="interestRate" label="名义利率(%)">
                 <InputNumber style={{ width: '100%' }} min={0} precision={4} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="dayCountConvention" label="计息规则">
-                <DictSelect dictCode="day.count.convention" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="interestPayFreq" label="付息频率">
-                <DictSelect dictCode="cd.interest.pay.freq" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -854,29 +789,6 @@ const CdForm: React.FC<CdFormProps> = ({
                 rules={[{ required: true, message: '请选择日期' }]}
               >
                 <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="certificateHolder" label="存单持有人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="rolloverCount" label="续存次数">
-                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
               </Form.Item>
             </Col>
           </Row>
@@ -941,7 +853,7 @@ const CdForm: React.FC<CdFormProps> = ({
         maskClosable={false}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" component={false}>
           {editingItem ? (
             // 编辑模式：直接显示创建/编辑表单
             renderCreateNewTab()

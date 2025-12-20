@@ -7,7 +7,6 @@ import {
   Input,
   InputNumber,
   DatePicker,
-  Switch,
   App,
   Dropdown,
   Row,
@@ -24,7 +23,6 @@ import type {
   SysAttachmentDto
 } from '@/types/swagger-api';
 import { factoringArItemApi } from '@/services/factoringArItem';
-import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
@@ -118,8 +116,7 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
         arFaceAmount: record.arFaceAmount ? record.arFaceAmount / 1000000 : undefined,
         assignedAmount: record.assignedAmount ? record.assignedAmount / 1000000 : undefined,
         issueDate: record.issueDate ? dayjs(record.issueDate) : undefined,
-        dueDate: record.dueDate ? dayjs(record.dueDate) : undefined,
-        paidDate: record.paidDate ? dayjs(record.paidDate) : undefined
+        dueDate: record.dueDate ? dayjs(record.dueDate) : undefined
       });
     }, 0);
   };
@@ -159,13 +156,10 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
             id: editingItem.id,
             invoiceNo: values.invoiceNo,
             debtorName: values.debtorName,
-            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : undefined,
             assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
             issueDate: values.issueDate?.format('YYYY-MM-DD'),
             dueDate: values.dueDate?.format('YYYY-MM-DD'),
-            paidFlag: values.paidFlag,
-            paidDate: values.paidDate?.format('YYYY-MM-DD'),
-            status: values.status,
             remark: values.remark
           };
           const result = await factoringArItemApi.update(updateData);
@@ -180,13 +174,10 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
           const createData: CreateFactoringArItemDto = {
             invoiceNo: values.invoiceNo,
             debtorName: values.debtorName,
-            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+            arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : undefined,
             assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
             issueDate: values.issueDate?.format('YYYY-MM-DD'),
             dueDate: values.dueDate?.format('YYYY-MM-DD'),
-            paidFlag: values.paidFlag,
-            paidDate: values.paidDate?.format('YYYY-MM-DD'),
-            status: values.status,
             remark: values.remark,
             fileAttachments
           };
@@ -203,13 +194,10 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
         const newItem: CreateFactoringArItemDto = {
           invoiceNo: values.invoiceNo,
           debtorName: values.debtorName,
-          arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : 0,
+          arFaceAmount: values.arFaceAmount ? Math.round(values.arFaceAmount * 1000000) : undefined,
           assignedAmount: values.assignedAmount ? Math.round(values.assignedAmount * 1000000) : undefined,
           issueDate: values.issueDate?.format('YYYY-MM-DD'),
           dueDate: values.dueDate?.format('YYYY-MM-DD'),
-          paidFlag: values.paidFlag,
-          paidDate: values.paidDate?.format('YYYY-MM-DD'),
-          status: values.status,
           remark: values.remark,
           fileAttachments
         };
@@ -271,13 +259,6 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
       dataIndex: 'dueDate',
       key: 'dueDate',
       width: 110
-    },
-    {
-      title: '已回款',
-      dataIndex: 'paidFlag',
-      key: 'paidFlag',
-      width: 80,
-      render: (val) => val ? '是' : '否'
     },
     {
       title: '操作',
@@ -367,23 +348,15 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
         width={720}
         maskClosable={false}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" component={false}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="invoiceNo"
-                label="发票号/应收编号"
-                rules={[{ required: true, message: '请输入' }]}
-              >
+              <Form.Item name="invoiceNo" label="发票号/应收编号">
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="debtorName"
-                label="买方/债务人"
-                rules={[{ required: true, message: '请输入' }]}
-              >
+              <Form.Item name="debtorName" label="买方/债务人">
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
@@ -391,11 +364,7 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="arFaceAmount"
-                label="应收票面金额（万元）"
-                rules={[{ required: true, message: '请输入' }]}
-              >
+              <Form.Item name="arFaceAmount" label="应收票面金额（万元）">
                 <InputNumber style={{ width: '100%' }} min={0} precision={6} placeholder="请输入" />
               </Form.Item>
             </Col>
@@ -408,44 +377,18 @@ const FactoringArItemForm: React.FC<FactoringArItemFormProps> = ({
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="issueDate"
-                label="开具/形成日期"
-                rules={[{ required: true, message: '请选择' }]}
-              >
+              <Form.Item name="issueDate" label="开具/形成日期">
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="dueDate"
-                label="到期日"
-                rules={[{ required: true, message: '请选择' }]}
-              >
+              <Form.Item name="dueDate" label="到期日">
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
 
           <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="paidFlag" label="是否已回款" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="paidDate" label="回款日期">
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="status" label="状态">
-                <DictSelect dictCode="factoring.ar.status" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
             <Col span={12}>
               <Form.Item name="remark" label="备注">
                 <Input.TextArea rows={2} placeholder="请输入" />

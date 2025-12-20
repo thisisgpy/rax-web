@@ -147,7 +147,7 @@ const LC: React.FC = () => {
       title: '信用证编号',
       dataIndex: 'lcNo',
       key: 'lcNo',
-      width: 150,
+      width: 130,
       fixed: 'left'
     },
     {
@@ -184,13 +184,6 @@ const LC: React.FC = () => {
       key: 'expiryDate',
       width: 110,
       render: (value) => value ? dayjs(value).format('YYYY-MM-DD') : '-'
-    },
-    {
-      title: '是否保兑',
-      dataIndex: 'confirmFlag',
-      key: 'confirmFlag',
-      width: 90,
-      render: (value) => value ? <Tag color="blue">是</Tag> : <Tag>否</Tag>
     },
     {
       title: '状态',

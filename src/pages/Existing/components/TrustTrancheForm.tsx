@@ -21,7 +21,6 @@ import type {
   SysAttachmentDto
 } from '@/types/swagger-api';
 import { trustTrancheApi } from '@/services/trustTranche';
-import DictSelect from '@/components/DictSelect';
 import RaxUpload from '@/components/RaxUpload';
 import type { UploadedFile } from '@/components/RaxUpload';
 import AmountDisplay from '@/components/AmountDisplay';
@@ -151,12 +150,8 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
           const updateData: UpdateTrustTrancheDto = {
             id: editingItem.id,
             trancheName: values.trancheName,
-            trancheLevel: values.trancheLevel,
-            paymentRank: values.paymentRank,
             subscribeAmount: values.subscribeAmount ? Math.round(values.subscribeAmount * 1000000) : undefined,
-            sharePct: values.sharePct,
             expectedYieldRate: values.expectedYieldRate,
-            distributionRule: values.distributionRule,
             remark: values.remark
           };
           const result = await trustTrancheApi.update(updateData);
@@ -170,12 +165,8 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
         } else {
           const createData: CreateTrustTrancheDto = {
             trancheName: values.trancheName,
-            trancheLevel: values.trancheLevel,
-            paymentRank: values.paymentRank,
             subscribeAmount: values.subscribeAmount ? Math.round(values.subscribeAmount * 1000000) : undefined,
-            sharePct: values.sharePct,
             expectedYieldRate: values.expectedYieldRate,
-            distributionRule: values.distributionRule,
             remark: values.remark,
             fileAttachments
           };
@@ -191,12 +182,8 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
       } else {
         const newItem: CreateTrustTrancheDto = {
           trancheName: values.trancheName,
-          trancheLevel: values.trancheLevel,
-          paymentRank: values.paymentRank,
           subscribeAmount: values.subscribeAmount ? Math.round(values.subscribeAmount * 1000000) : undefined,
-          sharePct: values.sharePct,
           expectedYieldRate: values.expectedYieldRate,
-          distributionRule: values.distributionRule,
           remark: values.remark,
           fileAttachments
         };
@@ -229,30 +216,11 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
       key: 'trancheName'
     },
     {
-      title: '分层级别',
-      dataIndex: 'trancheLevel',
-      key: 'trancheLevel',
-      width: 100
-    },
-    {
-      title: '清偿顺序',
-      dataIndex: 'paymentRank',
-      key: 'paymentRank',
-      width: 80
-    },
-    {
       title: '认购金额',
       dataIndex: 'subscribeAmount',
       key: 'subscribeAmount',
       width: 140,
       render: (val) => val ? <AmountDisplay value={val} /> : '-'
-    },
-    {
-      title: '份额占比',
-      dataIndex: 'sharePct',
-      key: 'sharePct',
-      width: 100,
-      render: (val) => val ? `${val}%` : '-'
     },
     {
       title: '预期收益率',
@@ -350,24 +318,11 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
           width={720}
           maskClosable={false}
         >
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" component={false}>
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item name="trancheName" label="分层名称">
                   <Input placeholder="请输入" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="trancheLevel" label="分层级别">
-                  <DictSelect dictCode="trust.tranche.level" placeholder="请选择" allowClear />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item name="paymentRank" label="清偿顺序">
-                  <InputNumber style={{ width: '100%' }} min={1} precision={0} placeholder="请输入" />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -379,21 +334,8 @@ const TrustTrancheForm: React.FC<TrustTrancheFormProps> = ({
 
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item name="sharePct" label="份额占比(%)">
-                  <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} placeholder="请输入" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
                 <Form.Item name="expectedYieldRate" label="预期收益率(%)">
                   <InputNumber style={{ width: '100%' }} min={0} precision={4} placeholder="请输入" />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item name="distributionRule" label="收益分配规则">
-                  <Input.TextArea rows={2} placeholder="请输入" />
                 </Form.Item>
               </Col>
               <Col span={12}>

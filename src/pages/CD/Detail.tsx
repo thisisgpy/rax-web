@@ -3,7 +3,6 @@ import {
   Card,
   Button,
   Space,
-  Tag,
   Divider,
   Row,
   Col,
@@ -36,24 +35,6 @@ const CDDetail: React.FC = () => {
   });
 
   // 获取字典数据
-  const { data: dayCountConventionDict } = useQuery({
-    queryKey: ['dict', 'day.count.convention'],
-    queryFn: () => dictApi.getItemTreeByCode('day.count.convention'),
-    staleTime: 5 * 60 * 1000
-  });
-
-  const { data: interestPayFreqDict } = useQuery({
-    queryKey: ['dict', 'cd.interest.pay.freq'],
-    queryFn: () => dictApi.getItemTreeByCode('cd.interest.pay.freq'),
-    staleTime: 5 * 60 * 1000
-  });
-
-  const { data: statusDict } = useQuery({
-    queryKey: ['dict', 'cd.status'],
-    queryFn: () => dictApi.getItemTreeByCode('cd.status'),
-    staleTime: 5 * 60 * 1000
-  });
-
   const { data: currencyDict } = useQuery({
     queryKey: ['dict', 'sys.currency'],
     queryFn: () => dictApi.getItemTreeByCode('sys.currency'),
@@ -118,10 +99,6 @@ const CDDetail: React.FC = () => {
                 <Typography.Title level={4} style={{ margin: 0 }}>
                   {cdDetail.cdNo}
                 </Typography.Title>
-                {cdDetail.freezeFlag && <Tag color="orange">已质押/冻结</Tag>}
-                {cdDetail.status && (
-                  <Tag color="blue">{getDictLabel(statusDict, cdDetail.status)}</Tag>
-                )}
               </Space>
             </div>
             <div style={{ color: '#8c8c8c', fontSize: 14, marginBottom: 24 }}>
@@ -130,7 +107,7 @@ const CDDetail: React.FC = () => {
             <Row gutter={48}>
               <Col>
                 <div style={{ color: '#8c8c8c', fontSize: 14, marginBottom: 4 }}>
-                  本金 ({getDictLabel(currencyDict, cdDetail.currency) || 'CNY'})
+                  本金 ({getDictLabel(currencyDict, cdDetail.currency) || '人民币'})
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 500, color: '#262626' }}>
                   <AmountDisplay value={cdDetail.principalAmount} style={{ fontSize: 20, fontWeight: 500 }} />
@@ -187,16 +164,6 @@ const CDDetail: React.FC = () => {
               <InfoItem label="名义利率">
                 {cdDetail.interestRate != null ? `${cdDetail.interestRate}%` : '-'}
               </InfoItem>
-              <InfoItem label="计息规则">
-                {getDictLabel(dayCountConventionDict, cdDetail.dayCountConvention)}
-              </InfoItem>
-
-              <InfoItem label="付息频率">
-                {getDictLabel(interestPayFreqDict, cdDetail.interestPayFreq)}
-              </InfoItem>
-              <InfoItem label="是否复利">
-                {cdDetail.compoundFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-              </InfoItem>
               <InfoItem label="期限">{cdDetail.termMonths != null ? `${cdDetail.termMonths} 个月` : '-'}</InfoItem>
             </Row>
           </div>
@@ -210,15 +177,6 @@ const CDDetail: React.FC = () => {
               </InfoItem>
               <InfoItem label="到期日">
                 {cdDetail.maturityDate ? dayjs(cdDetail.maturityDate).format('YYYY-MM-DD') : '-'}
-              </InfoItem>
-              <InfoItem label="存单持有人">{cdDetail.certificateHolder || '-'}</InfoItem>
-
-              <InfoItem label="是否自动续存">
-                {cdDetail.autoRenewFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-              </InfoItem>
-              <InfoItem label="续存次数">{cdDetail.rolloverCount ?? '-'}</InfoItem>
-              <InfoItem label="冻结/质押状态">
-                {cdDetail.freezeFlag ? <Tag color="orange">是</Tag> : <Tag>否</Tag>}
               </InfoItem>
             </Row>
           </div>

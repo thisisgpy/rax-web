@@ -535,7 +535,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
   const renderSelectAssetContent = () => (
     <>
       {/* 搜索表单 */}
-      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }}>
+      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }} component={false}>
         <Form.Item name="name" label="资产名称">
           <Input placeholder="请输入" style={{ width: 140 }} allowClear />
         </Form.Item>
@@ -783,7 +783,7 @@ const FixedAssetMapForm: React.FC<FixedAssetMapFormProps> = ({
           maskClosable={false}
           destroyOnHidden
         >
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" component={false}>
             {editingItem ? renderEditContent() : renderSelectAssetContent()}
           </Form>
         </Modal>

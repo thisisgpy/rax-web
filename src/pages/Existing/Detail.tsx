@@ -217,7 +217,7 @@ const ExistingDetail: React.FC = () => {
             <Row gutter={48}>
               <Col>
                 <div style={{ color: '#8c8c8c', fontSize: 14, marginBottom: 4 }}>
-                  合同金额 ({getDictLabel(currencyDict, loanDetail.currency || '') || 'CNY'})
+                  合同金额 ({getDictLabel(currencyDict, loanDetail.currency || '') || '人民币'})
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 500, color: '#262626' }}>
                   <AmountDisplay value={loanDetail.contractAmount} style={{ fontSize: 20, fontWeight: 500 }} />

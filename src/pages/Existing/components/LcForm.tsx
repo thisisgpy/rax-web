@@ -7,7 +7,6 @@ import {
   Input,
   InputNumber,
   DatePicker,
-  Switch,
   Space,
   Row,
   Col,
@@ -15,7 +14,6 @@ import {
   App,
   Dropdown,
   Descriptions,
-  Tag,
   Tabs
 } from 'antd';
 import { PlusOutlined, SettingOutlined, EditOutlined, DeleteOutlined, SearchOutlined, PaperClipOutlined } from '@ant-design/icons';
@@ -161,28 +159,13 @@ const LcForm: React.FC<LcFormProps> = ({
           lcType: item.lcType,
           issuingBankId: item.issuingBankId,
           issuingBankName: item.issuingBankName,
-          advisingBankId: item.advisingBankId,
-          confirmFlag: item.confirmFlag,
-          applicant: item.applicant,
           beneficiary: item.beneficiary,
           currency: item.currency,
           lcAmount: item.lcAmount,
-          tolerancePct: item.tolerancePct,
           issueDate: item.issueDate,
           expiryDate: item.expiryDate,
-          placeOfExpiry: item.placeOfExpiry,
-          availableBy: item.availableBy,
-          presentationDays: item.presentationDays,
-          shipmentFrom: item.shipmentFrom,
-          shipmentTo: item.shipmentTo,
-          latestShipment: item.latestShipment,
-          partialShipmentAllowed: item.partialShipmentAllowed,
-          transshipmentAllowed: item.transshipmentAllowed,
           marginRatio: item.marginRatio,
           marginAmount: item.marginAmount,
-          commissionRate: item.commissionRate,
-          advisingChargeBorneBy: item.advisingChargeBorneBy,
-          ucpVersion: item.ucpVersion,
           status: item.lcStatus,
           remark: item.lcRemark
         }
@@ -223,29 +206,13 @@ const LcForm: React.FC<LcFormProps> = ({
         lcNo: lcData?.lcNo,
         lcType: lcData?.lcType,
         issuingBankId: lcData?.issuingBankId,
-        advisingBankId: lcData?.advisingBankId,
-        confirmFlag: lcData?.confirmFlag,
-        applicant: lcData?.applicant,
         beneficiary: lcData?.beneficiary,
-        currency: lcData?.currency || 'CNY',
+        currency: lcData?.currency || '人民币',
         lcAmount: lcData?.lcAmount ? lcData.lcAmount / 1000000 : undefined,
-        tolerancePct: lcData?.tolerancePct,
         issueDate: lcData?.issueDate ? dayjs(lcData.issueDate) : undefined,
         expiryDate: lcData?.expiryDate ? dayjs(lcData.expiryDate) : undefined,
-        placeOfExpiry: lcData?.placeOfExpiry,
-        availableBy: lcData?.availableBy,
-        shipmentFrom: lcData?.shipmentFrom,
-        shipmentTo: lcData?.shipmentTo,
-        latestShipment: lcData?.latestShipment,
-        incoterm: lcData?.incoterm,
-        presentationDays: lcData?.presentationDays,
-        partialShipmentAllowed: lcData?.partialShipmentAllowed,
-        transshipmentAllowed: lcData?.transshipmentAllowed,
         marginRatio: lcData?.marginRatio,
         marginAmount: lcData?.marginAmount ? lcData.marginAmount / 1000000 : undefined,
-        commissionRate: lcData?.commissionRate,
-        advisingChargeBorneBy: lcData?.advisingChargeBorneBy,
-        ucpVersion: lcData?.ucpVersion,
         lcStatus: lcData?.status,
         lcRemark: lcData?.remark
       });
@@ -349,29 +316,13 @@ const LcForm: React.FC<LcFormProps> = ({
         lcNo: values.lcNo,
         lcType: values.lcType,
         issuingBankId: values.issuingBankId,
-        advisingBankId: values.advisingBankId,
-        confirmFlag: values.confirmFlag,
-        applicant: values.applicant,
         beneficiary: values.beneficiary,
-        currency: values.currency || 'CNY',
+        currency: values.currency || '人民币',
         lcAmount: values.lcAmount ? Math.round(values.lcAmount * 1000000) : 0,
-        tolerancePct: values.tolerancePct,
         issueDate: values.issueDate?.format('YYYY-MM-DD'),
         expiryDate: values.expiryDate?.format('YYYY-MM-DD'),
-        placeOfExpiry: values.placeOfExpiry,
-        availableBy: values.availableBy,
-        shipmentFrom: values.shipmentFrom,
-        shipmentTo: values.shipmentTo,
-        latestShipment: values.latestShipment,
-        incoterm: values.incoterm,
-        presentationDays: values.presentationDays,
-        partialShipmentAllowed: values.partialShipmentAllowed,
-        transshipmentAllowed: values.transshipmentAllowed,
         marginRatio: values.marginRatio,
         marginAmount: values.marginAmount ? Math.round(values.marginAmount * 1000000) : undefined,
-        commissionRate: values.commissionRate,
-        advisingChargeBorneBy: values.advisingChargeBorneBy,
-        ucpVersion: values.ucpVersion,
         status: values.lcStatus,
         remark: values.lcRemark,
         uploadedAttachments: lcAttachments.map(f => ({
@@ -458,7 +409,7 @@ const LcForm: React.FC<LcFormProps> = ({
   // 未关联信用证表格列
   const unlinkedColumns: ColumnsType<LoanLcDto> = [
     { title: '信用证编号', dataIndex: 'lcNo', key: 'lcNo', width: 140 },
-    { title: '开证行', dataIndex: 'issuingBankName', key: 'issuingBankName', ellipsis: true },
+    { title: '开证行', dataIndex: 'issuingBank', key: 'issuingBank', ellipsis: true },
     {
       title: '金额',
       dataIndex: 'lcAmount',
@@ -467,9 +418,9 @@ const LcForm: React.FC<LcFormProps> = ({
       render: (val) => val ? <AmountDisplay value={val} /> : '-'
     },
     {
-      title: '申请人',
-      dataIndex: 'applicant',
-      key: 'applicant',
+      title: '受益人',
+      dataIndex: 'beneficiary',
+      key: 'beneficiary',
       width: 100,
       ellipsis: true
     },
@@ -492,6 +443,7 @@ const LcForm: React.FC<LcFormProps> = ({
     {
       title: '信用证编号',
       key: 'lcNo',
+      width: 160,
       render: (_, record) => record.newLc?.lcNo || (record as any).existingLc?.lcNo || '-'
     },
     {
@@ -584,7 +536,7 @@ const LcForm: React.FC<LcFormProps> = ({
   const renderSelectExistingTab = () => (
     <>
       {/* 搜索表单 */}
-      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }}>
+      <Form form={searchForm} layout="inline" style={{ marginBottom: 16 }} component={false}>
         <Form.Item name="lcNo" label="信用证编号">
           <Input placeholder="请输入" style={{ width: 140 }} allowClear />
         </Form.Item>
@@ -705,41 +657,14 @@ const LcForm: React.FC<LcFormProps> = ({
               <AmountDisplay value={editingItem.newLc.lcAmount} />
             ) : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="金额容差">
-            {editingItem.newLc?.tolerancePct != null ? `${editingItem.newLc.tolerancePct}%` : '-'}
+          <Descriptions.Item label="受益人">
+            {editingItem.newLc?.beneficiary || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="开证日期">
             {editingItem.newLc?.issueDate || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="到期日">
             {editingItem.newLc?.expiryDate || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="到期地点">
-            {editingItem.newLc?.placeOfExpiry || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="是否保兑">
-            {editingItem.newLc?.confirmFlag ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-          </Descriptions.Item>
-          <Descriptions.Item label="可用方式">
-            {editingItem.newLc?.availableBy || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="交单期限">
-            {editingItem.newLc?.presentationDays != null ? `${editingItem.newLc.presentationDays}天` : '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="申请人">
-            {editingItem.newLc?.applicant || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="受益人">
-            {editingItem.newLc?.beneficiary || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="装运港">
-            {editingItem.newLc?.shipmentFrom || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="卸货港">
-            {editingItem.newLc?.shipmentTo || '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="最迟装运期">
-            {editingItem.newLc?.latestShipment || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="保证金比例">
             {editingItem.newLc?.marginRatio != null ? `${editingItem.newLc.marginRatio}%` : '-'}
@@ -748,15 +673,6 @@ const LcForm: React.FC<LcFormProps> = ({
             {editingItem.newLc?.marginAmount ? (
               <AmountDisplay value={editingItem.newLc.marginAmount} />
             ) : '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="开证费率">
-            {editingItem.newLc?.commissionRate != null ? `${editingItem.newLc.commissionRate}%` : '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label="允许分批装运">
-            {editingItem.newLc?.partialShipmentAllowed ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
-          </Descriptions.Item>
-          <Descriptions.Item label="允许转运">
-            {editingItem.newLc?.transshipmentAllowed ? <Tag color="blue">是</Tag> : <Tag>否</Tag>}
           </Descriptions.Item>
           <Descriptions.Item label="状态">
             {editingItem.newLc?.status || '-'}
@@ -798,28 +714,15 @@ const LcForm: React.FC<LcFormProps> = ({
 
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="advisingBankId" label="通知/保兑行">
-                <InstitutionSelect placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="confirmFlag" label="是否保兑" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
               <Form.Item
                 name="currency"
                 label="币种"
-                initialValue="CNY"
+                initialValue="人民币"
                 rules={[{ required: true, message: '请选择币种' }]}
               >
                 <DictSelect dictCode="sys.currency" placeholder="请选择" />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 name="lcAmount"
@@ -830,10 +733,13 @@ const LcForm: React.FC<LcFormProps> = ({
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="tolerancePct" label="金额容差(%)">
-                <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
+              <Form.Item name="beneficiary" label="受益人">
+                <Input placeholder="请输入" />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 name="issueDate"
@@ -843,9 +749,6 @@ const LcForm: React.FC<LcFormProps> = ({
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 name="expiryDate"
@@ -856,49 +759,8 @@ const LcForm: React.FC<LcFormProps> = ({
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="placeOfExpiry" label="到期地点">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="availableBy" label="可用方式">
-                <DictSelect dictCode="lc.available.by" placeholder="请选择" allowClear />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="applicant" label="申请人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="beneficiary" label="受益人">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="presentationDays" label="交单期限(天)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="shipmentFrom" label="装运港">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="shipmentTo" label="卸货港">
-                <Input placeholder="请输入" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="latestShipment" label="最迟装运期">
-                <Input placeholder="请输入" />
+              <Form.Item name="lcStatus" label="状态">
+                <DictSelect dictCode="lc.status" placeholder="请选择" allowClear />
               </Form.Item>
             </Col>
           </Row>
@@ -912,29 +774,6 @@ const LcForm: React.FC<LcFormProps> = ({
             <Col span={8}>
               <Form.Item name="marginAmount" label="保证金金额（万元）">
                 <InputNumber style={{ width: '100%' }} min={0} precision={6} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="commissionRate" label="开证费率(%)">
-                <InputNumber style={{ width: '100%' }} min={0} precision={4} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item name="partialShipmentAllowed" label="允许分批装运" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="transshipmentAllowed" label="允许转运" valuePropName="checked">
-                <Switch checkedChildren="是" unCheckedChildren="否" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="lcStatus" label="状态">
-                <DictSelect dictCode="lc.status" placeholder="请选择" allowClear />
               </Form.Item>
             </Col>
           </Row>
@@ -999,7 +838,7 @@ const LcForm: React.FC<LcFormProps> = ({
         maskClosable={false}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" component={false}>
           {editingItem ? (
             // 编辑模式：直接显示创建/编辑表单
             renderCreateNewTab()

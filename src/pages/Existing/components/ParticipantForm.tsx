@@ -380,7 +380,7 @@ const ParticipantForm: React.FC<ParticipantFormProps> = ({
           width={600}
           maskClosable={false}
         >
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" component={false}>
             <Form.Item
               name="role"
               label="角色"

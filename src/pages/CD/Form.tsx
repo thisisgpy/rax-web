@@ -4,7 +4,6 @@ import {
   Input,
   InputNumber,
   DatePicker,
-  Switch,
   Button,
   Space,
   Row,
@@ -61,17 +60,9 @@ const CDForm: React.FC = () => {
         currency: cdDetail.currency,
         principalAmount: cdDetail.principalAmount ? cdDetail.principalAmount / 1000000 : undefined,
         interestRate: cdDetail.interestRate,
-        dayCountConvention: cdDetail.dayCountConvention,
-        interestPayFreq: cdDetail.interestPayFreq,
-        compoundFlag: cdDetail.compoundFlag,
         issueDate: cdDetail.issueDate ? dayjs(cdDetail.issueDate) : undefined,
         maturityDate: cdDetail.maturityDate ? dayjs(cdDetail.maturityDate) : undefined,
         termMonths: cdDetail.termMonths,
-        autoRenewFlag: cdDetail.autoRenewFlag,
-        rolloverCount: cdDetail.rolloverCount,
-        certificateHolder: cdDetail.certificateHolder,
-        freezeFlag: cdDetail.freezeFlag,
-        status: cdDetail.status,
         remark: cdDetail.remark
       });
 
@@ -165,17 +156,9 @@ const CDForm: React.FC = () => {
         currency: values.currency,
         principalAmount: values.principalAmount ? Math.round(values.principalAmount * 1000000) : 0,
         interestRate: values.interestRate,
-        dayCountConvention: values.dayCountConvention,
-        interestPayFreq: values.interestPayFreq,
-        compoundFlag: values.compoundFlag,
         issueDate: values.issueDate?.format('YYYY-MM-DD'),
         maturityDate: values.maturityDate?.format('YYYY-MM-DD'),
         termMonths: values.termMonths,
-        autoRenewFlag: values.autoRenewFlag,
-        rolloverCount: values.rolloverCount,
-        certificateHolder: values.certificateHolder,
-        freezeFlag: values.freezeFlag,
-        status: values.status,
         remark: values.remark
       };
 
@@ -251,7 +234,7 @@ const CDForm: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ currency: 'CNY' }}
+          initialValues={{ currency: '人民币' }}
         >
           {/* 基本信息 */}
           <div style={{ marginBottom: 32 }}>
@@ -301,20 +284,6 @@ const CDForm: React.FC = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={8}>
-                <Form.Item name="certificateHolder" label="存单持有人">
-                  <Input placeholder="请输入存单持有人" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="status" label="状态">
-                  <DictSelect
-                    dictCode="cd.status"
-                    placeholder="请选择状态"
-                    allowClear
-                  />
-                </Form.Item>
-              </Col>
             </Row>
           </div>
 
@@ -354,28 +323,6 @@ const CDForm: React.FC = () => {
               </Col>
             </Row>
 
-            <Row gutter={24}>
-              <Col span={8}>
-                <Form.Item name="autoRenewFlag" label="是否自动续存" valuePropName="checked">
-                  <Switch checkedChildren="是" unCheckedChildren="否" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="rolloverCount" label="续存次数">
-                  <InputNumber
-                    style={{ width: '100%' }}
-                    min={0}
-                    precision={0}
-                    placeholder="请输入续存次数"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="freezeFlag" label="是否冻结/质押" valuePropName="checked">
-                  <Switch checkedChildren="是" unCheckedChildren="否" />
-                </Form.Item>
-              </Col>
-            </Row>
           </div>
 
           <Divider style={{ margin: '0 0 32px 0' }} />
@@ -392,32 +339,6 @@ const CDForm: React.FC = () => {
                     precision={4}
                     placeholder="请输入利率"
                   />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="dayCountConvention" label="计息规则">
-                  <DictSelect
-                    dictCode="day.count.convention"
-                    placeholder="请选择计息规则"
-                    allowClear
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="interestPayFreq" label="付息频率">
-                  <DictSelect
-                    dictCode="cd.interest.pay.freq"
-                    placeholder="请选择付息频率"
-                    allowClear
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={24}>
-              <Col span={8}>
-                <Form.Item name="compoundFlag" label="是否复利" valuePropName="checked">
-                  <Switch checkedChildren="是" unCheckedChildren="否" />
                 </Form.Item>
               </Col>
             </Row>

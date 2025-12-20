@@ -1076,17 +1076,9 @@ export interface LoanCdDto {
   currency: string;                        // 币种 sys.currency
   principalAmount: number;                 // 本金(分)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则 day.count.convention
-  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
-  compoundFlag?: boolean;                  // 是否复利
-  issueDate: string;                       // 起息/开立日
+  issueDate: string;                       // 起息日
   maturityDate: string;                    // 到期日
   termMonths?: number;                     // 期限(月)
-  autoRenewFlag?: boolean;                 // 是否自动续存
-  rolloverCount?: number;                  // 续存次数
-  certificateHolder?: string;              // 存单持有人/名义户
-  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
-  status?: string;                         // 状态
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1103,17 +1095,9 @@ export interface CreateLoanCdDto {
   currency: string;                        // 币种 (必填) sys.currency
   principalAmount: number;                 // 本金(分) (必填)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则 day.count.convention
-  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
-  compoundFlag?: boolean;                  // 是否复利
-  issueDate: string;                       // 起息/开立日 (必填)
+  issueDate: string;                       // 起息日 (必填)
   maturityDate: string;                    // 到期日 (必填)
   termMonths?: number;                     // 期限(月)
-  autoRenewFlag?: boolean;                 // 是否自动续存
-  rolloverCount?: number;                  // 续存次数
-  certificateHolder?: string;              // 存单持有人/名义户
-  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
-  status?: string;                         // 状态
   remark?: string;                         // 备注
   uploadedAttachments?: AttachmentOperationDto[]; // 上传的附件
 }
@@ -1127,17 +1111,9 @@ export interface UpdateLoanCdDto {
   currency: string;                        // 币种 (必填) sys.currency
   principalAmount: number;                 // 本金(分) (必填)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则 day.count.convention
-  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
-  compoundFlag?: boolean;                  // 是否复利
-  issueDate: string;                       // 起息/开立日 (必填)
+  issueDate: string;                       // 起息日 (必填)
   maturityDate: string;                    // 到期日 (必填)
   termMonths?: number;                     // 期限(月)
-  autoRenewFlag?: boolean;                 // 是否自动续存
-  rolloverCount?: number;                  // 续存次数
-  certificateHolder?: string;              // 存单持有人/名义户
-  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
-  status?: string;                         // 状态
   remark?: string;                         // 备注
   attachmentOperations?: AttachmentOperationDto[]; // 附件操作
 }
@@ -1153,8 +1129,6 @@ export interface QueryLoanCdDto extends PageRequest {
   issueDateEnd?: string;                   // 起息日结束
   maturityDateStart?: string;              // 到期日开始
   maturityDateEnd?: string;                // 到期日结束
-  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
-  status?: string;                         // 状态
 }
 
 // 存单及关联信息DTO
@@ -1177,18 +1151,9 @@ export interface LoanCdWithMapDto {
   currency?: string;                       // 币种 sys.currency
   principalAmount?: number;                // 本金(分)
   interestRate?: number;                   // 名义利率(%)
-  dayCountConvention?: string;             // 计息规则 day.count.convention
-  interestPayFreq?: string;                // 付息频率 cd.interest.pay.freq
-  compoundFlag?: boolean;                  // 是否复利
-  issueDate?: string;                      // 起息/开立日
+  issueDate?: string;                      // 起息日
   maturityDate?: string;                   // 到期日
   termMonths?: number;                     // 期限(月)
-  autoRenewFlag?: boolean;                 // 是否自动续存
-  rolloverCount?: number;                  // 续存次数
-  certificateHolder?: string;              // 存单持有人/名义户
-  freezeFlag?: boolean;                    // 是否处于冻结/质押状态
-  cdStatus?: string;                       // 存单状态
-  cdRemark?: string;                       // 存单备注
   attachments?: SysAttachmentDto[];        // 存单附件列表
 }
 
@@ -1231,9 +1196,6 @@ export interface FactoringArItemDto {
   assignedAmount?: number;                 // 转让/已融资金额(分)
   issueDate: string;                       // 开具/应收形成日期
   dueDate: string;                         // 到期日
-  paidFlag?: boolean;                      // 是否已回款
-  paidDate?: string;                       // 回款日期
-  status?: string;                         // 状态 factoring.ar.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1244,15 +1206,12 @@ export interface FactoringArItemDto {
 
 // 创建保理应收明细请求
 export interface CreateFactoringArItemDto {
-  invoiceNo: string;                       // 发票号/应收编号 (必填)
-  debtorName: string;                      // 买方/债务人名称 (必填)
-  arFaceAmount: number;                    // 应收票面金额(分) (必填)
+  invoiceNo?: string;                       // 发票号/应收编号 (必填)
+  debtorName?: string;                      // 买方/债务人名称 (必填)
+  arFaceAmount?: number;                    // 应收票面金额(分) (必填)
   assignedAmount?: number;                 // 转让/已融资金额(分)
-  issueDate: string;                       // 开具/应收形成日期 (必填)
-  dueDate: string;                         // 到期日 (必填)
-  paidFlag?: boolean;                      // 是否已回款
-  paidDate?: string;                       // 回款日期
-  status?: string;                         // 状态 factoring.ar.status
+  issueDate?: string;                       // 开具/应收形成日期 (必填)
+  dueDate?: string;                         // 到期日 (必填)
   remark?: string;                         // 备注
   fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
 }
@@ -1260,15 +1219,12 @@ export interface CreateFactoringArItemDto {
 // 更新保理应收明细请求
 export interface UpdateFactoringArItemDto {
   id: number;                              // 主键ID (必填)
-  invoiceNo: string;                       // 发票号/应收编号 (必填)
-  debtorName: string;                      // 买方/债务人名称 (必填)
-  arFaceAmount: number;                    // 应收票面金额(分) (必填)
+  invoiceNo?: string;                       // 发票号/应收编号 (必填)
+  debtorName?: string;                      // 买方/债务人名称 (必填)
+  arFaceAmount?: number;                    // 应收票面金额(分) (必填)
   assignedAmount?: number;                 // 转让/已融资金额(分)
-  issueDate: string;                       // 开具/应收形成日期 (必填)
-  dueDate: string;                         // 到期日 (必填)
-  paidFlag?: boolean;                      // 是否已回款
-  paidDate?: string;                       // 回款日期
-  status?: string;                         // 状态 factoring.ar.status
+  issueDate?: string;                       // 开具/应收形成日期 (必填)
+  dueDate?: string;                         // 到期日 (必填)
   remark?: string;                         // 备注
   attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
 }
@@ -1278,8 +1234,6 @@ export interface QueryFactoringArItemDto {
   loanId?: number;                         // 关联贷款ID
   invoiceNo?: string;                      // 发票号/应收编号
   debtorName?: string;                     // 买方/债务人名称
-  paidFlag?: boolean;                      // 是否已回款
-  status?: string;                         // 状态
   issueDateStart?: string;                 // 开具日期开始
   issueDateEnd?: string;                   // 开具日期结束
   dueDateStart?: string;                   // 到期日开始
@@ -1360,9 +1314,7 @@ export interface ScfVoucherItemDto {
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
   underlyingAmount?: number;               // 底层金额(分)
-  issueDate?: string;                      // 凭证/订单生成日期
   dueDate?: string;                        // 到期日/预计回款日
-  status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1378,9 +1330,7 @@ export interface CreateScfVoucherItemDto {
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
   underlyingAmount?: number;               // 底层金额(分)
-  issueDate?: string;                      // 凭证/订单生成日期
   dueDate?: string;                        // 到期日/预计回款日
-  status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
   fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
 }
@@ -1393,9 +1343,7 @@ export interface UpdateScfVoucherItemDto {
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
   underlyingAmount?: number;               // 底层金额(分)
-  issueDate?: string;                      // 凭证/订单生成日期
   dueDate?: string;                        // 到期日/预计回款日
-  status?: string;                         // 状态 scf.voucher.status
   remark?: string;                         // 备注
   attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
 }
@@ -1407,11 +1355,10 @@ export interface QueryScfVoucherItemDto {
   voucherType?: string;                    // 凭证类型 scf.voucher.type
   coreCorpName?: string;                   // 核心企业名称
   debtorName?: string;                     // 债务人/付款方
-  status?: string;                         // 状态 scf.voucher.status
-  issueDateStart?: string;                 // 凭证生成日期开始
-  issueDateEnd?: string;                   // 凭证生成日期结束
   dueDateStart?: string;                   // 到期日开始
   dueDateEnd?: string;                     // 到期日结束
+  underlyingAmountMin?: number;             // 底层金额下限
+  underlyingAmountMax?: number;             // 底层金额上限
 }
 
 // ===== 信托分层类型 =====
@@ -1421,12 +1368,8 @@ export interface TrustTrancheDto {
   id: number;                              // 主键ID
   loanId: number;                          // 关联贷款ID
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
-  paymentRank?: number;                    // 清偿顺序
   subscribeAmount?: number;                // 认购金额(分)
-  sharePct?: number;                       // 份额占比(%)
   expectedYieldRate?: number;              // 预期收益率(%)
-  distributionRule?: string;               // 收益分配规则
   remark?: string;                         // 备注
   createTime?: string;                     // 创建时间
   createBy?: string;                       // 创建人
@@ -1438,12 +1381,8 @@ export interface TrustTrancheDto {
 // 创建信托分层明细请求
 export interface CreateTrustTrancheDto {
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
-  paymentRank?: number;                    // 清偿顺序
   subscribeAmount?: number;                // 认购金额(分)
-  sharePct?: number;                       // 份额占比(%)
   expectedYieldRate?: number;              // 预期收益率(%)
-  distributionRule?: string;               // 收益分配规则
   remark?: string;                         // 备注
   fileAttachments?: AttachmentOperationDto[]; // 文件附件列表
 }
@@ -1452,12 +1391,8 @@ export interface CreateTrustTrancheDto {
 export interface UpdateTrustTrancheDto {
   id: number;                              // 主键ID (必填)
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
-  paymentRank?: number;                    // 清偿顺序
   subscribeAmount?: number;                // 认购金额(分)
-  sharePct?: number;                       // 份额占比(%)
   expectedYieldRate?: number;              // 预期收益率(%)
-  distributionRule?: string;               // 收益分配规则
   remark?: string;                         // 备注
   attachmentOperations?: AttachmentOperationDto[]; // 附件操作列表
 }
@@ -1466,7 +1401,6 @@ export interface UpdateTrustTrancheDto {
 export interface QueryTrustTrancheDto {
   loanId?: number;                         // 关联贷款ID
   trancheName?: string;                    // 分层名称
-  trancheLevel?: string;                   // 分层级别/类型 trust.tranche.level
 }
 
 // ===== 固定资产融资关联类型 =====

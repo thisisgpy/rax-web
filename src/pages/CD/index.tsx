@@ -10,10 +10,8 @@ import {
   Row,
   Col,
   App,
-  Tag,
   Dropdown,
-  Popconfirm,
-  Select
+  Popconfirm
 } from 'antd';
 import {
   PlusOutlined,
@@ -61,8 +59,6 @@ const CD: React.FC = () => {
 
       if (values.cdNo) params.cdNo = values.cdNo;
       if (values.bankId) params.bankId = values.bankId;
-      if (values.freezeFlag !== undefined) params.freezeFlag = values.freezeFlag;
-      if (values.status) params.status = values.status;
 
       // 处理起息日范围
       if (values.issueDateRange) {
@@ -161,20 +157,6 @@ const CD: React.FC = () => {
       render: (value) => value ? dayjs(value).format('YYYY-MM-DD') : '-'
     },
     {
-      title: '持有人',
-      dataIndex: 'certificateHolder',
-      key: 'certificateHolder',
-      width: 120,
-      ellipsis: true
-    },
-    {
-      title: '冻结/质押',
-      dataIndex: 'freezeFlag',
-      key: 'freezeFlag',
-      width: 90,
-      render: (value) => value ? <Tag color="orange">是</Tag> : <Tag>否</Tag>
-    },
-    {
       title: '操作',
       key: 'action',
       fixed: 'right',
@@ -253,22 +235,6 @@ const CD: React.FC = () => {
               <InstitutionSelect placeholder="请选择开立银行" allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item name="freezeFlag" label="冻结/质押状态" style={{ marginBottom: 16 }}>
-              <Select
-                placeholder="请选择"
-                allowClear
-                style={{ width: '100%' }}
-                options={[
-                  { label: '是', value: true },
-                  { label: '否', value: false }
-                ]}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 16]}>
           <Col span={6}>
             <Form.Item name="issueDateRange" label="起息日" style={{ marginBottom: 16 }}>
               <RangePicker

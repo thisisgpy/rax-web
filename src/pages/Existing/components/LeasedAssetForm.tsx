@@ -357,7 +357,7 @@ const LeasedAssetForm: React.FC<LeasedAssetFormProps> = ({
         width={720}
         maskClosable={false}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" component={false}>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="assetCodeSnapshot" label="资产编码">

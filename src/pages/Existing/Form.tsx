@@ -288,7 +288,7 @@ const ExistingForm: React.FC = () => {
         institutionId: values.institutionId,
         institutionName: values.institutionName,
         contractAmount: values.contractAmount ? Math.round(values.contractAmount * 1000000) : 0,
-        currency: values.currency || 'CNY',
+        currency: values.currency || '人民币',
         isMultiDisb: values.isMultiDisb || false,
         termMonths: values.termMonths,
         maturityDate: values.maturityDate?.format('YYYY-MM-DD'),
@@ -474,7 +474,6 @@ const ExistingForm: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
-        requiredMark="optional"
       >
         {/* 基础信息区块 */}
         <div style={{ marginBottom: 32 }}>
@@ -551,7 +550,7 @@ const ExistingForm: React.FC = () => {
               <Form.Item
                 name="currency"
                 label="币种"
-                initialValue="CNY"
+                initialValue="人民币"
               >
                 <DictSelect
                   dictCode="sys.currency"
